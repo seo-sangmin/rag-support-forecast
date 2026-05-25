@@ -28,7 +28,19 @@ class Config:
     tavily_snippet_chars: int = 2000
 
     concurrency: int = 8
-    llm_max_retries: int = 2
+    # Outer-loop retries for our own backoff; the SDK does its own retries
+    # underneath (see ``llm_sdk_max_retries``).
+    llm_max_retries: int = 3
+    # Retries inside the Anthropic SDK; the SDK respects ``retry-after``
+    # headers and applies exponential backoff between attempts.
+    llm_sdk_max_retries: int = 5
+
+    # Anthropic Tier-1 per-minute budgets. Defaults match Sonnet (the
+    # tightest of the three active-tier limits) so the same settings are
+    # safe for Haiku and well below Opus.
+    requests_per_minute: int = 45
+    input_tokens_per_minute: int = 28_000
+    output_tokens_per_minute: int = 7_500
 
     raw_dir: Path = field(default_factory=lambda: REPO_ROOT / "data" / "raw")
     cache_dir: Path = field(default_factory=lambda: REPO_ROOT / "data" / "cache")
