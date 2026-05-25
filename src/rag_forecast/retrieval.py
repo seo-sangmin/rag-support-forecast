@@ -2,8 +2,17 @@ from __future__ import annotations
 
 import asyncio
 import os
+import re
 from datetime import timedelta
 from typing import Any
+
+_EG_SPLIT = re.compile(r"\n\s*\n\s*e\.g\.", re.IGNORECASE)
+
+
+def _shorten_query(text: str, limit: int = 400) -> str:
+    if len(text) <= limit:
+        return text
+    return _EG_SPLIT.split(text, maxsplit=1)[0].rstrip()
 
 from tavily import TavilyClient
 
@@ -37,7 +46,7 @@ class TavilyRetriever:
         end = q.freeze_datetime.date()
         start = end - timedelta(days=self.cfg.lookback_days)
         payload = {
-            "query": q.question,
+            "query": _shorten_query(q.question),
             "start_date": start.isoformat(),
             "end_date": end.isoformat(),
             "max_results": self.cfg.tavily_max_results,
