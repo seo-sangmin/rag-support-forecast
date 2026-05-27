@@ -78,6 +78,30 @@ CLI flags for `run_experiment.py`:
 Both LLM and Tavily calls are cached on disk under `data/cache/` keyed by a
 SHA-256 of their inputs, so reruns are free.
 
+### Rate limits
+
+Anthropic calls are throttled in-process against three per-minute budgets
+(requests, input tokens, output tokens) so a full run stays under Tier-1
+limits without tripping 429s. Defaults match Sonnet's Tier-1 budget — the
+tightest of the three active models — with a ~10% safety margin, so the same
+settings are safe for Haiku and well below Opus:
+
+| setting | default | Tier-1 limit (Sonnet / Haiku / Opus) |
+| --- | --- | --- |
+| `requests_per_minute` | `45` | 50 / 50 / 50 |
+| `input_tokens_per_minute` | `28_000` | 30K / 50K / 500K |
+| `output_tokens_per_minute` | `7_500` | 8K / 10K / 80K |
+
+Each call reserves its budget conservatively up front (input estimated from
+prompt length, output reserved at `max_tokens`) and then commits the real
+`usage.input_tokens` / `usage.output_tokens` from the response so the
+windows self-correct. On a 429 that survives the SDK's built-in
+`retry-after`-aware retries, the limiter is parked for the server-supplied
+cool-down and the call is re-tried with exponential backoff + jitter
+(`llm_max_retries=3` outer attempts, `llm_sdk_max_retries=5` inside the
+SDK). Override any of these on the `Config` dataclass if you are on a
+different tier.
+
 ## Outputs
 
 `data/results/run_<timestamp>.csv` — one row per question with columns:
@@ -107,10 +131,11 @@ retrieval improves its calibrated forecast.
 
 ```
 src/rag_forecast/
-  config.py        — Config dataclass (model, paths, dates, concurrency)
+  config.py        — Config dataclass (model, paths, dates, concurrency, rate limits)
   data.py          — ForecastBench fetch + join + binary filter + template fill
   retrieval.py     — Tavily wrapper, date-bounded, snippet-truncated, cached
-  forecasting.py   — Anthropic AsyncAnthropic, strict-JSON parse, cached
+  forecasting.py   — Anthropic AsyncAnthropic, rate-limited + retrying, strict-JSON parse, cached
+  rate_limiter.py  — async sliding-window RPM/ITPM/OTPM limiter with self-correction
   prompts.py       — system prompts for prior and posterior elicitation
   metrics.py       — brier, z_tentori_crupi, spearman
   cache.py         — content-hash JSON cache
@@ -118,7 +143,7 @@ src/rag_forecast/
 scripts/
   run_experiment.py
   analyze_results.py
-tests/             — unit tests for metrics and the data loader
+tests/             — unit tests for metrics, the data loader, and the rate limiter
 ```
 
 ## Tests
@@ -129,7 +154,9 @@ pytest -q
 
 Covers the Brier formula at extremes, both branches and bounds of the
 Crupi–Tentori Z, Spearman on perfect / anti-correlated / degenerate inputs,
-and a fixture-based smoke test of the question/resolution loader.
+a fixture-based smoke test of the question/resolution loader, and the
+sliding-window rate limiter (acquire/commit, window expiry, `retry-after`
+parsing, concurrency safety).
 
 ## Design choices
 
@@ -144,6 +171,10 @@ and a fixture-based smoke test of the question/resolution loader.
   manifold, metaculus, polymarket, wikipedia, yfinance).
 - **Caching**: required, since reruns during analysis would otherwise burn
   API credits.
+- **Throttling over erroring**: proactive rate limiting plus
+  `retry-after`-aware backoff is preferred over letting the SDK raise
+  `RateLimitError` mid-run, because cached partial progress is small and a
+  long sweep across ~1000 questions otherwise compounds 429 noise.
 - **Temperature 0**: maximizes reproducibility; relies on the model's chain of
   reasoning at decoding time rather than ensembling samples.
 
