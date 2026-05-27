@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import csv
+import random
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -68,14 +69,115 @@ async def _process(
     )
 
 
-async def run(cfg: Config, max_questions: int | None, out_csv: Path) -> int:
+def _load_processed(
+    paths: list[Path] | None,
+) -> tuple[set[tuple[str, str]], list[dict]]:
+    """Return ((id, source) keys already processed, prior rows verbatim).
+
+    First-seen wins on duplicates across paths, so passing the most recent
+    CSV last preserves the earliest recorded values.
+    """
+    if not paths:
+        return set(), []
+    keys: set[tuple[str, str]] = set()
+    rows: list[dict] = []
+    for p in paths:
+        if not p.exists():
+            raise FileNotFoundError(f"--resume-from path not found: {p}")
+        with p.open(newline="") as f:
+            reader = csv.DictReader(f)
+            missing = {"id", "source"} - set(reader.fieldnames or [])
+            if missing:
+                raise ValueError(f"{p}: missing required columns {sorted(missing)}")
+            for r in reader:
+                k = (r["id"], r["source"])
+                if k in keys:
+                    continue
+                keys.add(k)
+                rows.append(r)
+    return keys, rows
+
+
+def _filter_questions(
+    questions: list[ResolvedQuestion], processed: set[tuple[str, str]]
+) -> list[ResolvedQuestion]:
+    return [q for q in questions if (q.id, q.source) not in processed]
+
+
+def _sample_questions(
+    questions: list[ResolvedQuestion], n: int, seed: int
+) -> list[ResolvedQuestion]:
+    """Random subsample of size min(n, len(questions)) using a seeded RNG."""
+    k = min(n, len(questions))
+    return random.Random(seed).sample(questions, k)
+
+
+def _write_combined_csv(
+    prior_rows: list[dict], new_rows: list[Row], out_csv: Path
+) -> None:
+    fieldnames = list(Row.__annotations__.keys())
+    seen: set[tuple[str, str]] = set()
+    out_csv.parent.mkdir(parents=True, exist_ok=True)
+    with out_csv.open("w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
+        w.writeheader()
+        for r in prior_rows:
+            k = (r.get("id", ""), r.get("source", ""))
+            if k in seen:
+                continue
+            seen.add(k)
+            w.writerow({c: r.get(c, "") for c in fieldnames})
+        for r in new_rows:
+            k = (r.id, r.source)
+            if k in seen:
+                continue
+            seen.add(k)
+            w.writerow(asdict(r))
+
+
+async def run(
+    cfg: Config,
+    max_questions: int | None,
+    out_csv: Path,
+    *,
+    random_sample: bool = False,
+    seed: int = 0,
+    resume_from: list[Path] | None = None,
+) -> int:
     questions: list[ResolvedQuestion] = []
     for date in cfg.question_set_dates:
         questions.extend(load_resolved_questions(date, cfg))
-    if max_questions is not None:
-        questions = questions[:max_questions]
+    total_loaded = len(questions)
 
-    print(f"Loaded {len(questions)} resolved binary questions")
+    processed_keys, prior_rows = _load_processed(resume_from)
+    if processed_keys:
+        questions = _filter_questions(questions, processed_keys)
+        print(
+            f"Loaded {total_loaded}; excluding {len(processed_keys)} "
+            f"already-processed; {len(questions)} remain"
+        )
+    else:
+        print(f"Loaded {total_loaded} resolved binary questions")
+
+    if max_questions is not None:
+        if random_sample:
+            if max_questions > len(questions):
+                print(
+                    f"  ! requested N={max_questions} > pool={len(questions)}, "
+                    f"sampling all"
+                )
+            questions = _sample_questions(questions, max_questions, seed)
+        else:
+            questions = questions[:max_questions]
+
+    if not questions:
+        print(
+            f"Nothing new to process; rewriting prior {len(prior_rows)} "
+            f"rows to {out_csv}"
+        )
+        _write_combined_csv(prior_rows, [], out_csv)
+        return 0
+
     forecaster = ForecastClient(cfg)
     retriever = TavilyRetriever(cfg)
     sem = asyncio.Semaphore(cfg.concurrency)
@@ -89,11 +191,7 @@ async def run(cfg: Config, max_questions: int | None, out_csv: Path) -> int:
         if i % 5 == 0 or i == len(tasks):
             print(f"  progress: {i}/{len(tasks)}")
 
-    out_csv.parent.mkdir(parents=True, exist_ok=True)
-    with out_csv.open("w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=list(Row.__annotations__.keys()))
-        writer.writeheader()
-        for r in rows:
-            writer.writerow(asdict(r))
-    print(f"Wrote {len(rows)} rows to {out_csv}")
+    _write_combined_csv(prior_rows, rows, out_csv)
+    total = len(prior_rows) + len(rows)
+    print(f"Wrote {len(rows)} new rows ({total} total) to {out_csv}")
     return len(rows)

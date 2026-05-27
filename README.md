@@ -72,11 +72,39 @@ CLI flags for `run_experiment.py`:
 | --- | --- | --- |
 | `--question-sets` | `2025-10-26` | comma-separated YYYY-MM-DD ForecastBench dates |
 | `--max-questions` | (no cap) | process at most N questions |
+| `--random` | off | with `--max-questions N`, pick N at random instead of the first N |
+| `--seed` | `0` | RNG seed for `--random` (fixed default = reproducible) |
+| `--resume-from` | none | one or more prior result CSV paths; their `(id, source)` rows are excluded from sampling and merged into the new output |
 | `--lookback-days` | `60` | Tavily `start_date` offset before `freeze_datetime` |
 | `--out` | timestamped | output CSV path |
 
 Both LLM and Tavily calls are cached on disk under `data/cache/` keyed by a
 SHA-256 of their inputs, so reruns are free.
+
+### Iterative runs
+
+`--resume-from` lets you chip away at the full dataset across multiple runs
+without re-spending tokens on questions you've already processed. Each
+output CSV is a full superset of all prior runs it resumes from — always
+pass the *latest* CSV to `analyze_results.py`.
+
+```bash
+# Pass 1: 100 random samples
+python scripts/run_experiment.py --max-questions 100 --random --seed 1 \
+    --out data/results/iter1.csv
+
+# Pass 2: 100 more, excluding the first 100, merged into iter2.csv
+python scripts/run_experiment.py --max-questions 100 --random --seed 2 \
+    --resume-from data/results/iter1.csv \
+    --out data/results/iter2.csv
+
+# Pass 3: 100 more again
+python scripts/run_experiment.py --max-questions 100 --random --seed 3 \
+    --resume-from data/results/iter2.csv \
+    --out data/results/iter3.csv
+
+python scripts/analyze_results.py data/results/iter3.csv
+```
 
 ### Rate limits
 
