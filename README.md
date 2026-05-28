@@ -153,6 +153,46 @@ A positive `rho` (with low p-value) supports the hypothesis: questions where
 the LLM updates more strongly given evidence are also the ones where
 retrieval improves its calibrated forecast.
 
+## Results
+
+The latest run (`data/results/iter2.csv`, `iter2_summary.json`) covers
+**99 binary questions** sampled across 7 ForecastBench sources:
+
+| source | n |
+| --- | --- |
+| yfinance | 21 |
+| wikipedia | 20 |
+| fred | 20 |
+| dbnomics | 15 |
+| acled | 14 |
+| polymarket | 8 |
+| infer | 1 |
+
+Headline numbers:
+
+| metric | value |
+| --- | --- |
+| `spearman_abs_z_vs_brier_delta` | **ρ = 0.453, p = 2.5 × 10⁻⁶** |
+| `mean_brier_h` (prior) | 0.160 |
+| `mean_brier_he` (posterior) | 0.137 |
+| `mean_brier_delta` (improvement) | +0.023 |
+| `frac_brier_improved` | 0.556 |
+| `mean_abs_z` | 0.385 |
+| `frac_z_positive` | 0.404 |
+
+**The hypothesis is supported.** The magnitude of the self-reported
+Crupi–Tentori update `|Z|` is positively and significantly rank-correlated
+with the per-question Brier improvement (ρ = 0.45, p ≈ 2.5 × 10⁻⁶ over
+n = 99): questions where the model updates more strongly on retrieved
+evidence are also the ones where retrieval most improves its calibrated
+forecast. Retrieval helped on average (mean Brier dropped 0.160 → 0.137),
+though only on a slim majority of questions (55.6%), and the model's updates
+were more often downward than upward (`frac_z_positive` = 0.40).
+
+These figures supersede the earlier 9-question smoke run
+(`iter1_summary.json`), where the same correlation (ρ = 0.55) was not yet
+significant (p ≈ 0.12) at that sample size.
+
 ## Project layout
 
 ```
