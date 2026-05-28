@@ -19,9 +19,10 @@ Brier-score improvement.
 ## Method
 
 1. Load ForecastBench question + resolution sets dated **2025-10-26** and keep
-   only entries with binary outcomes (`resolved_to ∈ {0, 1}`). Templated
-   variables in question text (`{resolution_date}`, `{forecast_due_date}`)
-   are filled in.
+   only entries with binary outcomes (`resolved_to ∈ {0, 1}`). When a question
+   is resolved at multiple horizons, only the **earliest** `resolution_date`
+   per `(id, source)` is kept. Templated variables in question text
+   (`{resolution_date}`, `{forecast_due_date}`) are filled in.
 2. Elicit **P(H)** from `claude-haiku-4-5-20251001` (temperature 0) using only
    the question text, criteria, and background.
 3. Retrieve evidence with **Tavily** bounded to
@@ -220,7 +221,8 @@ pytest -q
 
 Covers the Brier formula at extremes, both branches and bounds of the
 Crupi–Tentori Z, Spearman on perfect / anti-correlated / degenerate inputs,
-a fixture-based smoke test of the question/resolution loader, and the
+fixture-based tests of the question/resolution loader (binary filtering /
+joining and earliest-`resolution_date` selection per `(id, source)`), and the
 sliding-window rate limiter (acquire/commit, window expiry, `retry-after`
 parsing, concurrency safety).
 
