@@ -30,6 +30,26 @@ def main() -> None:
         help="Cap on the number of questions to process.",
     )
     parser.add_argument(
+        "--random",
+        action="store_true",
+        help="When set with --max-questions, sample N at random from the pool "
+        "instead of taking the first N. Seeded by --seed for reproducibility.",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=0,
+        help="RNG seed for --random sampling (default: 0). Ignored without --random.",
+    )
+    parser.add_argument(
+        "--resume-from",
+        type=Path,
+        nargs="+",
+        default=None,
+        help="One or more prior results CSV paths. Their (id, source) rows "
+        "are excluded from sampling and merged into the new output CSV.",
+    )
+    parser.add_argument(
         "--lookback-days",
         type=int,
         default=60,
@@ -50,7 +70,16 @@ def main() -> None:
         else cfg.results_dir
         / f"run_{datetime.now(tz=timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.csv"
     )
-    asyncio.run(run(cfg, args.max_questions, out_path))
+    asyncio.run(
+        run(
+            cfg,
+            args.max_questions,
+            out_path,
+            random_sample=args.random,
+            seed=args.seed,
+            resume_from=args.resume_from,
+        )
+    )
 
 
 if __name__ == "__main__":
