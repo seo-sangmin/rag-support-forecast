@@ -1,0 +1,24 @@
+id,source,question,freeze_datetime,resolution_date,outcome,p_h,p_he,n_evidence,brier_h,brier_he,brier_delta,z,abs_z
+9e689e10d06d0f1429c1880d45995e0a2f8d7bee963366562791b4183527d7df,acled,"Will there be more 'Battles' in Bosnia and Herzegovina for the 30 days before 2025-11-25 compared to the 30-day average of 'Battles' over the 360 days preceding 2025-10-26?
+
+e.g. If the forecast due date is 2024-01-01 and we have the following data:
+Date,'Battles'
+2023-11-11,1
+2023-10-10,2
+to calculate the 30-day average of 'Battles' over the preceding 360 days, we’d have: (1+2)/12=0.25.
+
+In this example, for the question to resolve positively, 1 or more 'Battles' would need to occur in the 30 days leading up to the resolution.",2025-10-16T00:00:00+00:00,2025-11-25,0.0,0.35,0.25,8,0.12249999999999998,0.0625,0.059999999999999984,-0.28571428571428564,0.28571428571428564
+0x07c96dbd0f70e5a27a0e15c22042abcc57bc6acc7f740f7935e0a08cde5e5138,polymarket,Will the U.S. collect between $500b and $1t in revenue in 2025?,2025-10-16T00:00:00+00:00,2026-02-28,0.0,0.02,0.01,8,0.0004,0.0001,0.00030000000000000003,-0.5,0.5
+6b1c68a507fa625722143674cac09c96d837fd8efb49e20bb9a3d5ee14d1cc99,wikipedia,"According to Wikipedia, will a vaccine have been developed for Group A streptococcal infection by 2025-11-02?",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.15,0.08,8,0.0225,0.0064,0.0161,-0.4666666666666666,0.4666666666666666
+MRK,yfinance,"Will MRK's market close price on 2026-01-24 be higher than its market close price on 2025-10-26?
+
+Stock splits and reverse splits will be accounted for in resolving this question. Forecasts on questions about companies that have been delisted (through mergers or bankruptcy) will resolve to their final close price.",2025-10-16T00:00:00+00:00,2026-01-24,1.0,0.57,0.92,8,0.18490000000000004,0.006399999999999993,0.17850000000000005,0.8139534883720931,0.8139534883720931
+cd6801b8a20588d4cdac5d6f486b2b61e70ded89ed9bb2ecc65f4812fe432586,wikipedia,"According to Wikipedia, will Shakhriyar Mamedyarov have a FIDE ranking on 2026-01-24 as high or higher than their ranking on 2025-10-26?",2025-10-16T00:00:00+00:00,2026-01-24,0.0,0.62,0.15,8,0.3844,0.0225,0.3619,-0.7580645161290323,0.7580645161290323
+TAP,yfinance,"Will TAP's market close price on 2026-01-24 be higher than its market close price on 2025-10-26?
+
+Stock splits and reverse splits will be accounted for in resolving this question. Forecasts on questions about companies that have been delisted (through mergers or bankruptcy) will resolve to their final close price.",2025-10-16T00:00:00+00:00,2026-01-24,1.0,0.48,0.85,8,0.27040000000000003,0.022500000000000006,0.2479,0.7115384615384615,0.7115384615384615
+777e45ec0e466493a45b8a56e8569b124b04f9f49da990393971011932c7cd13,wikipedia,"According to Wikipedia, will a vaccine have been developed for Rocky Mountain spotted fever (RMSF) by 2026-04-24?",2025-10-16T00:00:00+00:00,2026-04-24,0.0,0.12,0.05,8,0.0144,0.0025000000000000005,0.011899999999999999,-0.5833333333333333,0.5833333333333333
+KHC,yfinance,"Will KHC's market close price on 2026-04-24 be higher than its market close price on 2025-10-26?
+
+Stock splits and reverse splits will be accounted for in resolving this question. Forecasts on questions about companies that have been delisted (through mergers or bankruptcy) will resolve to their final close price.",2025-10-16T00:00:00+00:00,2026-04-24,0.0,0.48,0.35,8,0.2304,0.12249999999999998,0.10790000000000001,-0.27083333333333337,0.27083333333333337
+NFCIRISK,fred,Will the Chicago Fed's National Financial Conditions Risk Subindex have increased by 2026-01-24 as compared to its value on 2025-10-26?,2025-10-16T00:00:00+00:00,2026-01-24,0.0,0.48,0.05,8,0.2304,0.0025000000000000005,0.2279,-0.8958333333333334,0.8958333333333334
