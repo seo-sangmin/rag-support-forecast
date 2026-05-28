@@ -234,9 +234,11 @@ parsing, concurrency safety).
   news that effectively reveals the outcome.
 - **Lookback**: 60 days before `freeze_datetime` — captures recent reporting
   without flooding the LLM with stale context.
-- **Question scope**: a single set (`2025-10-26-llm.json`) yields ~1000
-  binary-resolved questions across 9 sources (acled, dbnomics, fred, infer,
-  manifold, metaculus, polymarket, wikipedia, yfinance).
+- **Question scope**: a single set (`2025-10-26-llm.json`) holds 500 questions;
+  1073 are resolved with binary outcomes across multiple resolution horizons,
+  which collapse to **348 unique questions** (one per `(id, source)`, earliest
+  `resolution_date`) spanning 9 sources (acled, dbnomics, fred, infer, manifold,
+  metaculus, polymarket, wikipedia, yfinance).
 - **Caching**: required, since reruns during analysis would otherwise burn
   API credits.
 - **Throttling over erroring**: proactive rate limiting plus
