@@ -70,7 +70,10 @@ def load_resolved_questions(date: str, cfg: Config) -> list[ResolvedQuestion]:
             "{forecast_due_date}", forecast_due_date
         )
 
-    resolved: list[ResolvedQuestion] = []
+    # ForecastBench resolves some questions at multiple horizons; keep only the
+    # earliest resolution_date per (id, source). resolution_date is ISO
+    # YYYY-MM-DD, so string comparison is chronological.
+    earliest: dict[tuple[str, str], ResolvedQuestion] = {}
     for r in resolutions["resolutions"]:
         if not r.get("resolved"):
             continue
@@ -82,19 +85,20 @@ def load_resolved_questions(date: str, cfg: Config) -> list[ResolvedQuestion]:
         if q is None:
             continue
         resolution_date = str(r["resolution_date"])
-        resolved.append(
-            ResolvedQuestion(
-                id=str(q["id"]),
-                source=q["source"],
-                question=_fill(q["question"], resolution_date),
-                background=_fill(q.get("background") or "", resolution_date),
-                resolution_criteria=_fill(
-                    q.get("resolution_criteria") or "", resolution_date
-                ),
-                freeze_datetime=_parse_dt(q["freeze_datetime"]),
-                freeze_value=_safe_float(q.get("freeze_datetime_value")),
-                resolution_date=resolution_date,
-                outcome=float(outcome),
-            )
+        prev = earliest.get(key)
+        if prev is not None and prev.resolution_date <= resolution_date:
+            continue
+        earliest[key] = ResolvedQuestion(
+            id=str(q["id"]),
+            source=q["source"],
+            question=_fill(q["question"], resolution_date),
+            background=_fill(q.get("background") or "", resolution_date),
+            resolution_criteria=_fill(
+                q.get("resolution_criteria") or "", resolution_date
+            ),
+            freeze_datetime=_parse_dt(q["freeze_datetime"]),
+            freeze_value=_safe_float(q.get("freeze_datetime_value")),
+            resolution_date=resolution_date,
+            outcome=float(outcome),
         )
-    return resolved
+    return list(earliest.values())
