@@ -119,7 +119,7 @@ n_evidence, brier_h, brier_he, brier_delta, z, abs_z`.
 
 ## Results
 
-The latest run (`run3.csv`, `run3_summary.json`) covers **100 binary
+The latest run (data/results/run3) covers **100 binary
 questions** sampled across 9 ForecastBench sources:
 
 | source | n |
