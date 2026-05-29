@@ -12,27 +12,26 @@ test the following hypothesis on binary forecasting questions from
 
 The experiment elicits two probabilities from Claude Haiku 4.5 for each
 question — the prior P(H) (no retrieval) and the posterior P(H|E) (with
-date-bounded Tavily evidence) — and then checks whether the magnitude of the
-Crupi–Tentori confirmation measure |Z| ranks-correlates with the per-question
+date-bounded Tavily evidence) — then checks whether the magnitude of the
+Crupi–Tentori confirmation measure |Z| rank-correlates with the per-question
 Brier-score improvement.
 
 ## Method
 
 1. Load ForecastBench question + resolution sets dated **2025-10-26** and keep
    only entries with binary outcomes (`resolved_to ∈ {0, 1}`). When a question
-   is resolved at multiple horizons, only the **earliest** `resolution_date`
-   per `(id, source)` is kept. Templated variables in question text
-   (`{resolution_date}`, `{forecast_due_date}`) are filled in.
+   resolves at multiple horizons, keep only the **earliest** `resolution_date`
+   per `(id, source)`. Fill templated variables in question text
+   (`{resolution_date}`, `{forecast_due_date}`).
 2. Elicit **P(H)** from `claude-haiku-4-5-20251001` (temperature 0) using only
    the question text, criteria, and background.
 3. Retrieve evidence with **Tavily** bounded to
-   `[freeze_datetime − 60 days, freeze_datetime]` so no post-forecast
-   information leaks back. Advanced search depth, markdown raw content, top 8
-   results truncated to 2000 chars each.
-4. Elicit **P(H|E)** from the same model with the question + retrieved
-   snippets.
+   `[freeze_datetime − 60 days, freeze_datetime]` to prevent post-forecast
+   information leakage. Advanced search depth, markdown raw content, top 8
+   results truncated to 2 000 chars each.
+4. Elicit **P(H|E)** from the same model with question + retrieved snippets.
 5. Compute **Brier scores** `(p − outcome)²` against the resolved outcome.
-6. Compute the **Crupi–Tentori Z** confirmation measure
+6. Compute the **Crupi–Tentori Z** confirmation measure:
    - `Z = (P(H|E) − P(H)) / (1 − P(H))` if `P(H|E) ≥ P(H)`
    - `Z = (P(H|E) − P(H)) / P(H)` otherwise
 7. Report the **Spearman rank correlation** between `|Z|` and
@@ -46,7 +45,7 @@ Requires Python 3.11+.
 python -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
-cp .env.example .env  # then fill in ANTHROPIC_API_KEY and TAVILY_API_KEY
+cp .env.example .env  # fill in ANTHROPIC_API_KEY and TAVILY_API_KEY
 ```
 
 ## Running
@@ -83,35 +82,35 @@ SHA-256 of their inputs, so reruns are free.
 ### Iterative runs
 
 `--resume-from` lets you chip away at the full dataset across multiple runs
-without re-spending tokens on questions you've already processed. Each
-output CSV is a full superset of all prior runs it resumes from — always
-pass the *latest* CSV to `analyze_results.py`.
+without re-spending tokens on already-processed questions. Each output CSV is
+a full superset of all prior runs it resumes from — always pass the *latest*
+CSV to `analyze_results.py`.
 
 ```bash
 # Pass 1: 100 random samples
 python scripts/run_experiment.py --max-questions 100 --random --seed 1 \
-    --out data/results/iter1.csv
+    --out data/results/pass1.csv
 
-# Pass 2: 100 more, excluding the first 100, merged into iter2.csv
+# Pass 2: 100 more, excluding the first 100, merged into pass2.csv
 python scripts/run_experiment.py --max-questions 100 --random --seed 2 \
-    --resume-from data/results/iter1.csv \
-    --out data/results/iter2.csv
+    --resume-from data/results/pass1.csv \
+    --out data/results/pass2.csv
 
-# Pass 3: 100 more again
+# Pass 3: 100 more
 python scripts/run_experiment.py --max-questions 100 --random --seed 3 \
-    --resume-from data/results/iter2.csv \
-    --out data/results/iter3.csv
+    --resume-from data/results/pass2.csv \
+    --out data/results/pass3.csv
 
-python scripts/analyze_results.py data/results/iter3.csv
+python scripts/analyze_results.py data/results/pass3.csv
 ```
 
 ### Rate limits
 
 Anthropic calls are throttled in-process against three per-minute budgets
-(requests, input tokens, output tokens) so a full run stays under Tier-1
-limits without tripping 429s. Defaults match Sonnet's Tier-1 budget — the
-tightest of the three active models — with a ~10% safety margin, so the same
-settings are safe for Haiku and well below Opus:
+(requests, input tokens, output tokens) to stay under Tier-1 limits without
+tripping 429s. Defaults are set to Sonnet's Tier-1 budget — the tightest of
+the three active models — with a ~10% safety margin, so the same settings are
+safe for Haiku and well below Opus:
 
 | setting | default | Tier-1 limit (Sonnet / Haiku / Opus) |
 | --- | --- | --- |
@@ -121,13 +120,12 @@ settings are safe for Haiku and well below Opus:
 
 Each call reserves its budget conservatively up front (input estimated from
 prompt length, output reserved at `max_tokens`) and then commits the real
-`usage.input_tokens` / `usage.output_tokens` from the response so the
-windows self-correct. On a 429 that survives the SDK's built-in
-`retry-after`-aware retries, the limiter is parked for the server-supplied
-cool-down and the call is re-tried with exponential backoff + jitter
-(`llm_max_retries=3` outer attempts, `llm_sdk_max_retries=5` inside the
-SDK). Override any of these on the `Config` dataclass if you are on a
-different tier.
+`usage.input_tokens` / `usage.output_tokens` from the response so windows
+self-correct. On a 429 that survives the SDK's built-in `retry-after`-aware
+retries, the limiter parks for the server-supplied cool-down and retries with
+exponential backoff + jitter (`llm_max_retries=3` outer attempts,
+`llm_sdk_max_retries=5` inside the SDK). Override any of these on the `Config`
+dataclass if you are on a different tier.
 
 ## Outputs
 
@@ -150,49 +148,47 @@ n_evidence, brier_h, brier_he, brier_delta, z, abs_z`.
 }
 ```
 
-A positive `rho` (with low p-value) supports the hypothesis: questions where
-the LLM updates more strongly given evidence are also the ones where
-retrieval improves its calibrated forecast.
+A positive `rho` with a low p-value supports the hypothesis: questions where
+the LLM updates more strongly on evidence are also the ones where retrieval
+most improves its calibrated forecast.
 
 ## Results
 
-The latest run (`data/results/iter2.csv`, `iter2_summary.json`) covers
-**99 binary questions** sampled across 7 ForecastBench sources:
+The latest run (`run3.csv`, `run3_summary.json`) covers **100 binary
+questions** sampled across 9 ForecastBench sources:
 
 | source | n |
 | --- | --- |
-| yfinance | 21 |
-| wikipedia | 20 |
-| fred | 20 |
-| dbnomics | 15 |
-| acled | 14 |
-| polymarket | 8 |
-| infer | 1 |
+| polymarket | 20 |
+| wikipedia | 16 |
+| yfinance | 14 |
+| fred | 13 |
+| acled | 12 |
+| dbnomics | 11 |
+| manifold | 9 |
+| infer | 3 |
+| metaculus | 2 |
 
 Headline numbers:
 
 | metric | value |
 | --- | --- |
-| `spearman_abs_z_vs_brier_delta` | **ρ = 0.453, p = 2.5 × 10⁻⁶** |
-| `mean_brier_h` (prior) | 0.160 |
-| `mean_brier_he` (posterior) | 0.137 |
-| `mean_brier_delta` (improvement) | +0.023 |
-| `frac_brier_improved` | 0.556 |
-| `mean_abs_z` | 0.385 |
-| `frac_z_positive` | 0.404 |
+| `spearman_abs_z_vs_brier_delta` | **ρ = 0.448, p = 2.9 × 10⁻⁶** |
+| `mean_brier_h` (prior) | 0.182 |
+| `mean_brier_he` (posterior) | 0.150 |
+| `mean_brier_delta` (improvement) | +0.032 |
+| `frac_brier_improved` | 0.520 |
+| `mean_abs_z` | 0.358 |
+| `frac_z_positive` | 0.400 |
 
 **The hypothesis is supported.** The magnitude of the self-reported
 Crupi–Tentori update `|Z|` is positively and significantly rank-correlated
-with the per-question Brier improvement (ρ = 0.45, p ≈ 2.5 × 10⁻⁶ over
-n = 99): questions where the model updates more strongly on retrieved
+with the per-question Brier improvement (ρ = 0.45, p ≈ 2.9 × 10⁻⁶ over
+n = 100): questions where the model updates more strongly on retrieved
 evidence are also the ones where retrieval most improves its calibrated
-forecast. Retrieval helped on average (mean Brier dropped 0.160 → 0.137),
-though only on a slim majority of questions (55.6%), and the model's updates
-were more often downward than upward (`frac_z_positive` = 0.40).
-
-These figures supersede the earlier 9-question smoke run
-(`iter1_summary.json`), where the same correlation (ρ = 0.55) was not yet
-significant (p ≈ 0.12) at that sample size.
+forecast. Retrieval helped on average (mean Brier dropped 0.182 → 0.150),
+though only on a slim majority of questions (52%), and the model's updates were
+more often downward than upward (`frac_z_positive` = 0.40).
 
 ## Project layout
 
@@ -221,32 +217,32 @@ pytest -q
 
 Covers the Brier formula at extremes, both branches and bounds of the
 Crupi–Tentori Z, Spearman on perfect / anti-correlated / degenerate inputs,
-fixture-based tests of the question/resolution loader (binary filtering /
-joining and earliest-`resolution_date` selection per `(id, source)`), and the
+fixture-based tests of the question/resolution loader (binary filtering,
+joining, and earliest-`resolution_date` selection per `(id, source)`), and the
 sliding-window rate limiter (acquire/commit, window expiry, `retry-after`
 parsing, concurrency safety).
 
 ## Design choices
 
 - **Evidence cutoff**: Tavily `end_date` is each question's `freeze_datetime`
-  (not the resolution date). This re-reads the spec's "dated before the
-  resolution" as "dated before the forecast was due", to avoid retrieving
-  news that effectively reveals the outcome.
+  (not the resolution date), treating "dated before the resolution" as "dated
+  before the forecast was due" to avoid retrieving news that effectively
+  reveals the outcome.
 - **Lookback**: 60 days before `freeze_datetime` — captures recent reporting
   without flooding the LLM with stale context.
 - **Question scope**: a single set (`2025-10-26-llm.json`) holds 500 questions;
-  1073 are resolved with binary outcomes across multiple resolution horizons,
+  1 073 are resolved with binary outcomes across multiple resolution horizons,
   which collapse to **348 unique questions** (one per `(id, source)`, earliest
   `resolution_date`) spanning 9 sources (acled, dbnomics, fred, infer, manifold,
   metaculus, polymarket, wikipedia, yfinance).
-- **Caching**: required, since reruns during analysis would otherwise burn
-  API credits.
+- **Caching**: required — reruns during analysis would otherwise burn API
+  credits.
 - **Throttling over erroring**: proactive rate limiting plus
   `retry-after`-aware backoff is preferred over letting the SDK raise
-  `RateLimitError` mid-run, because cached partial progress is small and a
-  long sweep across ~1000 questions otherwise compounds 429 noise.
-- **Temperature 0**: maximizes reproducibility; relies on the model's chain of
-  reasoning at decoding time rather than ensembling samples.
+  `RateLimitError` mid-run, because a long sweep across ~1 000 questions
+  compounds 429 noise.
+- **Temperature 0**: maximizes reproducibility; relies on the model's
+  chain-of-reasoning at decoding time rather than ensembling samples.
 
 ## References
 
