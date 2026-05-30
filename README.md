@@ -1,7 +1,6 @@
 # rag-support-forecast
 
-Does an LLM's *self-reported* update from retrieved evidence track its *actual*
-forecasting improvement? This repo runs a minimum viable experiment on binary
+Existing work shows that retrieval-augmented forecasting systems can improve LLM forecasts, but it is unclear when and why retrieved evidence helps. This project tests whether the model’s own probability shift after retrieval provides a measurable signal of retrieval’s actual forecasting value. This repo runs a minimum viable experiment on binary
 forecasting questions from [ForecastBench](https://www.forecastbench.org/) to
 test one hypothesis:
 
