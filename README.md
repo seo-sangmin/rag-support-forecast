@@ -187,7 +187,8 @@ earliest-`resolution_date` selection), and the sliding-window rate limiter
   (not the resolution date), so retrieval can't surface news that reveals the
   outcome.
 - **Model cutoff**: `claude-haiku-4-5-20251001` has a training data cutoff of
-  Jul 2025, so freeze dates and outcomes after it can't be memorized.
+  Jul 2025, which precedes every question's `freeze_datetime`, so the outcomes
+  (resolved later still) can't have been memorized during training.
 - **Lookback**: 60 days before `freeze_datetime` — recent reporting without
   flooding the LLM with stale context.
 - **Question scope**: the `2025-10-26-llm.json` set holds 500 questions; 1 073
