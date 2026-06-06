@@ -186,6 +186,9 @@ earliest-`resolution_date` selection), and the sliding-window rate limiter
 - **Evidence cutoff**: Tavily `end_date` is each question's `freeze_datetime`
   (not the resolution date), so retrieval can't surface news that reveals the
   outcome.
+- **Model cutoff**: `claude-haiku-4-5-20251001`'s Jul 2025 training cutoff
+  precedes every question's `freeze_datetime` and Tavily's search window, so
+  neither the outcomes nor the retrieved evidence were in training.
 - **Lookback**: 60 days before `freeze_datetime` — recent reporting without
   flooding the LLM with stale context.
 - **Question scope**: the `2025-10-26-llm.json` set holds 500 questions; 1 073
