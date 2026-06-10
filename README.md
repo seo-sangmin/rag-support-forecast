@@ -161,7 +161,7 @@ src/rag_forecast/
   forecasting.py   — rate-limited Anthropic client, strict-JSON parse, cached
   rate_limiter.py  — async sliding-window RPM/ITPM/OTPM limiter
   prompts.py       — prior/posterior elicitation prompts
-  metrics.py       — brier, z_tentori_crupi, spearman
+  metrics.py       — brier, z_crupi_tentori, spearman
   cache.py         — content-hash JSON cache
   pipeline.py      — async orchestration, writes per-question CSV
 scripts/
