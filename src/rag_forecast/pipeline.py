@@ -9,7 +9,7 @@ from pathlib import Path
 from .config import Config
 from .data import ResolvedQuestion, load_resolved_questions
 from .forecasting import ForecastClient
-from .metrics import brier, z_tentori_crupi
+from .metrics import brier, z_crupi_tentori
 from .retrieval import TavilyRetriever
 
 
@@ -50,7 +50,7 @@ async def _process(
     p_he = posterior["probability"]
     bh = brier(p_h, q.outcome)
     bhe = brier(p_he, q.outcome)
-    z = z_tentori_crupi(p_h, p_he)
+    z = z_crupi_tentori(p_h, p_he)
     return Row(
         id=q.id,
         source=q.source,

@@ -10,8 +10,8 @@ def brier(p: float, outcome: float) -> float:
     return (p - outcome) ** 2
 
 
-def z_tentori_crupi(p_h: float, p_he: float, eps: float = 1e-6) -> float:
-    """Tentori-Crupi Z confirmation measure.
+def z_crupi_tentori(p_h: float, p_he: float, eps: float = 1e-6) -> float:
+    """Crupi-Tentori Z confirmation measure.
 
     Z = (P(H|E) - P(H)) / (1 - P(H))   if P(H|E) >= P(H)
     Z = (P(H|E) - P(H)) / P(H)          otherwise
