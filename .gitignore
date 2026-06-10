@@ -6,10 +6,6 @@ __pycache__/
 .ruff_cache/
 .mypy_cache/
 
-data/raw/
-data/cache/
-data/results/
-
 *.egg-info/
 build/
 dist/
