@@ -41,7 +41,7 @@ Requires Python 3.11+.
 python -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
-cp .env.example .env  # fill in ANTHROPIC_API_KEY and ASKNEWS_CLIENT_ID/ASKNEWS_CLIENT_SECRET
+cp .env.example .env  # fill in ANTHROPIC_API_KEY and ASKNEWS_API_KEY
 ```
 
 ## Running

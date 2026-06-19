@@ -22,16 +22,11 @@ def _shorten_query(text: str, limit: int = 400) -> str:
 
 class AskNewsRetriever:
     def __init__(self, cfg: Config) -> None:
-        client_id = os.environ.get("ASKNEWS_CLIENT_ID")
-        client_secret = os.environ.get("ASKNEWS_CLIENT_SECRET")
-        if not client_id or not client_secret:
-            raise RuntimeError("ASKNEWS_CLIENT_ID / ASKNEWS_CLIENT_SECRET are not set")
+        api_key = os.environ.get("ASKNEWS_API_KEY")
+        if not api_key:
+            raise RuntimeError("ASKNEWS_API_KEY is not set")
         self.cfg = cfg
-        self.client = AsyncAskNewsSDK(
-            client_id=client_id,
-            client_secret=client_secret,
-            scopes={"news"},
-        )
+        self.client = AsyncAskNewsSDK(api_key=api_key)
         self.cache = JsonCache(cfg.cache_dir / "asknews")
 
     def _truncate(self, results: list[dict[str, Any]]) -> list[dict[str, Any]]:
