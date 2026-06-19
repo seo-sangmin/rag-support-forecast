@@ -23,9 +23,9 @@ class Config:
 
     question_set_dates: tuple[str, ...] = ("2025-10-26",)
     lookback_days: int = 60
-    tavily_max_results: int = 8
-    tavily_search_depth: str = "advanced"
-    tavily_snippet_chars: int = 2000
+    asknews_n_articles: int = 8
+    asknews_method: str = "nl"
+    asknews_snippet_chars: int = 2000
 
     concurrency: int = 8
     # Outer-loop retries for our own backoff; the SDK does its own retries

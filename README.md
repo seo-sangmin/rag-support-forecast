@@ -10,7 +10,7 @@ test one hypothesis:
 > proper scoring rules against resolved outcomes.**
 
 For each question we elicit two probabilities from Claude Haiku 4.5 — the prior
-P(H) (no retrieval) and the posterior P(H|E) (with date-bounded Tavily
+P(H) (no retrieval) and the posterior P(H|E) (with date-bounded AskNews
 evidence) — then check whether the magnitude of the Crupi–Tentori confirmation
 measure |Z| rank-correlates with the per-question Brier-score improvement.
 
@@ -22,9 +22,9 @@ measure |Z| rank-correlates with the per-question Brier-score improvement.
    (`{resolution_date}`, `{forecast_due_date}`).
 2. Elicit **P(H)** from `claude-haiku-4-5-20251001` (temperature 0) from the
    question text, criteria, and background only.
-3. Retrieve evidence with **Tavily**, bounded to
+3. Retrieve evidence with **AskNews**, bounded to
    `[freeze_datetime − 60 days, freeze_datetime]` to prevent post-forecast
-   leakage (advanced depth, top 8 results, 2 000 chars each).
+   leakage (natural-language search, top 8 results, 2 000 chars each).
 4. Elicit **P(H|E)** from the same model with the retrieved snippets added.
 5. Compute **Brier scores** `(p − outcome)²` against the resolved outcome.
 6. Compute the **Crupi–Tentori Z** confirmation measure:
@@ -41,7 +41,7 @@ Requires Python 3.11+.
 python -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
-cp .env.example .env  # fill in ANTHROPIC_API_KEY and TAVILY_API_KEY
+cp .env.example .env  # fill in ANTHROPIC_API_KEY and ASKNEWS_CLIENT_ID/ASKNEWS_CLIENT_SECRET
 ```
 
 ## Running
@@ -61,10 +61,10 @@ CLI flags for `run_experiment.py`:
 | `--random` | off | with `--max-questions N`, pick N at random instead of the first N |
 | `--seed` | `0` | RNG seed for `--random` (fixed default = reproducible) |
 | `--resume-from` | none | one or more prior result CSV paths; their `(id, source)` rows are excluded from sampling and merged into the new output |
-| `--lookback-days` | `60` | Tavily `start_date` offset before `freeze_datetime` |
+| `--lookback-days` | `60` | AskNews search-window start offset before `freeze_datetime` |
 | `--out` | timestamped | output CSV path |
 
-LLM and Tavily calls are cached on disk under `data/cache/` keyed by a SHA-256
+LLM and AskNews calls are cached on disk under `data/cache/` keyed by a SHA-256
 of their inputs, so reruns are free.
 
 ### Iterative runs
@@ -157,7 +157,7 @@ updates were more often downward than upward (`frac_z_positive` = 0.40).
 src/rag_forecast/
   config.py        — Config dataclass (model, paths, dates, concurrency, rate limits)
   data.py          — ForecastBench fetch, join, binary filter, template fill
-  retrieval.py     — date-bounded, cached Tavily wrapper
+  retrieval.py     — date-bounded, cached AskNews wrapper
   forecasting.py   — rate-limited Anthropic client, strict-JSON parse, cached
   rate_limiter.py  — async sliding-window RPM/ITPM/OTPM limiter
   prompts.py       — prior/posterior elicitation prompts
@@ -183,11 +183,11 @@ earliest-`resolution_date` selection), and the sliding-window rate limiter
 
 ## Design choices
 
-- **Evidence cutoff**: Tavily `end_date` is each question's `freeze_datetime`
+- **Evidence cutoff**: the AskNews search window ends at each question's `freeze_datetime`
   (not the resolution date), so retrieval can't surface news that reveals the
   outcome.
 - **Model cutoff**: `claude-haiku-4-5-20251001`'s Jul 2025 training cutoff
-  precedes every question's `freeze_datetime` and Tavily's search window, so
+  precedes every question's `freeze_datetime` and AskNews's search window, so
   neither the outcomes nor the retrieved evidence were in training.
 - **Lookback**: 60 days before `freeze_datetime` — recent reporting without
   flooding the LLM with stale context.
@@ -206,5 +206,5 @@ earliest-`resolution_date` selection), and the sliding-window rate limiter
 
 - ForecastBench: <https://www.forecastbench.org/>
 - ForecastBench datasets: <https://github.com/forecastingresearch/forecastbench-datasets>
-- Tavily Python SDK: <https://github.com/tavily-ai/tavily-python>
+- AskNews Python SDK: <https://github.com/emergentmethods/asknews-python-sdk>
 - Crupi & Tentori, *Confirmation Theory*: <https://www.vincenzocrupi.com/website/wp-content/uploads/2017/02/CrupiTentori_OxfordHandbook2016.pdf>
