@@ -163,11 +163,13 @@ src/rag_forecast/
   prompts.py       — prior/posterior elicitation prompts
   metrics.py       — brier, z_crupi_tentori, spearman
   cache.py         — content-hash JSON cache
+  audit.py         — evidence-cutoff leakage audit over the AskNews cache
   pipeline.py      — async orchestration, writes per-question CSV
 scripts/
   run_experiment.py
   analyze_results.py
-tests/             — metrics, data loader, rate limiter
+  audit_leakage.py
+tests/             — metrics, data loader, rate limiter, leakage audit
 ```
 
 ## Tests
@@ -185,7 +187,10 @@ earliest-`resolution_date` selection), and the sliding-window rate limiter
 
 - **Evidence cutoff**: the AskNews search window ends at each question's `freeze_datetime`
   (not the resolution date), so retrieval can't surface news that reveals the
-  outcome.
+  outcome. `python scripts/audit_leakage.py` verifies this held for the cached
+  evidence — it flags any retrieved article published after its question's
+  `freeze_datetime` and exits non-zero if it finds one (offline; reads the cache,
+  never calls AskNews).
 - **Model cutoff**: `claude-haiku-4-5-20251001`'s Jul 2025 training cutoff
   precedes every question's `freeze_datetime` and AskNews's search window, so
   neither the outcomes nor the retrieved evidence were in training.

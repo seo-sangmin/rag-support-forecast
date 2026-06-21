@@ -20,6 +20,26 @@ def _shorten_query(text: str, limit: int = 400) -> str:
     return _EG_SPLIT.split(text, maxsplit=1)[0].rstrip()
 
 
+def build_search_payload(q: ResolvedQuestion, cfg: Config) -> dict[str, Any]:
+    """AskNews search payload for a question, bounded to the lookback window.
+
+    The window ends at the question's ``freeze_datetime`` and starts
+    ``cfg.lookback_days`` earlier, so retrieved evidence never postdates the
+    forecast. This payload is also the cache key, so the leakage audit
+    (``rag_forecast.audit``) reuses it to locate the articles retrieved for
+    each question.
+    """
+    end = q.freeze_datetime
+    start = end - timedelta(days=cfg.lookback_days)
+    return {
+        "query": _shorten_query(q.question),
+        "start_timestamp": int(start.timestamp()),
+        "end_timestamp": int(end.timestamp()),
+        "n_articles": cfg.asknews_n_articles,
+        "method": cfg.asknews_method,
+    }
+
+
 class AskNewsRetriever:
     def __init__(self, cfg: Config) -> None:
         api_key = os.environ.get("ASKNEWS_API_KEY")
@@ -42,15 +62,7 @@ class AskNewsRetriever:
         return out
 
     async def retrieve(self, q: ResolvedQuestion) -> list[dict[str, Any]]:
-        end = q.freeze_datetime
-        start = end - timedelta(days=self.cfg.lookback_days)
-        payload = {
-            "query": _shorten_query(q.question),
-            "start_timestamp": int(start.timestamp()),
-            "end_timestamp": int(end.timestamp()),
-            "n_articles": self.cfg.asknews_n_articles,
-            "method": self.cfg.asknews_method,
-        }
+        payload = build_search_payload(q, self.cfg)
         cached = self.cache.get(payload)
         if cached is not None:
             return cached
