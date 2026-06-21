@@ -1,0 +1,13 @@
+{
+  "n": 3,
+  "mean_brier_h": 0.009766666666666667,
+  "mean_brier_he": 0.017133333333333334,
+  "mean_brier_delta": -0.007366666666666633,
+  "frac_brier_improved": 0.0,
+  "mean_abs_z": 0.04421768707482993,
+  "frac_z_positive": 0.3333333333333333,
+  "spearman_abs_z_vs_brier_delta": {
+    "rho": -1.0,
+    "p_value": 0.0
+  }
+}
