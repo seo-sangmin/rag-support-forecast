@@ -50,6 +50,7 @@ cp .env.example .env  # fill in ANTHROPIC_API_KEY and ASKNEWS_API_KEY
 # Quick smoke test (~5 questions); drop --max-questions for the full set.
 python scripts/run_experiment.py --question-sets 2025-10-26 --max-questions 5
 python scripts/analyze_results.py data/results/run_*.csv
+python scripts/audit_leakage.py  # offline: flag cached evidence dated after each freeze
 ```
 
 CLI flags for `run_experiment.py`:
