@@ -189,8 +189,10 @@ earliest-`resolution_date` selection), and the sliding-window rate limiter
   (not the resolution date), so retrieval can't surface news that reveals the
   outcome. `python scripts/audit_leakage.py` verifies this held for the cached
   evidence — it flags any retrieved article published after its question's
-  `freeze_datetime` and exits non-zero if it finds one (offline; reads the cache,
-  never calls AskNews).
+  `freeze_datetime`, and fails closed on articles whose `published_date` is missing
+  or unparseable (reported under `evidence_unverifiable` / `n_unverifiable`, since
+  their provenance can't be verified as pre-freeze). Exits non-zero if it finds
+  either (offline; reads the cache, never calls AskNews).
 - **Model cutoff**: `claude-haiku-4-5-20251001`'s Jul 2025 training cutoff
   precedes every question's `freeze_datetime` and AskNews's search window, so
   neither the outcomes nor the retrieved evidence were in training.

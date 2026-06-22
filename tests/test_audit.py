@@ -59,6 +59,8 @@ def test_clean_evidence_passes(tmp_path: Path) -> None:
     assert summary["n_cached"] == 1
     assert summary["n_articles_checked"] == 2
     assert summary["evidence_after_freeze"] == []
+    assert summary["n_unverifiable"] == 0
+    assert summary["evidence_unverifiable"] == []
 
 
 def test_article_after_freeze_flagged(tmp_path: Path) -> None:
@@ -75,6 +77,7 @@ def test_article_after_freeze_flagged(tmp_path: Path) -> None:
     v = summary["evidence_after_freeze"][0]
     assert v["id"] == "q1"
     assert v["published_date"] == "2025-10-20T00:00:00+00:00"
+    assert summary["n_unverifiable"] == 0
 
 
 def test_uncached_question_skipped(tmp_path: Path) -> None:
@@ -87,13 +90,32 @@ def test_uncached_question_skipped(tmp_path: Path) -> None:
     assert summary["n_articles_checked"] == 0
 
 
-def test_missing_published_date_skipped(tmp_path: Path) -> None:
+def test_missing_published_date_flagged(tmp_path: Path) -> None:
     cfg = Config(cache_dir=tmp_path)
     q = _question()
     _seed(cfg, q, [_article(""), _article("2025-10-05T00:00:00+00:00")])
     summary = audit_evidence_leakage([q], cfg)
-    assert summary["ok"] is True
-    assert summary["n_articles_checked"] == 1  # blank-date article is skipped
+    # Fail closed: a blank date can't be proven pre-freeze, so it's unverifiable.
+    assert summary["ok"] is False
+    assert summary["n_unverifiable"] == 1
+    assert summary["n_articles_checked"] == 1  # only the dated article is checked
+    assert summary["n_violations"] == 0
+    u = summary["evidence_unverifiable"][0]
+    assert u["id"] == "q1"
+    assert u["reason"] == "missing"
+
+
+def test_unparseable_published_date_flagged(tmp_path: Path) -> None:
+    cfg = Config(cache_dir=tmp_path)
+    q = _question()
+    _seed(cfg, q, [_article("not-a-date"), _article("2025-10-05T00:00:00+00:00")])
+    summary = audit_evidence_leakage([q], cfg)
+    assert summary["ok"] is False
+    assert summary["n_unverifiable"] == 1
+    assert summary["n_articles_checked"] == 1
+    u = summary["evidence_unverifiable"][0]
+    assert u["reason"] == "unparseable"
+    assert u["published_date"] == "not-a-date"
 
 
 def test_no_questions(tmp_path: Path) -> None:

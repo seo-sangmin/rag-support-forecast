@@ -17,8 +17,8 @@ from rag_forecast.data import load_resolved_questions  # noqa: E402
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Audit cached AskNews evidence for articles published after "
-        "each question's freeze_datetime (retrieval leakage). Reads the cache "
-        "only; no AskNews calls."
+        "each question's freeze_datetime, or with a missing/unparseable publish "
+        "date (retrieval leakage). Reads the cache only; no AskNews calls."
     )
     parser.add_argument(
         "--question-sets",

@@ -21,11 +21,15 @@ def audit_evidence_leakage(
     ``freeze_datetime``.
 
     Reads the cache only -- it never calls AskNews. Questions with no cached
-    evidence are counted in ``n_uncached`` and skipped; articles with a missing
-    or unparseable ``published_date`` are skipped as well.
+    evidence are counted in ``n_uncached`` and skipped. The audit fails closed on
+    provenance it cannot verify: an article whose ``published_date`` is missing or
+    unparseable cannot be proven to predate the freeze, so it is reported in
+    ``evidence_unverifiable`` (with a ``reason``) and counts against ``ok`` rather
+    than being silently skipped.
     """
     cache = JsonCache(cfg.cache_dir / "asknews")
     violations: list[dict[str, Any]] = []
+    unverifiable: list[dict[str, Any]] = []
     n_cached = 0
     n_uncached = 0
     n_articles_checked = 0
@@ -37,30 +41,33 @@ def audit_evidence_leakage(
         n_cached += 1
         for article in evidence:
             published = article.get("published_date")
+            entry = {
+                "id": q.id,
+                "source": q.source,
+                "published_date": published,
+                "freeze_datetime": q.freeze_datetime.isoformat(),
+                "title": article.get("title", ""),
+                "url": article.get("url", ""),
+            }
             if not isinstance(published, str) or not published:
+                unverifiable.append({**entry, "reason": "missing"})
                 continue
             try:
                 published_dt = _parse_dt(published)
             except ValueError:
+                unverifiable.append({**entry, "reason": "unparseable"})
                 continue
             n_articles_checked += 1
             if published_dt > q.freeze_datetime:
-                violations.append(
-                    {
-                        "id": q.id,
-                        "source": q.source,
-                        "published_date": published,
-                        "freeze_datetime": q.freeze_datetime.isoformat(),
-                        "title": article.get("title", ""),
-                        "url": article.get("url", ""),
-                    }
-                )
+                violations.append(entry)
     return {
         "n_questions": len(questions),
         "n_cached": n_cached,
         "n_uncached": n_uncached,
         "n_articles_checked": n_articles_checked,
         "n_violations": len(violations),
-        "ok": not violations,
+        "n_unverifiable": len(unverifiable),
+        "ok": not violations and not unverifiable,
         "evidence_after_freeze": violations,
+        "evidence_unverifiable": unverifiable,
     }
