@@ -117,41 +117,6 @@ n_evidence, brier_h, brier_he, brier_delta, z, abs_z`.
 }
 ```
 
-## Results
-
-The latest run (data/results/run3) covers **100 binary
-questions** sampled across 9 ForecastBench sources:
-
-| source | n |
-| --- | --- |
-| polymarket | 20 |
-| wikipedia | 16 |
-| yfinance | 14 |
-| fred | 13 |
-| acled | 12 |
-| dbnomics | 11 |
-| manifold | 9 |
-| infer | 3 |
-| metaculus | 2 |
-
-Headline numbers:
-
-| metric | value |
-| --- | --- |
-| `spearman_abs_z_vs_brier_delta` | **ρ = 0.448, p = 2.9 × 10⁻⁶** |
-| `mean_brier_h` (prior) | 0.182 |
-| `mean_brier_he` (posterior) | 0.150 |
-| `mean_brier_delta` (improvement) | +0.032 |
-| `frac_brier_improved` | 0.520 |
-| `mean_abs_z` | 0.358 |
-| `frac_z_positive` | 0.400 |
-
-**The hypothesis is supported:** `|Z|` is positively and significantly
-rank-correlated with the per-question Brier improvement (ρ = 0.45,
-p ≈ 2.9 × 10⁻⁶, n = 100). Retrieval helped on average (mean Brier 0.182 →
-0.150), though only on a slim 52% majority of questions, and the model's
-updates were more often downward than upward (`frac_z_positive` = 0.40).
-
 ## Project layout
 
 ```
