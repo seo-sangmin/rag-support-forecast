@@ -31,21 +31,16 @@ class Row:
     abs_z: float
 
 
-async def _process(
-    q: ResolvedQuestion,
-    forecaster: ForecastClient,
-    retriever: AskNewsRetriever,
-    sem: asyncio.Semaphore,
-) -> Row | None:
-    async with sem:
-        try:
-            prior = await forecaster.estimate_p_h(q)
-            evidence = await retriever.retrieve(q)
-            posterior = await forecaster.estimate_p_h_given_e(q, evidence)
-        except Exception as e:  # noqa: BLE001
-            print(f"  ! skipped {q.id}: {e}")
-            return None
+def _key(q: ResolvedQuestion) -> tuple[str, str]:
+    return (q.id, q.source)
 
+
+def _build_row(
+    q: ResolvedQuestion,
+    prior: dict,
+    posterior: dict,
+    evidence: list[dict],
+) -> Row:
     p_h = prior["probability"]
     p_he = posterior["probability"]
     bh = brier(p_h, q.outcome)
@@ -67,6 +62,77 @@ async def _process(
         z=z,
         abs_z=abs(z),
     )
+
+
+async def _retrieve_all(
+    questions: list[ResolvedQuestion],
+    retriever: AskNewsRetriever,
+    cfg: Config,
+) -> dict[tuple[str, str], list[dict]]:
+    """Phase 1 -- fetch evidence for every question (AskNews only).
+
+    Returns a map from ``(id, source)`` to that question's evidence. A retrieval
+    error drops the question from the map (and so from prompting); an empty
+    result list is kept, since "no articles" is valid evidence.
+    """
+    sem = asyncio.Semaphore(cfg.asknews_concurrency)
+
+    async def one(
+        q: ResolvedQuestion,
+    ) -> tuple[tuple[str, str], list[dict] | None]:
+        async with sem:
+            try:
+                return _key(q), await retriever.retrieve(q)
+            except Exception as e:  # noqa: BLE001
+                print(f"  ! retrieval skipped {q.id}: {e}")
+                return _key(q), None
+
+    evidence: dict[tuple[str, str], list[dict]] = {}
+    tasks = [one(q) for q in questions]
+    for i, coro in enumerate(asyncio.as_completed(tasks), 1):
+        k, v = await coro
+        if v is not None:
+            evidence[k] = v
+        if i % 5 == 0 or i == len(tasks):
+            print(f"  retrieval progress: {i}/{len(tasks)}")
+    return evidence
+
+
+async def _forecast_all(
+    questions: list[ResolvedQuestion],
+    evidence: dict[tuple[str, str], list[dict]],
+    forecaster: ForecastClient,
+    cfg: Config,
+) -> list[Row]:
+    """Phase 2 -- prompt prior + posterior for each retrieved question (Anthropic only).
+
+    Questions absent from ``evidence`` (retrieval failed) are skipped; a
+    prompting error skips just that question's row.
+    """
+    sem = asyncio.Semaphore(cfg.llm_concurrency)
+
+    async def one(q: ResolvedQuestion) -> Row | None:
+        ev = evidence.get(_key(q))
+        if ev is None:
+            return None
+        async with sem:
+            try:
+                prior = await forecaster.estimate_p_h(q)
+                posterior = await forecaster.estimate_p_h_given_e(q, ev)
+            except Exception as e:  # noqa: BLE001
+                print(f"  ! forecast skipped {q.id}: {e}")
+                return None
+        return _build_row(q, prior, posterior, ev)
+
+    rows: list[Row] = []
+    tasks = [one(q) for q in questions]
+    for i, coro in enumerate(asyncio.as_completed(tasks), 1):
+        row = await coro
+        if row is not None:
+            rows.append(row)
+        if i % 5 == 0 or i == len(tasks):
+            print(f"  forecast progress: {i}/{len(tasks)}")
+    return rows
 
 
 def _load_processed(
@@ -180,16 +246,13 @@ async def run(
 
     forecaster = ForecastClient(cfg)
     retriever = AskNewsRetriever(cfg)
-    sem = asyncio.Semaphore(cfg.concurrency)
 
-    tasks = [_process(q, forecaster, retriever, sem) for q in questions]
-    rows: list[Row] = []
-    for i, coro in enumerate(asyncio.as_completed(tasks), 1):
-        row = await coro
-        if row is not None:
-            rows.append(row)
-        if i % 5 == 0 or i == len(tasks):
-            print(f"  progress: {i}/{len(tasks)}")
+    print(f"Retrieving evidence for {len(questions)} questions…")
+    evidence = await _retrieve_all(questions, retriever, cfg)
+    print(f"  retrieved evidence for {len(evidence)}/{len(questions)} questions")
+
+    print("Prompting prior + posterior…")
+    rows = await _forecast_all(questions, evidence, forecaster, cfg)
 
     _write_combined_csv(prior_rows, rows, out_csv)
     total = len(prior_rows) + len(rows)
