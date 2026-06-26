@@ -10,7 +10,7 @@ from .config import Config
 from .data import ResolvedQuestion, load_resolved_questions
 from .forecasting import ForecastClient
 from .metrics import brier, z_crupi_tentori
-from .retrieval import TavilyRetriever
+from .retrieval import AskNewsRetriever
 
 
 @dataclass
@@ -34,7 +34,7 @@ class Row:
 async def _process(
     q: ResolvedQuestion,
     forecaster: ForecastClient,
-    retriever: TavilyRetriever,
+    retriever: AskNewsRetriever,
     sem: asyncio.Semaphore,
 ) -> Row | None:
     async with sem:
@@ -179,7 +179,7 @@ async def run(
         return 0
 
     forecaster = ForecastClient(cfg)
-    retriever = TavilyRetriever(cfg)
+    retriever = AskNewsRetriever(cfg)
     sem = asyncio.Semaphore(cfg.concurrency)
 
     tasks = [_process(q, forecaster, retriever, sem) for q in questions]

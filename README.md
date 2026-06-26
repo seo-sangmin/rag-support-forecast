@@ -10,7 +10,7 @@ test one hypothesis:
 > proper scoring rules against resolved outcomes.**
 
 For each question we elicit two probabilities from Claude Haiku 4.5 — the prior
-P(H) (no retrieval) and the posterior P(H|E) (with date-bounded Tavily
+P(H) (no retrieval) and the posterior P(H|E) (with date-bounded AskNews
 evidence) — then check whether the magnitude of the Crupi–Tentori confirmation
 measure |Z| rank-correlates with the per-question Brier-score improvement.
 
@@ -22,9 +22,9 @@ measure |Z| rank-correlates with the per-question Brier-score improvement.
    (`{resolution_date}`, `{forecast_due_date}`).
 2. Elicit **P(H)** from `claude-haiku-4-5-20251001` (temperature 0) from the
    question text, criteria, and background only.
-3. Retrieve evidence with **Tavily**, bounded to
+3. Retrieve evidence with **AskNews**, bounded to
    `[freeze_datetime − 60 days, freeze_datetime]` to prevent post-forecast
-   leakage (advanced depth, top 8 results, 2 000 chars each).
+   leakage (natural-language search, top 8 results, 2 000 chars each).
 4. Elicit **P(H|E)** from the same model with the retrieved snippets added.
 5. Compute **Brier scores** `(p − outcome)²` against the resolved outcome.
 6. Compute the **Crupi–Tentori Z** confirmation measure:
@@ -41,7 +41,7 @@ Requires Python 3.11+.
 python -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
-cp .env.example .env  # fill in ANTHROPIC_API_KEY and TAVILY_API_KEY
+cp .env.example .env  # fill in ANTHROPIC_API_KEY and ASKNEWS_API_KEY
 ```
 
 ## Running
@@ -50,6 +50,7 @@ cp .env.example .env  # fill in ANTHROPIC_API_KEY and TAVILY_API_KEY
 # Quick smoke test (~5 questions); drop --max-questions for the full set.
 python scripts/run_experiment.py --question-sets 2025-10-26 --max-questions 5
 python scripts/analyze_results.py data/results/run_*.csv
+python scripts/audit_leakage.py  # offline: flag cached evidence dated after each freeze
 ```
 
 CLI flags for `run_experiment.py`:
@@ -61,10 +62,10 @@ CLI flags for `run_experiment.py`:
 | `--random` | off | with `--max-questions N`, pick N at random instead of the first N |
 | `--seed` | `0` | RNG seed for `--random` (fixed default = reproducible) |
 | `--resume-from` | none | one or more prior result CSV paths; their `(id, source)` rows are excluded from sampling and merged into the new output |
-| `--lookback-days` | `60` | Tavily `start_date` offset before `freeze_datetime` |
+| `--lookback-days` | `60` | AskNews search-window start offset before `freeze_datetime` |
 | `--out` | timestamped | output CSV path |
 
-LLM and Tavily calls are cached on disk under `data/cache/` keyed by a SHA-256
+LLM and AskNews calls are cached on disk under `data/cache/` keyed by a SHA-256
 of their inputs, so reruns are free.
 
 ### Iterative runs
@@ -116,58 +117,25 @@ n_evidence, brier_h, brier_he, brier_delta, z, abs_z`.
 }
 ```
 
-## Results
-
-The latest run (data/results/run3) covers **100 binary
-questions** sampled across 9 ForecastBench sources:
-
-| source | n |
-| --- | --- |
-| polymarket | 20 |
-| wikipedia | 16 |
-| yfinance | 14 |
-| fred | 13 |
-| acled | 12 |
-| dbnomics | 11 |
-| manifold | 9 |
-| infer | 3 |
-| metaculus | 2 |
-
-Headline numbers:
-
-| metric | value |
-| --- | --- |
-| `spearman_abs_z_vs_brier_delta` | **ρ = 0.448, p = 2.9 × 10⁻⁶** |
-| `mean_brier_h` (prior) | 0.182 |
-| `mean_brier_he` (posterior) | 0.150 |
-| `mean_brier_delta` (improvement) | +0.032 |
-| `frac_brier_improved` | 0.520 |
-| `mean_abs_z` | 0.358 |
-| `frac_z_positive` | 0.400 |
-
-**The hypothesis is supported:** `|Z|` is positively and significantly
-rank-correlated with the per-question Brier improvement (ρ = 0.45,
-p ≈ 2.9 × 10⁻⁶, n = 100). Retrieval helped on average (mean Brier 0.182 →
-0.150), though only on a slim 52% majority of questions, and the model's
-updates were more often downward than upward (`frac_z_positive` = 0.40).
-
 ## Project layout
 
 ```
 src/rag_forecast/
   config.py        — Config dataclass (model, paths, dates, concurrency, rate limits)
   data.py          — ForecastBench fetch, join, binary filter, template fill
-  retrieval.py     — date-bounded, cached Tavily wrapper
+  retrieval.py     — date-bounded, cached AskNews wrapper
   forecasting.py   — rate-limited Anthropic client, strict-JSON parse, cached
   rate_limiter.py  — async sliding-window RPM/ITPM/OTPM limiter
   prompts.py       — prior/posterior elicitation prompts
   metrics.py       — brier, z_crupi_tentori, spearman
   cache.py         — content-hash JSON cache
+  audit.py         — evidence-cutoff leakage audit over the AskNews cache
   pipeline.py      — async orchestration, writes per-question CSV
 scripts/
   run_experiment.py
   analyze_results.py
-tests/             — metrics, data loader, rate limiter
+  audit_leakage.py
+tests/             — metrics, data loader, rate limiter, leakage audit
 ```
 
 ## Tests
@@ -183,11 +151,16 @@ earliest-`resolution_date` selection), and the sliding-window rate limiter
 
 ## Design choices
 
-- **Evidence cutoff**: Tavily `end_date` is each question's `freeze_datetime`
+- **Evidence cutoff**: the AskNews search window ends at each question's `freeze_datetime`
   (not the resolution date), so retrieval can't surface news that reveals the
-  outcome.
+  outcome. `python scripts/audit_leakage.py` verifies this held for the cached
+  evidence — it flags any retrieved article published after its question's
+  `freeze_datetime`, and fails closed on articles whose `published_date` is missing
+  or unparseable (reported under `evidence_unverifiable` / `n_unverifiable`, since
+  their provenance can't be verified as pre-freeze). Exits non-zero if it finds
+  either (offline; reads the cache, never calls AskNews).
 - **Model cutoff**: `claude-haiku-4-5-20251001`'s Jul 2025 training cutoff
-  precedes every question's `freeze_datetime` and Tavily's search window, so
+  precedes every question's `freeze_datetime` and AskNews's search window, so
   neither the outcomes nor the retrieved evidence were in training.
 - **Lookback**: 60 days before `freeze_datetime` — recent reporting without
   flooding the LLM with stale context.
@@ -206,5 +179,5 @@ earliest-`resolution_date` selection), and the sliding-window rate limiter
 
 - ForecastBench: <https://www.forecastbench.org/>
 - ForecastBench datasets: <https://github.com/forecastingresearch/forecastbench-datasets>
-- Tavily Python SDK: <https://github.com/tavily-ai/tavily-python>
+- AskNews Python SDK: <https://github.com/emergentmethods/asknews-python-sdk>
 - Crupi & Tentori, *Confirmation Theory*: <https://www.vincenzocrupi.com/website/wp-content/uploads/2017/02/CrupiTentori_OxfordHandbook2016.pdf>

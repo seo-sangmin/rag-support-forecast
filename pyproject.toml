@@ -5,7 +5,7 @@ description = "Bayesian-confirmation calibration of LLM forecasts under retrieva
 requires-python = ">=3.11"
 dependencies = [
     "anthropic>=0.40.0",
-    "tavily-python>=0.5.0",
+    "asknews>=0.9.0",
     "httpx>=0.27.0",
     "scipy>=1.13.0",
     "numpy>=1.26.0",

@@ -53,7 +53,7 @@ def main() -> None:
         "--lookback-days",
         type=int,
         default=60,
-        help="Tavily start_date offset before each question's freeze_datetime.",
+        help="AskNews search-window start offset before each question's freeze_datetime.",
     )
     parser.add_argument(
         "--out",
