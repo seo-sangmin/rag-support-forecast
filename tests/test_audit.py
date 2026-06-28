@@ -7,10 +7,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from rag_forecast.audit import audit_evidence_leakage
-from rag_forecast.cache import JsonCache
+from rag_forecast.cache import JsonCache, cache_namespace
 from rag_forecast.config import Config
 from rag_forecast.data import ResolvedQuestion
-from rag_forecast.retrieval import build_search_payload
+from rag_forecast.retrieval import ASKNEWS_BACKEND, build_search_payload
 
 FREEZE = datetime(2025, 10, 16, tzinfo=timezone.utc)
 
@@ -26,6 +26,7 @@ def _question(qid: str = "q1", question: str = "Will it rain?") -> ResolvedQuest
         freeze_value=None,
         resolution_date="2025-12-01",
         outcome=1.0,
+        question_set_date="2025-10-26",
     )
 
 
@@ -42,7 +43,10 @@ def _article(published_date: str, title: str = "t") -> dict:
 def _seed(cfg: Config, q: ResolvedQuestion, articles: list[dict]) -> None:
     # Round-trips through the real cache + payload code, so the audit finds it
     # exactly as it would find evidence written by a real run.
-    JsonCache(cfg.cache_dir / "asknews").put(build_search_payload(q, cfg), articles)
+    namespace = cache_namespace(q.question_set_date, "retrieval", ASKNEWS_BACKEND)
+    JsonCache(cfg.cache_dir).put(
+        build_search_payload(q, cfg), articles, namespace=namespace
+    )
 
 
 def test_clean_evidence_passes(tmp_path: Path) -> None:

@@ -16,7 +16,7 @@ from anthropic import (
     RateLimitError,
 )
 
-from .cache import JsonCache
+from .cache import JsonCache, cache_namespace
 from .config import Config
 from .data import ResolvedQuestion
 from .prompts import (
@@ -44,14 +44,14 @@ class ForecastClient:
         self.client = AsyncAnthropic(
             api_key=api_key, max_retries=cfg.llm_sdk_max_retries
         )
-        self.cache = JsonCache(cfg.cache_dir / "llm")
+        self.cache = JsonCache(cfg.cache_dir)
         self.limiter = limiter or AsyncRateLimiter(
             requests_per_minute=cfg.requests_per_minute,
             input_tokens_per_minute=cfg.input_tokens_per_minute,
             output_tokens_per_minute=cfg.output_tokens_per_minute,
         )
 
-    async def _call(self, system: str, user: str) -> dict[str, Any]:
+    async def _call(self, system: str, user: str, date: str) -> dict[str, Any]:
         payload = {
             "model": self.cfg.model,
             "temperature": self.cfg.temperature,
@@ -59,7 +59,8 @@ class ForecastClient:
             "system": system,
             "user": user,
         }
-        cached = self.cache.get(payload)
+        namespace = cache_namespace(date, "prompt", self.cfg.model)
+        cached = self.cache.get(payload, namespace=namespace)
         if cached is not None:
             return cached
 
@@ -73,7 +74,7 @@ class ForecastClient:
         )
         parsed = _parse_json(text)
         value = {"raw": text, **parsed}
-        self.cache.put(payload, value)
+        self.cache.put(payload, value, namespace=namespace)
         return value
 
     async def _send_with_retry(
@@ -132,13 +133,13 @@ class ForecastClient:
         ) from last_err
 
     async def estimate_p_h(self, q: ResolvedQuestion) -> dict[str, Any]:
-        return await self._call(SYSTEM_PRIOR, render_question(q))
+        return await self._call(SYSTEM_PRIOR, render_question(q), q.question_set_date)
 
     async def estimate_p_h_given_e(
         self, q: ResolvedQuestion, evidence: list[dict[str, Any]]
     ) -> dict[str, Any]:
         user = render_question(q) + "\n\nEvidence:\n" + render_evidence(evidence)
-        return await self._call(SYSTEM_POSTERIOR, user)
+        return await self._call(SYSTEM_POSTERIOR, user, q.question_set_date)
 
 
 _JSON_RE = re.compile(r"\{.*\}", re.DOTALL)

@@ -91,6 +91,7 @@ def test_load_resolved_questions_filters_and_joins(tmp_path: Path) -> None:
     assert by_id["q1"].outcome == 1.0
     assert by_id["q1"].source == "manifold"
     assert by_id["q1"].freeze_value == 0.42
+    assert by_id["q1"].question_set_date == "2025-10-26"
     assert by_id["q2"].outcome == 0.0
     assert "q3" not in by_id
 

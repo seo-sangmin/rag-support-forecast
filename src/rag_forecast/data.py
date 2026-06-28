@@ -25,6 +25,9 @@ class ResolvedQuestion:
     freeze_value: float | None
     resolution_date: str
     outcome: float
+    # ForecastBench question-set snapshot this question was loaded from (the value
+    # passed to ``--question-sets``); used to namespace its cache entries by date.
+    question_set_date: str = ""
 
 
 def _download(url: str, dest: Path) -> dict:
@@ -100,5 +103,6 @@ def load_resolved_questions(date: str, cfg: Config) -> list[ResolvedQuestion]:
             freeze_value=_safe_float(q.get("freeze_datetime_value")),
             resolution_date=resolution_date,
             outcome=float(outcome),
+            question_set_date=date,
         )
     return list(earliest.values())
