@@ -1,0 +1,1 @@
+- After proposing a plan in Plan Mode, state a plain-language explanation of each step without altering the original plan.
