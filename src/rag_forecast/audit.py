@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from .cache import JsonCache
+from .cache import JsonCache, cache_namespace
 from .config import Config
 from .data import ResolvedQuestion, _parse_dt
-from .retrieval import build_search_payload
+from .retrieval import ASKNEWS_BACKEND, build_search_payload
 
 
 def audit_evidence_leakage(
@@ -27,14 +27,17 @@ def audit_evidence_leakage(
     ``evidence_unverifiable`` (with a ``reason``) and counts against ``ok`` rather
     than being silently skipped.
     """
-    cache = JsonCache(cfg.cache_dir / "asknews")
+    cache = JsonCache(cfg.cache_dir)
     violations: list[dict[str, Any]] = []
     unverifiable: list[dict[str, Any]] = []
     n_cached = 0
     n_uncached = 0
     n_articles_checked = 0
     for q in questions:
-        evidence = cache.get(build_search_payload(q, cfg))
+        namespace = cache_namespace(
+            q.question_set_date, "retrieval", ASKNEWS_BACKEND
+        )
+        evidence = cache.get(build_search_payload(q, cfg), namespace=namespace)
         if evidence is None:
             n_uncached += 1
             continue

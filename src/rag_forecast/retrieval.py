@@ -7,9 +7,13 @@ from typing import Any
 
 from asknews_sdk import AsyncAskNewsSDK
 
-from .cache import JsonCache
+from .cache import JsonCache, cache_namespace
 from .config import Config
 from .data import ResolvedQuestion
+
+# Backend label for the retrieval stage's cache folder. AskNews has no LLM-style
+# model, so the provider name identifies the backend; shared with the audit.
+ASKNEWS_BACKEND = "asknews"
 
 _EG_SPLIT = re.compile(r"\n\s*\n\s*e\.g\.", re.IGNORECASE)
 
@@ -47,7 +51,7 @@ class AskNewsRetriever:
             raise RuntimeError("ASKNEWS_API_KEY is not set")
         self.cfg = cfg
         self.client = AsyncAskNewsSDK(api_key=api_key)
-        self.cache = JsonCache(cfg.cache_dir / "asknews")
+        self.cache = JsonCache(cfg.cache_dir)
 
     def _truncate(self, results: list[dict[str, Any]]) -> list[dict[str, Any]]:
         n = self.cfg.asknews_snippet_chars
@@ -63,7 +67,10 @@ class AskNewsRetriever:
 
     async def retrieve(self, q: ResolvedQuestion) -> list[dict[str, Any]]:
         payload = build_search_payload(q, self.cfg)
-        cached = self.cache.get(payload)
+        namespace = cache_namespace(
+            q.question_set_date, "retrieval", ASKNEWS_BACKEND
+        )
+        cached = self.cache.get(payload, namespace=namespace)
         if cached is not None:
             return cached
 
@@ -92,5 +99,5 @@ class AskNewsRetriever:
                 for a in (response.as_dicts or [])
             ]
         )
-        self.cache.put(payload, results)
+        self.cache.put(payload, results, namespace=namespace)
         return results

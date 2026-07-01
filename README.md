@@ -65,8 +65,14 @@ CLI flags for `run_experiment.py`:
 | `--lookback-days` | `60` | AskNews search-window start offset before `freeze_datetime` |
 | `--out` | timestamped | output CSV path |
 
-LLM and AskNews calls are cached on disk under `data/cache/` keyed by a SHA-256
-of their inputs, so reruns are free.
+LLM and AskNews calls are cached on disk, so reruns are free. Cache files are laid out
+as `data/cache/<date>/<stage>/<backend>/<hash>.json` — e.g.
+`data/cache/2025-10-26/retrieval/asknews/…` and
+`data/cache/2025-10-26/prompt/claude-haiku-4-5-20251001/…` — so every ForecastBench
+snapshot's caches sit together and each file's `<date>`/`<stage>`/`<backend>` is
+legible at a glance. The `<hash>` filename is a SHA-256 of the request inputs (the
+actual cache key). Retrieval is filed under its backend (`asknews`), not the LLM model,
+so runs with different models share one retrieval cache.
 
 ### Iterative runs
 
@@ -128,7 +134,7 @@ src/rag_forecast/
   rate_limiter.py  — async sliding-window RPM/ITPM/OTPM limiter
   prompts.py       — prior/posterior elicitation prompts
   metrics.py       — brier, z_crupi_tentori, spearman
-  cache.py         — content-hash JSON cache
+  cache.py         — content-hash JSON cache, namespaced <date>/<stage>/<backend>
   audit.py         — evidence-cutoff leakage audit over the AskNews cache
   pipeline.py      — async orchestration, writes per-question CSV
 scripts/

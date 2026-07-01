@@ -27,7 +27,10 @@ class Config:
     asknews_method: str = "nl"
     asknews_snippet_chars: int = 2000
 
-    concurrency: int = 8
+    # Separate concurrency caps so each external service throttles on its own:
+    # retrieval (AskNews) and prompting (Anthropic) run as distinct phases.
+    asknews_concurrency: int = 8
+    llm_concurrency: int = 8
     # Outer-loop retries for our own backoff; the SDK does its own retries
     # underneath (see ``llm_sdk_max_retries``).
     llm_max_retries: int = 3

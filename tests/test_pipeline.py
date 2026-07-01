@@ -9,11 +9,14 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
+from rag_forecast.config import Config
 from rag_forecast.data import ResolvedQuestion
 from rag_forecast.pipeline import (
     Row,
     _filter_questions,
+    _forecast_all,
     _load_processed,
+    _retrieve_all,
     _sample_questions,
     _write_combined_csv,
 )
@@ -211,3 +214,101 @@ def test_write_combined_csv_handles_schema_drift(tmp_path: Path) -> None:
         assert "legacy_extra" not in (reader.fieldnames or [])
     assert result[0]["abs_z"] == ""  # missing prior column -> empty cell
     assert result[1]["abs_z"] == "0.4"
+
+
+class _FakeRetriever:
+    """Stand-in for AskNewsRetriever: canned results, optional per-id errors."""
+
+    def __init__(
+        self,
+        results: dict[str, list[dict]] | None = None,
+        errors: set[str] | None = None,
+    ) -> None:
+        self.results = results or {}
+        self.errors = errors or set()
+
+    async def retrieve(self, q: ResolvedQuestion) -> list[dict]:
+        if q.id in self.errors:
+            raise RuntimeError(f"retrieval boom: {q.id}")
+        return self.results.get(q.id, [])
+
+
+class _FakeForecaster:
+    """Stand-in for ForecastClient: fixed probabilities, optional per-id errors."""
+
+    def __init__(
+        self,
+        p_h: float = 0.5,
+        p_he: float = 0.7,
+        errors: set[str] | None = None,
+    ) -> None:
+        self.p_h = p_h
+        self.p_he = p_he
+        self.errors = errors or set()
+
+    async def estimate_p_h(self, q: ResolvedQuestion) -> dict:
+        if q.id in self.errors:
+            raise RuntimeError(f"prior boom: {q.id}")
+        return {"probability": self.p_h, "reasoning": ""}
+
+    async def estimate_p_h_given_e(
+        self, q: ResolvedQuestion, evidence: list[dict]
+    ) -> dict:
+        if q.id in self.errors:
+            raise RuntimeError(f"posterior boom: {q.id}")
+        return {"probability": self.p_he, "reasoning": ""}
+
+
+async def test_retrieve_all_drops_errors_and_keeps_empty() -> None:
+    qs = [_q("q1"), _q("q2"), _q("q3")]
+    retriever = _FakeRetriever(
+        results={"q1": [{"title": "a"}], "q3": []},
+        errors={"q2"},
+    )
+    evidence = await _retrieve_all(qs, retriever, Config())
+
+    # q2 errored -> dropped from the map; q3's empty list is kept.
+    assert set(evidence) == {("q1", "manifold"), ("q3", "manifold")}
+    assert evidence[("q1", "manifold")] == [{"title": "a"}]
+    assert evidence[("q3", "manifold")] == []
+
+
+async def test_forecast_all_skips_questions_without_evidence() -> None:
+    qs = [_q("q1"), _q("q2")]  # q2 never retrieved
+    evidence = {("q1", "manifold"): [{"title": "a"}]}
+    rows = await _forecast_all(qs, evidence, _FakeForecaster(), Config())
+    assert [r.id for r in rows] == ["q1"]
+
+
+async def test_forecast_all_empty_evidence_still_produces_row() -> None:
+    qs = [_q("q1")]
+    evidence = {("q1", "manifold"): []}  # retrieved, just no articles
+    rows = await _forecast_all(qs, evidence, _FakeForecaster(), Config())
+    assert len(rows) == 1
+    assert rows[0].n_evidence == 0
+
+
+async def test_forecast_all_skips_row_on_prompt_error() -> None:
+    qs = [_q("q1"), _q("q2")]
+    evidence = {("q1", "manifold"): [{"t": 1}], ("q2", "manifold"): [{"t": 1}]}
+    forecaster = _FakeForecaster(errors={"q2"})
+    rows = await _forecast_all(qs, evidence, forecaster, Config())
+    assert [r.id for r in rows] == ["q1"]
+
+
+async def test_retrieve_then_forecast_end_to_end() -> None:
+    qs = [_q("q1")]
+    retriever = _FakeRetriever(results={"q1": [{"t": 1}, {"t": 2}]})
+    evidence = await _retrieve_all(qs, retriever, Config())
+    rows = await _forecast_all(
+        qs, evidence, _FakeForecaster(p_h=0.5, p_he=0.7), Config()
+    )
+
+    assert len(rows) == 1
+    r = rows[0]
+    assert r.p_h == 0.5
+    assert r.p_he == 0.7
+    assert r.n_evidence == 2
+    assert r.brier_h == pytest.approx(0.25)  # (0.5 - 1)^2
+    assert r.brier_he == pytest.approx(0.09)  # (0.7 - 1)^2
+    assert r.brier_delta == pytest.approx(0.16)
