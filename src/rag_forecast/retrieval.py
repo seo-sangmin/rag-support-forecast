@@ -10,6 +10,7 @@ from asknews_sdk import AsyncAskNewsSDK
 from .cache import JsonCache, cache_namespace
 from .config import Config
 from .data import ResolvedQuestion
+from .rate_limiter import AsyncTokenBucket
 
 # Backend label for the retrieval stage's cache folder. AskNews has no LLM-style
 # model, so the provider name identifies the backend; shared with the audit.
@@ -45,13 +46,22 @@ def build_search_payload(q: ResolvedQuestion, cfg: Config) -> dict[str, Any]:
 
 
 class AskNewsRetriever:
-    def __init__(self, cfg: Config) -> None:
+    def __init__(
+        self, cfg: Config, limiter: AsyncTokenBucket | None = None
+    ) -> None:
         api_key = os.environ.get("ASKNEWS_API_KEY")
         if not api_key:
             raise RuntimeError("ASKNEWS_API_KEY is not set")
         self.cfg = cfg
         self.client = AsyncAskNewsSDK(api_key=api_key)
         self.cache = JsonCache(cfg.cache_dir)
+        # Shared across all concurrent retrieve() calls so the whole retrieval
+        # phase respects AskNews's rate + burst limits (concurrency is capped
+        # separately by the semaphore in pipeline._retrieve_all).
+        self.limiter = limiter or AsyncTokenBucket(
+            rate_per_second=1.0 / cfg.asknews_request_interval_s,
+            burst=cfg.asknews_burst,
+        )
 
     def _truncate(self, results: list[dict[str, Any]]) -> list[dict[str, Any]]:
         n = self.cfg.asknews_snippet_chars
@@ -73,6 +83,10 @@ class AskNewsRetriever:
         cached = self.cache.get(payload, namespace=namespace)
         if cached is not None:
             return cached
+
+        # Throttle only real HTTP requests -- cache hits above consume no rate
+        # budget. Blocks until the token bucket allows this request.
+        await self.limiter.acquire()
 
         # historical=True searches the full archive rather than only the recent
         # hot window, and time_filter="pub_date" bounds results by publication

@@ -144,6 +144,49 @@ class AsyncRateLimiter:
             self._rpm.events.append(_Reservation(time=anchor, amount=self._rpm.capacity))
 
 
+class AsyncTokenBucket:
+    """Token-bucket limiter: a steady request rate with a small burst allowance.
+
+    Refills one token every ``1 / rate_per_second`` seconds up to ``burst``
+    tokens. ``acquire`` consumes one token, blocking until one is available.
+    Unlike ``AsyncRateLimiter`` (per-minute sliding windows for token budgets),
+    this enforces sub-minute pacing plus a burst cap -- the shape of AskNews's
+    documented HTTP limits. Pair it with a concurrency semaphore to also cap the
+    number of simultaneous in-flight calls.
+    """
+
+    def __init__(self, *, rate_per_second: float, burst: int) -> None:
+        if rate_per_second <= 0:
+            raise ValueError("rate_per_second must be positive")
+        if burst < 1:
+            raise ValueError("burst must be at least 1")
+        self._rate = rate_per_second
+        self._capacity = float(burst)
+        self._tokens = float(burst)  # start full so an initial burst is allowed
+        self._lock = asyncio.Lock()
+        self._now = time.monotonic
+        self._updated = self._now()
+
+    def _try_acquire(self, now: float) -> float:
+        """Refill by elapsed time; if a token is free, consume it and return
+        0.0, otherwise return the seconds until the next token accrues."""
+        elapsed = max(0.0, now - self._updated)
+        self._updated = now
+        self._tokens = min(self._capacity, self._tokens + elapsed * self._rate)
+        if self._tokens >= 1.0:
+            self._tokens -= 1.0
+            return 0.0
+        return (1.0 - self._tokens) / self._rate
+
+    async def acquire(self) -> None:
+        while True:
+            async with self._lock:
+                wait = self._try_acquire(self._now())
+                if wait <= 0.0:
+                    return
+            await asyncio.sleep(wait)
+
+
 def estimate_input_tokens(*texts: str) -> int:
     """Rough char-to-token approximation (~4 chars/token + small overhead)."""
     total_chars = sum(len(t) for t in texts)
@@ -173,6 +216,7 @@ def parse_retry_after(headers: object, default: float) -> float:
 
 __all__: Iterable[str] = (
     "AsyncRateLimiter",
+    "AsyncTokenBucket",
     "Reservations",
     "estimate_input_tokens",
     "parse_retry_after",

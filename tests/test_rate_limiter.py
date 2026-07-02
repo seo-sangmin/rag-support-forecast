@@ -10,6 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from rag_forecast.rate_limiter import (  # noqa: E402
     AsyncRateLimiter,
+    AsyncTokenBucket,
     estimate_input_tokens,
     parse_retry_after,
 )
@@ -35,6 +36,16 @@ def _limiter(rpm: int = 10, itpm: int = 1000, otpm: int = 200) -> tuple[AsyncRat
     clock = FakeClock()
     lim._now = clock  # type: ignore[assignment]
     return lim, clock
+
+
+def _bucket(
+    rate_per_second: float = 0.5, burst: int = 2
+) -> tuple[AsyncTokenBucket, FakeClock]:
+    tb = AsyncTokenBucket(rate_per_second=rate_per_second, burst=burst)
+    clock = FakeClock()
+    tb._now = clock  # type: ignore[assignment]
+    tb._updated = clock()  # align the refill anchor with the fake clock
+    return tb, clock
 
 
 async def test_acquire_passes_under_capacity() -> None:
@@ -95,6 +106,48 @@ async def test_acquire_is_concurrency_safe() -> None:
     )
     assert len(results) == 5
     assert lim._rpm.used(clock()) == 5
+
+
+async def test_token_bucket_allows_initial_burst() -> None:
+    # burst=2 -> first two acquires pass immediately (no sleep, clock frozen).
+    tb, clock = _bucket(rate_per_second=0.5, burst=2)
+    await tb.acquire()
+    await tb.acquire()
+    # Bucket now empty; a third request must wait ~2s (1 token / 0.5 per s).
+    assert tb._try_acquire(clock()) == pytest.approx(2.0)
+
+
+async def test_token_bucket_refills_after_interval() -> None:
+    tb, clock = _bucket(rate_per_second=0.5, burst=2)
+    tb._try_acquire(clock())  # spend the two burst tokens
+    tb._try_acquire(clock())
+    assert tb._try_acquire(clock()) == pytest.approx(2.0)  # empty -> wait 2s
+    clock.advance(2.0)
+    assert tb._try_acquire(clock()) == 0.0  # one token refilled -> passes
+    # ...and drained again immediately after.
+    assert tb._try_acquire(clock()) == pytest.approx(2.0)
+
+
+async def test_token_bucket_caps_accumulated_tokens_at_burst() -> None:
+    tb, clock = _bucket(rate_per_second=0.5, burst=2)
+    clock.advance(100.0)  # long idle would over-fill an uncapped bucket
+    assert tb._try_acquire(clock()) == 0.0  # only burst=2 tokens available
+    assert tb._try_acquire(clock()) == 0.0
+    assert tb._try_acquire(clock()) == pytest.approx(2.0)  # not 100s worth
+
+
+async def test_token_bucket_burst_acquires_are_immediate() -> None:
+    # Both burst tokens are grantable via the real acquire() path without any
+    # real sleep, since the clock is frozen and tokens are available.
+    tb, _ = _bucket(rate_per_second=0.5, burst=2)
+    await asyncio.wait_for(asyncio.gather(tb.acquire(), tb.acquire()), timeout=1.0)
+
+
+def test_token_bucket_rejects_invalid_params() -> None:
+    with pytest.raises(ValueError):
+        AsyncTokenBucket(rate_per_second=0.0, burst=2)
+    with pytest.raises(ValueError):
+        AsyncTokenBucket(rate_per_second=0.5, burst=0)
 
 
 def test_estimate_input_tokens_grows_with_length() -> None:
