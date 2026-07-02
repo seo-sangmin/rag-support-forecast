@@ -23,13 +23,21 @@ class Config:
 
     question_set_dates: tuple[str, ...] = ("2025-10-26",)
     lookback_days: int = 60
-    asknews_n_articles: int = 8
+    # AskNews bills 5 credits per archive /news request regardless of article
+    # count, so we request the SDK default of 10 for more evidence per credit.
+    asknews_n_articles: int = 10
     asknews_method: str = "nl"
     asknews_snippet_chars: int = 2000
 
+    # AskNews HTTP rate limits (token bucket): 1 request / 2s steady state with a
+    # burst of 2. Concurrency (3, below) is enforced separately by the semaphore.
+    asknews_request_interval_s: float = 2.0
+    asknews_burst: int = 2
+
     # Separate concurrency caps so each external service throttles on its own:
     # retrieval (AskNews) and prompting (Anthropic) run as distinct phases.
-    asknews_concurrency: int = 8
+    # AskNews caps concurrent requests at 3.
+    asknews_concurrency: int = 3
     llm_concurrency: int = 8
     # Outer-loop retries for our own backoff; the SDK does its own retries
     # underneath (see ``llm_sdk_max_retries``).

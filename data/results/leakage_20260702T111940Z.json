@@ -1,8 +1,8 @@
 {
   "n_questions": 348,
-  "n_cached": 2,
-  "n_uncached": 346,
-  "n_articles_checked": 13,
+  "n_cached": 3,
+  "n_uncached": 345,
+  "n_articles_checked": 24,
   "n_violations": 0,
   "n_unverifiable": 0,
   "ok": true,

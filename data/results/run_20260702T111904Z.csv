@@ -1,0 +1,12 @@
+id,source,question,freeze_datetime,resolution_date,outcome,p_h,p_he,n_evidence,brier_h,brier_he,brier_delta,z,abs_z
+0x2a34915c245f4b94976dda8afddb56452caf0ba2307500f78d7f08813d467917,polymarket,Will Billie Eilish be the top Spotify artist for 2025?,2025-10-16T00:00:00+00:00,2025-12-03,0.0,0.15,0.25,9,0.0225,0.0625,-0.04,0.11764705882352942,0.11764705882352942
+0x73f71c364e6085e956abcd950f2176abcf3a6959022b5cc008fd505f296e335a,polymarket,Will the U.S. invade Iran in 2025?,2025-10-16T00:00:00+00:00,2026-01-01,0.0,0.08,0.25,8,0.0064,0.0625,-0.0561,0.18478260869565216,0.18478260869565216
+342a14e2377140e8a95d331b6c112002f902a6bacd1017b3ead112d3438b6bb1,acled,"Will there be more than ten times as many 'Strategic developments' in Hungary for the 30 days before 2025-11-02 compared to one plus the 30-day average of 'Strategic developments' over the 360 days preceding 2025-10-26?
+
+e.g. If the forecast due date is 2024-01-01 and we have the following data:
+Date,'Strategic developments'
+2023-11-11,1
+2023-10-10,2
+to calculate one plus the 30-day average of 'Strategic developments' over the preceding 360 days, we’d have: 1+(1+2)/12=1.25.
+
+In this example, for the question to resolve positively, 13 (10 x 1.25) or more 'Strategic developments' would need to occur in the 30 days leading up to the resolution.",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.08,0.15,7,0.0064,0.0225,-0.0161,0.07608695652173912,0.07608695652173912
