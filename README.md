@@ -1,8 +1,11 @@
 # rag-support-forecast
 
-Existing work shows that retrieval-augmented forecasting systems can improve LLM forecasts, but it is unclear when and why retrieved evidence helps. This project tests whether the model’s own probability shift after retrieval provides a measurable signal of retrieval’s actual forecasting value. This repo runs a minimum viable experiment on binary
-forecasting questions from [ForecastBench](https://www.forecastbench.org/) to
-test one hypothesis:
+Retrieval-augmented forecasting can improve LLM forecasts, but it is unclear
+when and why retrieved evidence helps. This repo runs a minimum viable
+experiment on binary forecasting questions from
+[ForecastBench](https://www.forecastbench.org/) to test whether the model's own
+probability shift after retrieval is a measurable signal of retrieval's actual
+forecasting value:
 
 > **For binary forecasting questions, LLM-estimated Bayesian confirmation
 > measures computed from P(H) and P(H|E) are positively associated with
@@ -16,22 +19,49 @@ measure |Z| rank-correlates with the per-question Brier-score improvement.
 
 ## Method
 
-1. Load the ForecastBench question + resolution sets dated **2025-10-26** and
-   keep only binary outcomes (`resolved_to ∈ {0, 1}`), taking the **earliest**
-   `resolution_date` per `(id, source)`. Fill templated variables
-   (`{resolution_date}`, `{forecast_due_date}`).
+1. Load the ForecastBench question + resolution sets dated **2025-10-26**, keep
+   binary outcomes only, one row per `(id, source)` (earliest
+   `resolution_date`) — **348 unique questions**.
 2. Elicit **P(H)** from `claude-haiku-4-5-20251001` (temperature 0) from the
    question text, criteria, and background only.
 3. Retrieve evidence with **AskNews**, bounded to
    `[freeze_datetime − 60 days, freeze_datetime]` to prevent post-forecast
-   leakage (natural-language search, top 8 results, 2 000 chars each).
+   leakage (top 8 results).
 4. Elicit **P(H|E)** from the same model with the retrieved snippets added.
 5. Compute **Brier scores** `(p − outcome)²` against the resolved outcome.
-6. Compute the **Crupi–Tentori Z** confirmation measure:
-   - `Z = (P(H|E) − P(H)) / (1 − P(H))` if `P(H|E) ≥ P(H)`
-   - `Z = (P(H|E) − P(H)) / P(H)` otherwise
+6. Compute the **Crupi–Tentori Z**: `(P(H|E) − P(H)) / (1 − P(H))` if
+   `P(H|E) ≥ P(H)`, else `(P(H|E) − P(H)) / P(H)`.
 7. Report the **Spearman rank correlation** between `|Z|` and
    `Brier(P(H)) − Brier(P(H|E))`.
+
+## Results
+
+100 of the 348 questions so far, sampled at random and spanning 8 sources
+(Polymarket, Wikipedia, FRED, DBnomics, ACLED, yfinance, Manifold, Metaculus).
+Runs are resume-chained, so the latest CSV is the cumulative dataset:
+`data/results/run_20260705T105447Z.csv` and its `_summary.json`.
+
+| statistic (n = 100) | value |
+| --- | --- |
+| Spearman rho, \|Z\| vs Brier improvement | **0.21** (p = 0.039) |
+| mean Brier, prior P(H) | 0.186 |
+| mean Brier, posterior P(H\|E) | 0.162 |
+| mean Brier improvement | +0.024 |
+| questions improved by retrieval | 36% |
+| mean \|Z\| | 0.227 |
+| questions with Z > 0 | 43% |
+
+The hypothesis is supported, modestly: |Z| is positively rank-correlated with
+the Brier improvement, significant at the 0.05 level. Retrieval also helped on
+average — mean Brier dropped from 0.186 to 0.162 — even though only 36% of
+individual questions improved, so the gains where retrieval helped outweighed
+the losses where it hurt. Caveats: this is 100 of 348 questions, a single
+model, and p is only just below 0.05.
+
+The evidence-cutoff audit over all 100 questions' cached retrievals
+(`data/results/leakage_20260705T110757Z.json`) checked 927 articles and found
+**zero** published after their question's `freeze_datetime` and zero with
+unverifiable publication dates.
 
 ## Setup
 
@@ -65,76 +95,43 @@ CLI flags for `run_experiment.py`:
 | `--lookback-days` | `60` | AskNews search-window start offset before `freeze_datetime` |
 | `--out` | timestamped | output CSV path |
 
-LLM and AskNews calls are cached on disk, so reruns are free. Cache files are laid out
-as `data/cache/<date>/<stage>/<backend>/<hash>.json` — e.g.
-`data/cache/2025-10-26/retrieval/asknews/…` and
-`data/cache/2025-10-26/prompt/claude-haiku-4-5-20251001/…` — so every ForecastBench
-snapshot's caches sit together and each file's `<date>`/`<stage>`/`<backend>` is
-legible at a glance. The `<hash>` filename is a SHA-256 of the request inputs (the
-actual cache key). Retrieval is filed under its backend (`asknews`), not the LLM model,
-so runs with different models share one retrieval cache.
+LLM and AskNews calls are cached on disk
+(`data/cache/<date>/<stage>/<backend>/<hash>.json`), so reruns are free;
+retrieval is cached per backend, not per model, so runs with different models
+share it. Anthropic calls are throttled in-process against per-minute request
+and token budgets (defaults fit Tier-1) with `retry-after` backoff on any
+surviving 429 — tune them on the `Config` dataclass
+(see `src/rag_forecast/rate_limiter.py`).
 
-### Iterative runs
-
-`--resume-from` lets you chip away at the full dataset across multiple runs
-without re-spending tokens on already-processed questions. Each output CSV is a
-superset of the runs it resumes from, so always pass the *latest* CSV to
-`analyze_results.py`.
+`--resume-from` chips away at the full set across runs without re-spending
+tokens: each output CSV is a superset of the runs it resumes from, so pass the
+*latest* CSV to `analyze_results.py`.
 
 ```bash
 python scripts/run_experiment.py --max-questions 100 --random --seed 2 \
     --resume-from data/results/pass1.csv --out data/results/pass2.csv
 ```
 
-### Rate limits
-
-Anthropic calls are throttled in-process against three per-minute budgets
-(requests, input tokens, output tokens) to stay under Tier-1 limits without
-tripping 429s. Each call reserves its budget up front and then commits the real
-`usage` from the response so the windows self-correct; a surviving 429 backs
-off on the server-supplied `retry-after`. Defaults match Sonnet's Tier-1 budget
-(the tightest active model) with a ~10% margin — safe for Haiku, well below
-Opus. Override them on the `Config` dataclass for a different tier.
-
-| setting | default | Tier-1 limit (Sonnet / Haiku / Opus) |
-| --- | --- | --- |
-| `requests_per_minute` | `45` | 50 / 50 / 50 |
-| `input_tokens_per_minute` | `28_000` | 30K / 50K / 500K |
-| `output_tokens_per_minute` | `7_500` | 8K / 10K / 80K |
-
 ## Outputs
 
 `data/results/run_<timestamp>.csv` — one row per question with columns:
 `id, source, question, freeze_datetime, resolution_date, outcome, p_h, p_he,
 n_evidence, brier_h, brier_he, brier_delta, z, abs_z`.
-
-`run_<timestamp>_summary.json` — written by `analyze_results.py`:
-
-```json
-{
-  "n": ...,
-  "mean_brier_h": ...,
-  "mean_brier_he": ...,
-  "mean_brier_delta": ...,
-  "frac_brier_improved": ...,
-  "mean_abs_z": ...,
-  "frac_z_positive": ...,
-  "spearman_abs_z_vs_brier_delta": {"rho": ..., "p_value": ...}
-}
-```
+`analyze_results.py` writes the aggregate statistics shown in
+[Results](#results) to `run_<timestamp>_summary.json`.
 
 ## Project layout
 
 ```
 src/rag_forecast/
-  config.py        — Config dataclass (model, paths, dates, concurrency, rate limits)
+  config.py        — Config dataclass (model, paths, dates, rate limits)
   data.py          — ForecastBench fetch, join, binary filter, template fill
   retrieval.py     — date-bounded, cached AskNews wrapper
   forecasting.py   — rate-limited Anthropic client, strict-JSON parse, cached
   rate_limiter.py  — async sliding-window RPM/ITPM/OTPM limiter
   prompts.py       — prior/posterior elicitation prompts
   metrics.py       — brier, z_crupi_tentori, spearman
-  cache.py         — content-hash JSON cache, namespaced <date>/<stage>/<backend>
+  cache.py         — content-hash JSON cache
   audit.py         — evidence-cutoff leakage audit over the AskNews cache
   pipeline.py      — async orchestration, writes per-question CSV
 scripts/
@@ -150,36 +147,23 @@ tests/             — metrics, data loader, rate limiter, leakage audit
 pytest -q
 ```
 
-Cover the Brier and Crupi–Tentori Z formulas (extremes, both branches, bounds),
-Spearman edge cases, the question/resolution loader (binary filtering, joining,
-earliest-`resolution_date` selection), and the sliding-window rate limiter
-(acquire/commit, window expiry, `retry-after` parsing, concurrency).
+Covers the Brier and Crupi–Tentori Z formulas, Spearman edge cases, the
+question/resolution loader, and the sliding-window rate limiter.
 
 ## Design choices
 
-- **Evidence cutoff**: the AskNews search window ends at each question's `freeze_datetime`
-  (not the resolution date), so retrieval can't surface news that reveals the
-  outcome. `python scripts/audit_leakage.py` verifies this held for the cached
-  evidence — it flags any retrieved article published after its question's
-  `freeze_datetime`, and fails closed on articles whose `published_date` is missing
-  or unparseable (reported under `evidence_unverifiable` / `n_unverifiable`, since
-  their provenance can't be verified as pre-freeze). Exits non-zero if it finds
-  either (offline; reads the cache, never calls AskNews).
+- **Evidence cutoff**: the AskNews search window ends at each question's
+  `freeze_datetime` (not the resolution date), so retrieval can't surface news
+  that reveals the outcome. `scripts/audit_leakage.py` verifies this held for
+  the cached evidence, offline, and fails closed on articles whose
+  `published_date` can't be verified as pre-freeze.
 - **Model cutoff**: `claude-haiku-4-5-20251001`'s Jul 2025 training cutoff
-  precedes every question's `freeze_datetime` and AskNews's search window, so
+  precedes every question's `freeze_datetime` and AskNews search window, so
   neither the outcomes nor the retrieved evidence were in training.
 - **Lookback**: 60 days before `freeze_datetime` — recent reporting without
   flooding the LLM with stale context.
-- **Question scope**: the `2025-10-26-llm.json` set holds 500 questions; 1 073
-  resolved binary outcomes across horizons collapse to **348 unique questions**
-  (one per `(id, source)`, earliest `resolution_date`) across 9 sources.
-- **Caching**: required — reruns during analysis would otherwise burn API
-  credits.
-- **Throttling over erroring**: proactive rate limiting plus `retry-after`
-  backoff beats letting the SDK raise `RateLimitError` mid-run, since a sweep
-  across ~1 000 questions compounds 429 noise.
-- **Temperature 0**: maximizes reproducibility; relies on decode-time reasoning
-  rather than ensembling samples.
+- **Temperature 0**: maximizes reproducibility; relies on decode-time
+  reasoning rather than ensembling samples.
 
 ## References
 
