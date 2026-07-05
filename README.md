@@ -26,7 +26,7 @@ measure |Z| rank-correlates with the per-question Brier-score improvement.
    question text, criteria, and background only.
 3. Retrieve evidence with **AskNews**, bounded to
    `[freeze_datetime − 60 days, freeze_datetime]` to prevent post-forecast
-   leakage (top 8 results).
+   leakage (top 10 results).
 4. Elicit **P(H|E)** from the same model with the retrieved snippets added.
 5. Compute **Brier scores** `(p − outcome)²` against the resolved outcome.
 6. Compute the **Crupi–Tentori Z**: `(P(H|E) − P(H)) / (1 − P(H))` if
