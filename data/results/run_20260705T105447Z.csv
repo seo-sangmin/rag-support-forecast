@@ -1,0 +1,211 @@
+id,source,question,freeze_datetime,resolution_date,outcome,p_h,p_he,n_evidence,brier_h,brier_he,brier_delta,z,abs_z
+0x2a34915c245f4b94976dda8afddb56452caf0ba2307500f78d7f08813d467917,polymarket,Will Billie Eilish be the top Spotify artist for 2025?,2025-10-16T00:00:00+00:00,2025-12-03,0.0,0.15,0.25,9,0.0225,0.0625,-0.04,0.11764705882352942,0.11764705882352942
+0x73f71c364e6085e956abcd950f2176abcf3a6959022b5cc008fd505f296e335a,polymarket,Will the U.S. invade Iran in 2025?,2025-10-16T00:00:00+00:00,2026-01-01,0.0,0.08,0.25,8,0.0064,0.0625,-0.0561,0.18478260869565216,0.18478260869565216
+342a14e2377140e8a95d331b6c112002f902a6bacd1017b3ead112d3438b6bb1,acled,"Will there be more than ten times as many 'Strategic developments' in Hungary for the 30 days before 2025-11-02 compared to one plus the 30-day average of 'Strategic developments' over the 360 days preceding 2025-10-26?
+
+e.g. If the forecast due date is 2024-01-01 and we have the following data:
+Date,'Strategic developments'
+2023-11-11,1
+2023-10-10,2
+to calculate one plus the 30-day average of 'Strategic developments' over the preceding 360 days, we’d have: 1+(1+2)/12=1.25.
+
+In this example, for the question to resolve positively, 13 (10 x 1.25) or more 'Strategic developments' would need to occur in the 30 days leading up to the resolution.",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.08,0.15,7,0.0064,0.0225,-0.0161,0.07608695652173912,0.07608695652173912
+0x34a8aa834927033bb6ac7bd96c508972611b826ca6d61e59c6d7d0cf3571d463,polymarket,Will Monad perform an airdrop by November 30? ,2025-10-16T00:00:00+00:00,2025-11-24,1.0,0.42,0.25,10,0.3364000000000001,0.5625,-0.2260999999999999,-0.40476190476190477,0.40476190476190477
+0xf34b156ecf111694d6e6841a7effb807f9483cb0cabfaa3e50283530d96d58ce,polymarket,Tesla launches unsupervised full self driving (FSD) by October 31?,2025-10-16T00:00:00+00:00,2025-10-31,0.0,0.15,0.08,10,0.0225,0.0064,0.0161,-0.4666666666666666,0.4666666666666666
+0x77b5bfe44beb0641905f76ee2f32f96f47d8863bcad586678224a6dc02f03ad3,polymarket,US forces in Iran in 2025?,2025-10-16T00:00:00+00:00,2025-12-31,0.0,0.12,0.15,9,0.0144,0.0225,-0.0081,0.03409090909090909,0.03409090909090909
+25c3f1b2e05b73f6803f231e4f0f12b9c9e87f6fbbc9d8c2fd71044ab729fdd7,acled,"Will there be more than ten times as many fatalities in Armenia for the 30 days before 2025-11-02 compared to one plus the 30-day average of fatalities over the 360 days preceding 2025-10-26?
+
+e.g. If the forecast due date is 2024-01-01 and we have the following data:
+Date,fatalities
+2023-11-11,1
+2023-10-10,2
+to calculate one plus the 30-day average of fatalities over the preceding 360 days, we’d have: 1+(1+2)/12=1.25.
+
+In this example, for the question to resolve positively, 13 (10 x 1.25) or more fatalities would need to occur in the 30 days leading up to the resolution.",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.12,0.02,10,0.0144,0.0004,0.014,-0.8333333333333333,0.8333333333333333
+0x58e092763b1321e8368538bf5b78fc200d9409e105700e06eceb66b35ef371aa,polymarket,Will Walter Reeves win the 2025 Atlanta mayoral election?,2025-10-16T00:00:00+00:00,2025-11-04,0.0,0.25,0.01,9,0.0625,0.0001,0.0624,-0.96,0.96
+25e629b0a54ee795ccbb7c44968f319952cae286525fa43501a290151a3f1d6c,wikipedia,"According to Wikipedia, will Aleksandra Goryachkina have an Elo rating on 2025-11-02 that's at least 1% higher than on 2025-10-26?",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.25,0.45,10,0.0625,0.2025,-0.14,0.26666666666666666,0.26666666666666666
+0x07c96dbd0f70e5a27a0e15c22042abcc57bc6acc7f740f7935e0a08cde5e5138,polymarket,Will the U.S. collect between $500b and $1t in revenue in 2025?,2025-10-16T00:00:00+00:00,2026-02-28,0.0,0.02,0.02,10,0.0004,0.0004,0.0,0.0,0.0
+NFCILEVERAGE,fred,Will the Chicago Fed's National Financial Conditions Leverage Subindex have increased by 2025-11-02 as compared to its value on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.5,0.5,9,0.25,0.25,0.0,0.0,0.0
+6Zyd999ZP9,manifold,Will India and Pakistan go to war in 2025?,2025-10-16T00:00:00+00:00,2025-12-31,0.0,0.08,0.08,10,0.0064,0.0064,0.0,0.0,0.0
+0xfccc16f3bba1210d40db55ee1b71c741be5b14dc3512aba5dc32de5c6e0c4bde,polymarket,Will Bad Bunny be the top Spotify artist for 2025?,2025-10-16T00:00:00+00:00,2025-12-03,1.0,0.18,0.78,10,0.6724000000000001,0.04839999999999999,0.6240000000000001,0.7317073170731708,0.7317073170731708
+K8qazyZJ3tXyuLlzkkyk,manifold,Will San Diego FC make the playoffs in 2025?,2025-10-16T00:00:00+00:00,2026-01-01,1.0,0.45,0.99,10,0.30250000000000005,0.00010000000000000018,0.30240000000000006,0.9818181818181818,0.9818181818181818
+WALCL,fred,Will the total dollar amount of assets held by all US Federal Reserve banks have increased by 2025-11-02 as compared to its value on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.52,0.52,8,0.27040000000000003,0.27040000000000003,0.0,0.0,0.0
+61c0fb3703e68cee2439afd5c2d71522bc6649a1fa154491f58981456fa8ab68,wikipedia,"According to Wikipedia, will Aaron Peirsol still hold the world record for 200m backstroke in long course (50 metres) swimming pools on 2025-11-02?",2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.78,0.78,10,0.04839999999999999,0.04839999999999999,0.0,0.0,0.0
+edf3adf1735d53cb20af975a837c6076f11edbebb6551ac2d2e4f47c590f790a,acled,"Will there be more than ten times as many 'Battles' in Antarctica for the 30 days before 2025-11-02 compared to one plus the 30-day average of 'Battles' over the 360 days preceding 2025-10-26?
+
+e.g. If the forecast due date is 2024-01-01 and we have the following data:
+Date,'Battles'
+2023-11-11,1
+2023-10-10,2
+to calculate one plus the 30-day average of 'Battles' over the preceding 360 days, we’d have: 1+(1+2)/12=1.25.
+
+In this example, for the question to resolve positively, 13 (10 x 1.25) or more 'Battles' would need to occur in the 30 days leading up to the resolution.",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.01,0.01,10,0.0001,0.0001,0.0,0.0,0.0
+meteofrance_TEMPERATURE_celsius.07005.D,dbnomics,What is the probability that the daily average temperature at the French weather station at Abbeville will be higher on 2025-11-02 than on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.35,0.42,10,0.42250000000000004,0.3364000000000001,0.08609999999999995,0.1076923076923077,0.1076923076923077
+0x16d24ebfbf42d9f4c24f11962424d41829db6cc542593c09acee647958020382,polymarket,Will Moonshot have the best AI model on October 31?,2025-10-16T00:00:00+00:00,2025-10-31,0.0,0.08,0.15,10,0.0064,0.0225,-0.0161,0.07608695652173912,0.07608695652173912
+IC4WSA,fred,Will the 4-week moving average of initial unemployment claims have increased by 2025-11-02 as compared to its value on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.42,0.52,7,0.17639999999999997,0.27040000000000003,-0.09400000000000006,0.17241379310344832,0.17241379310344832
+5d675aaaef89c7e9b340de20f164638503d97a39dcac53d5db6762f613f2c591,wikipedia,"According to Wikipedia, will Anna Muzychuk have a FIDE ranking on 2025-11-02 as high or higher than their ranking on 2025-10-26?",2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.52,0.42,10,0.2304,0.3364000000000001,-0.1060000000000001,-0.19230769230769237,0.19230769230769237
+OBFR,fred,Will the Federal Reserve's overnight bank funding rate have increased by 2025-11-02 as compared to its value on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.48,0.25,10,0.2304,0.0625,0.1679,-0.47916666666666663,0.47916666666666663
+meteofrance_TEMPERATURE_celsius.07020.D,dbnomics,What is the probability that the daily average temperature at the French weather station at Pointe De La Hague will be higher on 2025-11-02 than on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.37,0.35,9,0.39690000000000003,0.42250000000000004,-0.02560000000000001,-0.054054054054054106,0.054054054054054106
+MU,yfinance,"Will MU's market close price on 2025-11-02 be higher than its market close price on 2025-10-26?
+
+Stock splits and reverse splits will be accounted for in resolving this question. Forecasts on questions about companies that have been delisted (through mergers or bankruptcy) will resolve to their final close price.",2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.51,0.5,9,0.24009999999999998,0.25,-0.00990000000000002,-0.01960784313725492,0.01960784313725492
+b56531512fb6a9e91e9af934df3b6f506a3f2103e10af0ce96705c79dec40ae9,acled,"Will there be more 'Explosions/Remote violence' in Chile for the 30 days before 2025-11-02 compared to the 30-day average of 'Explosions/Remote violence' over the 360 days preceding 2025-10-26?
+
+e.g. If the forecast due date is 2024-01-01 and we have the following data:
+Date,'Explosions/Remote violence'
+2023-11-11,1
+2023-10-10,2
+to calculate the 30-day average of 'Explosions/Remote violence' over the preceding 360 days, we’d have: (1+2)/12=0.25.
+
+In this example, for the question to resolve positively, 1 or more 'Explosions/Remote violence' would need to occur in the 30 days leading up to the resolution.",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.35,0.25,10,0.12249999999999998,0.0625,0.059999999999999984,-0.28571428571428564,0.28571428571428564
+10220,metaculus,Will 95% or more of Nigerians have a bank account before 2025?,2025-10-16T00:00:00+00:00,2026-02-28,0.0,0.08,0.02,9,0.0064,0.0004,0.006,-0.75,0.75
+5882ac81e7ec14b2d8b3da350027e1e7fee5373489361cc744e6d8f4e3a1f372,wikipedia,"According to Wikipedia, will a vaccine have been developed for Ureaplasma urealyticum infection by 2025-11-02?",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.05,0.08,10,0.0025000000000000005,0.0064,-0.0039,0.031578947368421054,0.031578947368421054
+CPT,yfinance,"Will CPT's market close price on 2025-11-02 be higher than its market close price on 2025-10-26?
+
+Stock splits and reverse splits will be accounted for in resolving this question. Forecasts on questions about companies that have been delisted (through mergers or bankruptcy) will resolve to their final close price.",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.5,0.5,8,0.25,0.25,0.0,0.0,0.0
+0x7455e92b9e9c842ca260e65f0d640108223fd9f3430f997472825763654d96c7,polymarket,Will The Weeknd be the top Spotify artist for 2025?,2025-10-16T00:00:00+00:00,2025-12-03,0.0,0.15,0.62,10,0.0225,0.3844,-0.3619,0.5529411764705883,0.5529411764705883
+DEXKOUS,fred,Will the spot exchange rate of South Korean won to US dollars have increased by 2025-11-02 as compared to its value on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.5,0.55,10,0.25,0.30250000000000005,-0.05250000000000005,0.10000000000000009,0.10000000000000009
+14b53bc593c52fa6616a9d0b81b58de35be6d1361196c29778ba80a1b04f1f63,wikipedia,"According to Wikipedia, will Koneru Humpy have a FIDE ranking on 2025-11-02 as high or higher than their ranking on 2025-10-26?",2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.92,0.52,10,0.006399999999999993,0.2304,-0.224,-0.43478260869565216,0.43478260869565216
+242e17fa4cf02fba614df523a64f8527f7776f3443e6281386b5eddcd84a097c,wikipedia,"According to Wikipedia, will Hans Niemann have a FIDE ranking on 2025-11-02 as high or higher than their ranking on 2025-10-26?",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.52,0.72,10,0.27040000000000003,0.5184,-0.24799999999999994,0.4166666666666666,0.4166666666666666
+558aebef0c3c95c9559e54f27e8fa908da02917d9833abb9a2330d10b1b2b953,wikipedia,"According to Wikipedia, will Lilly King still hold the world record for 100m breaststroke in long course (50 metres) swimming pools on 2025-11-02?",2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.42,0.78,10,0.3364000000000001,0.04839999999999999,0.2880000000000001,0.6206896551724138,0.6206896551724138
+meteofrance_TEMPERATURE_celsius.07481.D,dbnomics,What is the probability that the daily average temperature at the French weather station at Lyon–Saint Exupéry Airport will be higher on 2025-11-02 than on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.42,0.35,10,0.3364000000000001,0.42250000000000004,-0.08609999999999995,-0.16666666666666669,0.16666666666666669
+0x4928bece364d2def95c920459ab1fa54f449f99f33b0dbc93d6a84f80d9c9669,polymarket,Will Moonshot have the top AI model on December 31?,2025-10-16T00:00:00+00:00,2025-12-31,0.0,0.08,0.15,10,0.0064,0.0225,-0.0161,0.07608695652173912,0.07608695652173912
+meteofrance_TEMPERATURE_celsius.07607.D,dbnomics,What is the probability that the daily average temperature at the French weather station at Mont-de-Marsan will be higher on 2025-11-02 than on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.45,0.42,10,0.30250000000000005,0.3364000000000001,-0.03390000000000004,-0.06666666666666672,0.06666666666666672
+GNRC,yfinance,"Will GNRC's market close price on 2025-11-02 be higher than its market close price on 2025-10-26?
+
+Stock splits and reverse splits will be accounted for in resolving this question. Forecasts on questions about companies that have been delisted (through mergers or bankruptcy) will resolve to their final close price.",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.5,0.5,9,0.25,0.25,0.0,0.0,0.0
+AZNPqIQuA0,manifold,Will the fertility rate of South Korea increase from 2023 to 2025?,2025-10-16T00:00:00+00:00,2026-01-01,1.0,0.25,0.92,10,0.5625,0.006399999999999993,0.5561,0.8933333333333334,0.8933333333333334
+5d3843b63337bfacb27814102cd56f9d2bc77974d84c80d81aa0bdb2a0e057d9,wikipedia,"According to Wikipedia, will a vaccine have been developed for Fasciolasis by 2025-11-02?",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.08,0.15,9,0.0064,0.0225,-0.0161,0.07608695652173912,0.07608695652173912
+0x9d24d9f9b5995949cb158d943793dea20bd448e1b3971cb6f7418bb15e719661,polymarket,Will Elon and DOGE cut more than $250b in federal spending in 2025?,2025-10-16T00:00:00+00:00,2025-12-31,0.0,0.15,0.02,10,0.0225,0.0004,0.022099999999999998,-0.8666666666666667,0.8666666666666667
+IORB,fred,Will the Federal Reserve's interest rate on reserve balances have increased by 2025-11-02 as compared to its value on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.05,0.15,9,0.0025000000000000005,0.0225,-0.019999999999999997,0.10526315789473684,0.10526315789473684
+0x3e6cb7ad03e2687d0befe8706bb9ac276b3d74c0a8c7e02bf3c6b796e25601c0,polymarket,Will the Kansas City Chiefs win the AFC West?,2025-10-16T00:00:00+00:00,2025-12-08,0.0,0.62,0.22,8,0.3844,0.0484,0.336,-0.6451612903225807,0.6451612903225807
+TOTCI,fred,Will the total dollar amount representing all commercial and industrial loans made by commercial banks in the US have increased by 2025-11-02 as compared to its value on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.52,0.55,9,0.27040000000000003,0.30250000000000005,-0.03210000000000002,0.06250000000000006,0.06250000000000006
+17917,metaculus,Will evidence of alien technology be recovered near the IM1 crash site before 2026?,2025-10-16T00:00:00+00:00,2025-12-31,0.0,0.02,0.08,10,0.0004,0.0064,-0.006,0.061224489795918366,0.061224489795918366
+6b1c68a507fa625722143674cac09c96d837fd8efb49e20bb9a3d5ee14d1cc99,wikipedia,"According to Wikipedia, will a vaccine have been developed for Group A streptococcal infection by 2025-11-02?",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.15,0.08,10,0.0225,0.0064,0.0161,-0.4666666666666666,0.4666666666666666
+meteofrance_TEMPERATURE_celsius.07627.D,dbnomics,What is the probability that the daily average temperature at the French weather station at Saint-Girons will be higher on 2025-11-02 than on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.42,0.5,10,0.3364000000000001,0.25,0.08640000000000009,0.13793103448275862,0.13793103448275862
+86c2ccz9tQ,manifold,Will Tesla have driverless ride-hailing in the US by end of year?,2025-10-16T00:00:00+00:00,2026-01-01,0.0,0.15,0.15,10,0.0225,0.0225,0.0,0.0,0.0
+mqIkDr66P84o5wxxKuD9,manifold,Will LLM hallucinations be a fixed problem by the end of 2025?,2025-10-16T00:00:00+00:00,2026-01-01,0.0,0.15,0.08,10,0.0225,0.0064,0.0161,-0.4666666666666666,0.4666666666666666
+0xad5642932e897c551def57ddc3066bdea2cf0eb13fc40979c1043743fceb5c9c,polymarket,Will OpenAI have the top AI model on December 31?,2025-10-16T00:00:00+00:00,2025-12-31,0.0,0.57,0.52,10,0.32489999999999997,0.27040000000000003,0.05449999999999994,-0.08771929824561392,0.08771929824561392
+e5af3a39adde513b9951423acd136679dec9a6cd95d8f5a1cd5624f1d169481c,acled,"Will there be more than ten times as many fatalities in Iran for the 30 days before 2025-11-02 compared to one plus the 30-day average of fatalities over the 360 days preceding 2025-10-26?
+
+e.g. If the forecast due date is 2024-01-01 and we have the following data:
+Date,fatalities
+2023-11-11,1
+2023-10-10,2
+to calculate one plus the 30-day average of fatalities over the preceding 360 days, we’d have: 1+(1+2)/12=1.25.
+
+In this example, for the question to resolve positively, 13 (10 x 1.25) or more fatalities would need to occur in the 30 days leading up to the resolution.",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.15,0.15,10,0.0225,0.0225,0.0,0.0,0.0
+35567,metaculus,"¿Se venderá el videojuego ""Grand Theft Auto VI"" en Europa en 2025?",2025-10-16T00:00:00+00:00,2025-11-30,0.0,0.85,0.02,10,0.7224999999999999,0.0004,0.7221,-0.9764705882352941,0.9764705882352941
+0xfb6717befc0ec8bb8389512c3739b5e4bca290f2a8a908e894cadb5a3785d9ae,polymarket,Will Solana reach $350 in October?,2025-10-16T00:00:00+00:00,2025-11-01,0.0,0.35,0.08,10,0.12249999999999998,0.0064,0.11609999999999998,-0.7714285714285714,0.7714285714285714
+fcd4c9217f96859652fff6e6d4ebb518a52bbd2e7a696f6fd31b9422a493b4ff,wikipedia,"According to Wikipedia, will a vaccine have been developed for Vibrio parahaemolyticus enteritis by 2025-11-02?",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.02,0.15,9,0.0004,0.0225,-0.022099999999999998,0.1326530612244898,0.1326530612244898
+meteofrance_TEMPERATURE_celsius.07110.D,dbnomics,What is the probability that the daily average temperature at the French weather station at Brest Bretagne Airport will be higher on 2025-11-02 than on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.35,0.42,10,0.42250000000000004,0.3364000000000001,0.08609999999999995,0.1076923076923077,0.1076923076923077
+0x1985caaa507a1de1c390b2c4957e5535cb530634bd7bb4c5c1e75fbd6cc22e64,polymarket,Trump removed via 25th Amendment in 2025?,2025-10-16T00:00:00+00:00,2025-12-31,0.0,0.02,0.02,9,0.0004,0.0004,0.0,0.0,0.0
+meteofrance_TEMPERATURE_celsius.07630.D,dbnomics,What is the probability that the daily average temperature at the French weather station at Toulouse–Blagnac Airport will be higher on 2025-11-02 than on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.35,0.45,10,0.42250000000000004,0.30250000000000005,0.12,0.15384615384615388,0.15384615384615388
+af60e8d92ed933ab2a234879f7d583ea3db3c72b09f47d76fe5d6d3b7f3d09ff,wikipedia,"According to Wikipedia, will a vaccine have been developed for Pneumonia by 2025-11-02?",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.95,0.98,10,0.9025,0.9603999999999999,-0.05789999999999995,0.6,0.6
+meteofrance_TEMPERATURE_celsius.07168.D,dbnomics,What is the probability that the daily average temperature at the French weather station at Troyes-Barberey Airport will be higher on 2025-11-02 than on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.37,0.35,10,0.39690000000000003,0.42250000000000004,-0.02560000000000001,-0.054054054054054106,0.054054054054054106
+FRT,yfinance,"Will FRT's market close price on 2025-11-02 be higher than its market close price on 2025-10-26?
+
+Stock splits and reverse splits will be accounted for in resolving this question. Forecasts on questions about companies that have been delisted (through mergers or bankruptcy) will resolve to their final close price.",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.51,0.5,8,0.2601,0.25,0.010099999999999998,-0.01960784313725492,0.01960784313725492
+meteofrance_TEMPERATURE_celsius.07037.D,dbnomics,What is the probability that the daily average temperature at the French weather station at Rouen Airport will be higher on 2025-11-02 than on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.35,0.35,10,0.42250000000000004,0.42250000000000004,0.0,0.0,0.0
+OBMMIJUMBO30YF,fred,Will the 30-year fixed rate jumbo mortgage index have increased by 2025-11-02 as compared to its value on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.51,0.45,10,0.2601,0.2025,0.057599999999999985,-0.11764705882352941,0.11764705882352941
+EG,yfinance,"Will EG's market close price on 2025-11-02 be higher than its market close price on 2025-10-26?
+
+Stock splits and reverse splits will be accounted for in resolving this question. Forecasts on questions about companies that have been delisted (through mergers or bankruptcy) will resolve to their final close price.",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.52,0.52,7,0.27040000000000003,0.27040000000000003,0.0,0.0,0.0
+0x1672bfe7ef6d85a4ecffa9faf1149ef1a1661dd919598ab46b04a6ae0a4ffab4,polymarket,Will the Brooklyn Nets win the NBA Eastern Conference Finals?,2025-10-16T00:00:00+00:00,2026-03-13,0.0,0.08,0.001,8,0.0064,1e-06,0.006399,-0.9875,0.9875
+DAAA,fred,Will Moody's Seasoned Aaa Corporate Bond Yield have increased by 2025-11-02 as compared to its value on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.5,0.5,10,0.25,0.25,0.0,0.0,0.0
+de810b550ca9cbea5619bea116f1c8b00a9afcfcd965a349fa90f0a45ee324cc,acled,"Will there be more than ten times as many 'Riots' in Togo for the 30 days before 2025-11-02 compared to one plus the 30-day average of 'Riots' over the 360 days preceding 2025-10-26?
+
+e.g. If the forecast due date is 2024-01-01 and we have the following data:
+Date,'Riots'
+2023-11-11,1
+2023-10-10,2
+to calculate one plus the 30-day average of 'Riots' over the preceding 360 days, we’d have: 1+(1+2)/12=1.25.
+
+In this example, for the question to resolve positively, 13 (10 x 1.25) or more 'Riots' would need to occur in the 30 days leading up to the resolution.",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.15,0.15,8,0.0225,0.0225,0.0,0.0,0.0
+2e46df5b146400d2b997d510bae88153452d65e9a523828662d815911a017212,acled,"Will there be more 'Explosions/Remote violence' in Democratic Republic of Congo for the 30 days before 2025-11-02 compared to the 30-day average of 'Explosions/Remote violence' over the 360 days preceding 2025-10-26?
+
+e.g. If the forecast due date is 2024-01-01 and we have the following data:
+Date,'Explosions/Remote violence'
+2023-11-11,1
+2023-10-10,2
+to calculate the 30-day average of 'Explosions/Remote violence' over the preceding 360 days, we’d have: (1+2)/12=0.25.
+
+In this example, for the question to resolve positively, 1 or more 'Explosions/Remote violence' would need to occur in the 30 days leading up to the resolution.",2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.52,0.45,9,0.2304,0.30250000000000005,-0.07210000000000005,-0.13461538461538464,0.13461538461538464
+0x4e4e89fd4a8b605664a3745981cd9034905ef59f385c893b8f29add42f3b4e00,polymarket,Will global temperature increase by between 1.10ºC and 1.14ºC in October 2025?,2025-10-16T00:00:00+00:00,2025-11-11,0.0,0.12,0.15,10,0.0144,0.0225,-0.0081,0.03409090909090909,0.03409090909090909
+RPONTSYD,fred,Will the aggregated daily value of US Treasury securities repurchased overnight by the Federal Reserve in temporary open market operations  have increased by 2025-11-02 as compared to its value on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.52,0.48,9,0.2304,0.27040000000000003,-0.040000000000000036,-0.07692307692307698,0.07692307692307698
+0xce733629b3b1bea0649c9c9433401295eb8e1ba6d572803cb53446c93d28cd44,polymarket,Will a US ally get a nuke in 2025?,2025-10-16T00:00:00+00:00,2025-12-31,0.0,0.02,0.02,10,0.0004,0.0004,0.0,0.0,0.0
+0x957b4d2b6a84c8bd4ef6e89f983d2d1a805be8d592e79177940058b66a204476,polymarket,Will John Smith win the 2025 National Heads-Up Poker Championship?,2025-10-16T00:00:00+00:00,2025-12-19,0.0,0.02,0.01,10,0.0004,0.0001,0.00030000000000000003,-0.5,0.5
+c11db639ef0a30ced800a69d5c3725b7f5b5e7c1df7735ceb4165154e82a05ac,wikipedia,"According to Wikipedia, will Leya Garifullina have an Elo rating on 2025-11-02 that's at least 1% higher than on 2025-10-26?",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.25,0.45,10,0.0625,0.2025,-0.14,0.26666666666666666,0.26666666666666666
+0x027eeeaba097b5f3b166eace64668b2e6b327acc7c6b314ae5f03b33b51425e7,polymarket,Will Mikie Sherrill win the New Jersey Governor Election in 2025,2025-10-16T00:00:00+00:00,2025-11-04,1.0,0.25,0.68,7,0.5625,0.10239999999999996,0.46010000000000006,0.5733333333333334,0.5733333333333334
+CMCSA,yfinance,"Will CMCSA's market close price on 2025-11-02 be higher than its market close price on 2025-10-26?
+
+Stock splits and reverse splits will be accounted for in resolving this question. Forecasts on questions about companies that have been delisted (through mergers or bankruptcy) will resolve to their final close price.",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.5,0.48,4,0.25,0.2304,0.019600000000000006,-0.040000000000000036,0.040000000000000036
+SBAC,yfinance,"Will SBAC's market close price on 2025-11-02 be higher than its market close price on 2025-10-26?
+
+Stock splits and reverse splits will be accounted for in resolving this question. Forecasts on questions about companies that have been delisted (through mergers or bankruptcy) will resolve to their final close price.",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.51,0.48,7,0.2601,0.2304,0.029700000000000004,-0.058823529411764754,0.058823529411764754
+meteofrance_TEMPERATURE_celsius.07027.D,dbnomics,What is the probability that the daily average temperature at the French weather station at Caen – Carpiquet Airport will be higher on 2025-11-02 than on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.35,0.35,9,0.42250000000000004,0.42250000000000004,0.0,0.0,0.0
+477dba801f50b1ffbf54ba0ff6e94af99193558d93aba575d08c636166473600,acled,"Will there be more 'Riots' in Akrotiri and Dhekelia for the 30 days before 2025-11-02 compared to the 30-day average of 'Riots' over the 360 days preceding 2025-10-26?
+
+e.g. If the forecast due date is 2024-01-01 and we have the following data:
+Date,'Riots'
+2023-11-11,1
+2023-10-10,2
+to calculate the 30-day average of 'Riots' over the preceding 360 days, we’d have: (1+2)/12=0.25.
+
+In this example, for the question to resolve positively, 1 or more 'Riots' would need to occur in the 30 days leading up to the resolution.",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.08,0.15,10,0.0064,0.0225,-0.0161,0.07608695652173912,0.07608695652173912
+1bf36264e4dd1b5888ab63799964466399ff5b54b8a2dfab336fc2b6b93e214c,wikipedia,"According to Wikipedia, will a vaccine have been developed for BK virus infection by 2025-11-02?",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.08,0.15,10,0.0064,0.0225,-0.0161,0.07608695652173912,0.07608695652173912
+RJH3aufks8LK0Pjyhrgl,manifold,If Trump wins the election will the inflation rate in 2025 be below 2.5% (Current 2.5%)?,2025-10-16T00:00:00+00:00,2025-12-10,0.0,0.42,0.25,8,0.17639999999999997,0.0625,0.11389999999999997,-0.40476190476190477,0.40476190476190477
+GIS,yfinance,"Will GIS's market close price on 2025-11-02 be higher than its market close price on 2025-10-26?
+
+Stock splits and reverse splits will be accounted for in resolving this question. Forecasts on questions about companies that have been delisted (through mergers or bankruptcy) will resolve to their final close price.",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.51,0.51,8,0.2601,0.2601,0.0,0.0,0.0
+51f25df1e65bb2ccc486f571efa06a85c0051cb8e151d74501691c214a7c895f,acled,"Will there be more fatalities in Turks and Caicos Islands for the 30 days before 2025-11-02 compared to the 30-day average of fatalities over the 360 days preceding 2025-10-26?
+
+e.g. If the forecast due date is 2024-01-01 and we have the following data:
+Date,fatalities
+2023-11-11,1
+2023-10-10,2
+to calculate the 30-day average of fatalities over the preceding 360 days, we’d have: (1+2)/12=0.25.
+
+In this example, for the question to resolve positively, 1 or more fatalities would need to occur in the 30 days leading up to the resolution.",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.15,0.58,8,0.0225,0.3364,-0.31389999999999996,0.5058823529411764,0.5058823529411764
+meteofrance_TEMPERATURE_celsius.07015.D,dbnomics,What is the probability that the daily average temperature at the French weather station at Lille Airport will be higher on 2025-11-02 than on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.4,0.35,10,0.36,0.42250000000000004,-0.06250000000000006,-0.1250000000000001,0.1250000000000001
+0xa8533ac7382ad55fde02964b221eeab55da2ffe538a5da2c3f84449695d3ba8c,polymarket,Will 'The Life of a Showgirl' be #1 for 16 straight weeks?,2025-10-16T00:00:00+00:00,2025-12-02,0.0,0.08,0.15,9,0.0064,0.0225,-0.0161,0.07608695652173912,0.07608695652173912
+meteofrance_TEMPERATURE_celsius.07747.D,dbnomics,What is the probability that the daily average temperature at the French weather station at Perpignan will be higher on 2025-11-02 than on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.25,0.42,9,0.5625,0.3364000000000001,0.2260999999999999,0.22666666666666666,0.22666666666666666
+dy9yI9PLIh,manifold,Will Iran experience regime change in 2025?,2025-10-16T00:00:00+00:00,2026-01-01,0.0,0.08,0.12,9,0.0064,0.0144,-0.008,0.04347826086956521,0.04347826086956521
+c097d5216ff8068a20a5c9592860a003ccc06dd4eb7da842d86c3816a68c3ab6,wikipedia,"According to Wikipedia, will Gukesh Dommaraju have a FIDE ranking on 2025-11-02 as high or higher than their ranking on 2025-10-26?",2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.52,0.62,10,0.2304,0.1444,0.086,0.2083333333333333,0.2083333333333333
+DJIA,fred,Will the Dow Jones Industrial Average have increased by 2025-11-02 as compared to its value on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.52,0.55,9,0.2304,0.20249999999999996,0.027900000000000036,0.06250000000000006,0.06250000000000006
+LRCX,yfinance,"Will LRCX's market close price on 2025-11-02 be higher than its market close price on 2025-10-26?
+
+Stock splits and reverse splits will be accounted for in resolving this question. Forecasts on questions about companies that have been delisted (through mergers or bankruptcy) will resolve to their final close price.",2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.52,0.52,9,0.2304,0.2304,0.0,0.0,0.0
+d3c5e3b681d6299c57923b312b8886ccfcff2e8a46d138eecdca45f41df8bed0,wikipedia,"According to Wikipedia, will a vaccine have been developed for Erythema infectiosum (Fifth disease) by 2025-11-02?",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.15,0.08,8,0.0225,0.0064,0.0161,-0.4666666666666666,0.4666666666666666
+afeef9ddc9b6c6d1773d7a0a0ba5bc1df5a1ceb0a01ff1b2995082894c463896,acled,"Will there be more than ten times as many fatalities in Turkmenistan for the 30 days before 2025-11-02 compared to one plus the 30-day average of fatalities over the 360 days preceding 2025-10-26?
+
+e.g. If the forecast due date is 2024-01-01 and we have the following data:
+Date,fatalities
+2023-11-11,1
+2023-10-10,2
+to calculate one plus the 30-day average of fatalities over the preceding 360 days, we’d have: 1+(1+2)/12=1.25.
+
+In this example, for the question to resolve positively, 13 (10 x 1.25) or more fatalities would need to occur in the 30 days leading up to the resolution.",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.08,0.08,10,0.0064,0.0064,0.0,0.0,0.0
+8b2f4815aef61f9a0b81fce8bbc17136c8e6487509ceb57fcb3a54dff30b17f1,acled,"Will there be more than ten times as many 'Violence against civilians' in Venezuela for the 30 days before 2025-11-02 compared to one plus the 30-day average of 'Violence against civilians' over the 360 days preceding 2025-10-26?
+
+e.g. If the forecast due date is 2024-01-01 and we have the following data:
+Date,'Violence against civilians'
+2023-11-11,1
+2023-10-10,2
+to calculate one plus the 30-day average of 'Violence against civilians' over the preceding 360 days, we’d have: 1+(1+2)/12=1.25.
+
+In this example, for the question to resolve positively, 13 (10 x 1.25) or more 'Violence against civilians' would need to occur in the 30 days leading up to the resolution.",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.15,0.25,10,0.0225,0.0625,-0.04,0.11764705882352942,0.11764705882352942
+meteofrance_TEMPERATURE_celsius.07117.D,dbnomics,What is the probability that the daily average temperature at the French weather station at Ploumanac'h will be higher on 2025-11-02 than on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.45,0.35,10,0.2025,0.12249999999999998,0.08000000000000003,-0.2222222222222223,0.2222222222222223
+AOS,yfinance,"Will AOS's market close price on 2025-11-02 be higher than its market close price on 2025-10-26?
+
+Stock splits and reverse splits will be accounted for in resolving this question. Forecasts on questions about companies that have been delisted (through mergers or bankruptcy) will resolve to their final close price.",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.5,0.51,9,0.25,0.2601,-0.010099999999999998,0.020000000000000018,0.020000000000000018
+NEE,yfinance,"Will NEE's market close price on 2025-11-02 be higher than its market close price on 2025-10-26?
+
+Stock splits and reverse splits will be accounted for in resolving this question. Forecasts on questions about companies that have been delisted (through mergers or bankruptcy) will resolve to their final close price.",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.52,0.48,7,0.27040000000000003,0.2304,0.040000000000000036,-0.07692307692307698,0.07692307692307698
+DPSACBW027SBOG,fred,Will the amount of money representing deposits in all US commercial banks have increased by 2025-11-02 as compared to its value on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.52,0.52,10,0.27040000000000003,0.27040000000000003,0.0,0.0,0.0
+39771,metaculus,Will there be a stronger hurricane than Erin during the 2025 Atlantic hurricane season?,2025-10-16T00:00:00+00:00,2025-10-27,1.0,0.32,0.62,7,0.4623999999999999,0.1444,0.31799999999999995,0.44117647058823534,0.44117647058823534
+ffe024b62430e4329259f98ad29cef7947944254b803f241de3b51e2653358c2,wikipedia,"According to Wikipedia, will a vaccine have been developed for Isosporiasis by 2025-11-02?",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.05,0.05,10,0.0025000000000000005,0.0025000000000000005,0.0,0.0,0.0
+TMBACBW027SBOG,fred,Will the total dollar amount of mortgage-backed securities held by all US commercial banks have increased by 2025-11-02 as compared to its value on 2025-10-26?,2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.48,0.5,10,0.2304,0.25,-0.019600000000000006,0.03846153846153849,0.03846153846153849
+2f9337f5d2cc530629386a651bc047c7b76cb3d2fa3222a2fca72a8a7a20e7b2,wikipedia,"According to Wikipedia, will a vaccine have been developed for Toxic shock syndrome (TSS) by 2025-11-02?",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.08,0.15,10,0.0064,0.0225,-0.0161,0.07608695652173912,0.07608695652173912
+BAMLH0A3HYCEY,fred,"Will the effective yield of securities with an investment grade rating of CCC or below in the ICE BofA US High Yield Master II Index, which tracks the performance of corporate debt below investment grade in the US domestic market, have increased by 2025-11-02 as compared to its value on 2025-10-26?",2025-10-16T00:00:00+00:00,2025-11-02,1.0,0.5,0.35,8,0.25,0.42250000000000004,-0.17250000000000004,-0.30000000000000004,0.30000000000000004
+5261497265c39a0c3c10e1acbfa9fdbba8744cf43a767572b76db79e5af4229e,wikipedia,"According to Wikipedia, will a vaccine have been developed for Human ewingii ehrlichiosis by 2025-11-02?",2025-10-16T00:00:00+00:00,2025-11-02,0.0,0.02,0.05,10,0.0004,0.0025000000000000005,-0.0021000000000000003,0.030612244897959186,0.030612244897959186
