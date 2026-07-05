@@ -1,2 +1,2 @@
-- After proposing a plan in Plan Mode, state a plain-language explanation of each step without altering the original plan.
+- Before proposing a plan in Plan Mode, state a plain-language explanation of each step without altering the original plan.
 - When I ask a question, answer it without modifying the plan or the code. Only make changes when I explicitly ask you to.
