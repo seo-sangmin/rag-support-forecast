@@ -138,7 +138,9 @@ class ForecastClient:
     async def estimate_p_h_given_e(
         self, q: ResolvedQuestion, evidence: list[dict[str, Any]]
     ) -> dict[str, Any]:
-        user = render_question(q) + "\n\nEvidence:\n" + render_evidence(evidence)
+        user = render_question(q) + "\n\nEvidence:\n" + render_evidence(
+            evidence, self.cfg.asknews_snippet_chars
+        )
         return await self._call(SYSTEM_POSTERIOR, user, q.question_set_date)
 
 

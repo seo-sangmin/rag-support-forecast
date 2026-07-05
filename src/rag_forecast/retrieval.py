@@ -63,18 +63,6 @@ class AskNewsRetriever:
             burst=cfg.asknews_burst,
         )
 
-    def _truncate(self, results: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        n = self.cfg.asknews_snippet_chars
-        out = []
-        for r in results:
-            r = dict(r)
-            for k in ("content", "raw_content"):
-                v = r.get(k)
-                if isinstance(v, str) and len(v) > n:
-                    r[k] = v[:n] + "…"
-            out.append(r)
-        return out
-
     async def retrieve(self, q: ResolvedQuestion) -> list[dict[str, Any]]:
         payload = build_search_payload(q, self.cfg)
         namespace = cache_namespace(
@@ -101,17 +89,18 @@ class AskNewsRetriever:
             historical=True,
             return_type="dicts",
         )
-        results = self._truncate(
-            [
-                {
-                    "title": a.title,
-                    "url": str(a.article_url),
-                    "content": a.summary,
-                    "published_date": a.pub_date.isoformat() if a.pub_date else "",
-                    "source_id": a.source_id,
-                }
-                for a in (response.as_dicts or [])
-            ]
-        )
+        # Cache the full summaries; the per-snippet prompt cap
+        # (cfg.asknews_snippet_chars) is applied at prompt-build time in
+        # prompts.render_evidence, so paid-for text is never discarded here.
+        results = [
+            {
+                "title": a.title,
+                "url": str(a.article_url),
+                "content": a.summary,
+                "published_date": a.pub_date.isoformat() if a.pub_date else "",
+                "source_id": a.source_id,
+            }
+            for a in (response.as_dicts or [])
+        ]
         self.cache.put(payload, results, namespace=namespace)
         return results

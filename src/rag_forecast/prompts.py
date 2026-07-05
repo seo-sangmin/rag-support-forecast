@@ -30,7 +30,13 @@ def render_question(q: ResolvedQuestion) -> str:
     return "\n\n".join(parts)
 
 
-def render_evidence(snippets: list[dict]) -> str:
+def render_evidence(snippets: list[dict], max_chars: int) -> str:
+    """Render retrieved snippets for the posterior prompt.
+
+    Snippets are cached in full (see ``retrieval.AskNewsRetriever.retrieve``);
+    ``max_chars`` bounds each snippet's contribution to the prompt here, at the
+    last moment before the LLM sees it.
+    """
     if not snippets:
         return "No evidence retrieved."
     lines = []
@@ -39,6 +45,8 @@ def render_evidence(snippets: list[dict]) -> str:
         published = s.get("published_date") or s.get("date") or "unknown date"
         title = s.get("title", "")
         content = (s.get("content") or s.get("raw_content") or "").strip()
+        if len(content) > max_chars:
+            content = content[:max_chars] + "…"
         lines.append(
             f"[snippet {i}] {title} ({url}, published {published})\n{content}"
         )
