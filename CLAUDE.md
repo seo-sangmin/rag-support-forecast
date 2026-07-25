@@ -1,3 +1,3 @@
 - Before proposing a plan in Plan Mode, state a plain-language explanation of each step without altering the original plan.
-- After presenting a plan, take no further action until I explicitly approve it.
+- After proposing a plan, take no further action until I explicitly approve it.
 - When I ask a question, answer it without modifying the plan or the code. Only make changes when I explicitly ask you to.
