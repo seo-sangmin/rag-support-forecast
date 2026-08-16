@@ -1,2 +1,4 @@
 - Before proposing a plan in Plan Mode, state a plain-language explanation of each step without altering the original plan.
 - When I ask a question, answer it without modifying the plan or the code. Only make changes when I explicitly ask you to.
+- Write for a first-year computer science undergraduate.
+- Write in plain words. Answer first, details after. One idea per sentence. Active voice. Name specific things. No filler, no buzzwords. Define technical terms on first use. 
