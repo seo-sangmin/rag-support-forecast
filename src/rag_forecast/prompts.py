@@ -25,6 +25,9 @@ def render_question(q: ResolvedQuestion) -> str:
     parts = [f"Question: {q.question}"]
     if q.resolution_criteria:
         parts.append(f"Resolution criteria: {q.resolution_criteria}")
+    market_criteria = q.market_info_resolution_criteria.strip()
+    if market_criteria and market_criteria.casefold() != "n/a":
+        parts.append(f"Market-specific rules and clarifications: {market_criteria}")
     if q.background:
         parts.append(f"Background: {q.background}")
     return "\n\n".join(parts)

@@ -28,6 +28,7 @@ class ResolvedQuestion:
     # ForecastBench question-set snapshot this question was loaded from (the value
     # passed to ``--question-sets``); used to namespace its cache entries by date.
     question_set_date: str = ""
+    market_info_resolution_criteria: str = ""
 
 
 def _download(url: str, dest: Path) -> dict:
@@ -104,5 +105,8 @@ def load_resolved_questions(date: str, cfg: Config) -> list[ResolvedQuestion]:
             resolution_date=resolution_date,
             outcome=float(outcome),
             question_set_date=date,
+            market_info_resolution_criteria=_fill(
+                q.get("market_info_resolution_criteria") or "", resolution_date
+            ),
         )
     return list(earliest.values())

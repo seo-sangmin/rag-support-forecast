@@ -4,6 +4,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from rag_forecast.config import Config
@@ -96,6 +98,41 @@ def test_load_resolved_questions_filters_and_joins(tmp_path: Path) -> None:
     assert "q3" not in by_id
 
 
+@pytest.mark.parametrize(
+    ("market_info", "expected"),
+    [
+        ({}, ""),
+        ({"market_info_resolution_criteria": None}, ""),
+        ({"market_info_resolution_criteria": ""}, ""),
+        (
+            {
+                "market_info_resolution_criteria": (
+                    "Only accounts held before January 1, 2025 count."
+                )
+            },
+            "Only accounts held before January 1, 2025 count.",
+        ),
+    ],
+)
+def test_load_resolved_questions_includes_market_criteria(
+    tmp_path: Path, market_info: dict, expected: str
+) -> None:
+    date = "2025-10-26"
+    cfg = Config(raw_dir=tmp_path / "raw", cache_dir=tmp_path / "cache",
+                 results_dir=tmp_path / "results")
+    _write_fixtures(cfg.raw_dir, date)
+    question_path = cfg.raw_dir / f"{date}-llm.json"
+    questions = json.loads(question_path.read_text())
+    questions["questions"][0].update(market_info)
+    question_path.write_text(json.dumps(questions))
+
+    question = next(q for q in load_resolved_questions(date, cfg) if q.id == "q1")
+
+    assert question.market_info_resolution_criteria == expected
+    assert question.resolution_criteria == "Resolves YES if X happens."
+    assert question.background == "Some context."
+
+
 def test_load_resolved_questions_keeps_earliest_resolution_date(tmp_path: Path) -> None:
     date = "2025-10-26"
     raw_dir = tmp_path / "raw"
@@ -109,6 +146,9 @@ def test_load_resolved_questions_keeps_earliest_resolution_date(tmp_path: Path) 
                 "source": "manifold",
                 "question": "Will X happen by {resolution_date}?",
                 "resolution_criteria": "Resolves YES if X happens.",
+                "market_info_resolution_criteria": (
+                    "Forecast due {forecast_due_date}; resolves {resolution_date}."
+                ),
                 "background": "",
                 "freeze_datetime": "2025-10-16T00:00:00+00:00",
                 "freeze_datetime_value": 0.42,
@@ -150,3 +190,6 @@ def test_load_resolved_questions_keeps_earliest_resolution_date(tmp_path: Path) 
     assert rq.resolution_date == "2025-12-01"
     assert rq.outcome == 1.0
     assert "2025-12-01" in rq.question
+    assert rq.market_info_resolution_criteria == (
+        "Forecast due 2025-10-26; resolves 2025-12-01."
+    )
