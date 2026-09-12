@@ -23,11 +23,13 @@ measure |Z| rank-correlates with the per-question Brier-score improvement.
    binary outcomes only, one row per `(id, source)` (earliest
    `resolution_date`) — **348 unique questions**.
 2. Elicit **P(H)** from `claude-haiku-4-5-20251001` (temperature 0) from the
-   question text, criteria, and background only.
+   question text, criteria, and background, with `freeze_datetime` explicitly
+   stated as the forecast-as-of date.
 3. Retrieve evidence with **AskNews**, bounded to
    `[freeze_datetime − 60 days, freeze_datetime]` to prevent post-forecast
    leakage (top 10 results).
-4. Elicit **P(H|E)** from the same model with the retrieved snippets added.
+4. Elicit **P(H|E)** from the same model with the same forecast-as-of date and
+   the retrieved snippets added.
 5. Compute **Brier scores** `(p − outcome)²` against the resolved outcome.
 6. Compute the **Crupi–Tentori Z**: `(P(H|E) − P(H)) / (1 − P(H))` if
    `P(H|E) ≥ P(H)`, else `(P(H|E) − P(H)) / P(H)`.
@@ -40,6 +42,9 @@ measure |Z| rank-correlates with the per-question Brier-score improvement.
 (Polymarket, Wikipedia, FRED, DBnomics, ACLED, yfinance, Manifold, Metaculus).
 Runs are resume-chained, so the latest CSV is the cumulative dataset:
 `data/results/run_20260705T105447Z.csv` and its `_summary.json`.
+
+These saved results predate the explicit forecast-as-of date and the inclusion
+of market-specific criteria in prompts; they have not been regenerated.
 
 | statistic (n = 100) | value |
 | --- | --- |

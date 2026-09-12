@@ -22,7 +22,12 @@ SYSTEM_POSTERIOR = (
 
 
 def render_question(q: ResolvedQuestion) -> str:
-    parts = [f"Question: {q.question}"]
+    parts = [
+        f"Forecast as of: {q.freeze_datetime.isoformat()}\n"
+        "Treat this as the current date for forecasting. "
+        "Use only information available on or before this date.",
+        f"Question: {q.question}",
+    ]
     if q.resolution_criteria:
         parts.append(f"Resolution criteria: {q.resolution_criteria}")
     market_criteria = q.market_info_resolution_criteria.strip()

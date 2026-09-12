@@ -37,10 +37,36 @@ def _question() -> ResolvedQuestion:
 
 def test_market_criteria_default_preserves_existing_prompt() -> None:
     assert render_question(_question()) == (
+        "Forecast as of: 2025-10-16T00:00:00+00:00\n"
+        "Treat this as the current date for forecasting. "
+        "Use only information available on or before this date.\n\n"
         "Question: Will X happen?\n\n"
         "Resolution criteria: Use the platform's final outcome.\n\n"
         "Background: Some context."
     )
+
+
+def test_forecast_as_of_preserves_timestamp_and_question_dates() -> None:
+    question = replace(
+        _question(),
+        freeze_datetime=datetime(2025, 10, 16, 13, 45, 30, tzinfo=timezone.utc),
+        question="Will X happen before January 1, 2026?",
+        resolution_criteria="Reports may arrive by March 1, 2026.",
+        background="The baseline was recorded on February 1, 2025.",
+        market_info_resolution_criteria="Only events after July 1, 2025 count.",
+    )
+
+    prompt = render_question(question)
+
+    assert prompt.startswith(
+        "Forecast as of: 2025-10-16T13:45:30+00:00\n"
+        "Treat this as the current date for forecasting. "
+        "Use only information available on or before this date.\n\n"
+    )
+    assert f"Question: {question.question}" in prompt
+    assert f"Resolution criteria: {question.resolution_criteria}" in prompt
+    assert f"Background: {question.background}" in prompt
+    assert question.market_info_resolution_criteria in prompt
 
 
 @pytest.mark.parametrize("criteria", ["", " \t\n", "N/A", "n/a", "  N/a\n"])
@@ -60,6 +86,9 @@ def test_market_criteria_supplements_existing_criteria_and_background() -> None:
         ),
     )
     assert render_question(question) == (
+        "Forecast as of: 2025-10-16T00:00:00+00:00\n"
+        "Treat this as the current date for forecasting. "
+        "Use only information available on or before this date.\n\n"
         "Question: Will X happen?\n\n"
         "Resolution criteria: Use the platform's final outcome.\n\n"
         "Market-specific rules and clarifications: "
@@ -69,7 +98,7 @@ def test_market_criteria_supplements_existing_criteria_and_background() -> None:
     )
 
 
-async def test_both_forecast_prompts_include_market_criteria(
+async def test_both_forecast_prompts_include_as_of_date_and_market_criteria(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     question = replace(
@@ -94,6 +123,12 @@ async def test_both_forecast_prompts_include_market_criteria(
 
     assert [call[0] for call in calls] == [SYSTEM_PRIOR, SYSTEM_POSTERIOR]
     for _, prompt, date in calls:
+        assert prompt.startswith(
+            "Forecast as of: 2025-10-16T00:00:00+00:00\n"
+            "Treat this as the current date for forecasting. "
+            "Use only information available on or before this date.\n\n"
+        )
+        assert "2025-10-26" not in prompt
         assert (
             "Market-specific rules and clarifications: "
             "Only accounts held before January 1, 2025 count."
