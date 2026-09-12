@@ -121,7 +121,8 @@ python scripts/run_experiment.py --max-questions 100 --random --seed 2 \
 
 `data/results/run_<timestamp>.csv` — one row per question with columns:
 `id, source, question, freeze_datetime, resolution_date, outcome, p_h, p_he,
-n_evidence, brier_h, brier_he, brier_delta, z, abs_z`.
+n_evidence, brier_h, brier_he, brier_delta, z, abs_z, reasoning_h, reasoning_he`.
+
 `analyze_results.py` writes the aggregate statistics shown in
 [Results](#results) to `run_<timestamp>_summary.json`.
 

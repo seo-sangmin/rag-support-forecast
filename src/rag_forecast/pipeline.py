@@ -29,6 +29,8 @@ class Row:
     brier_delta: float
     z: float
     abs_z: float
+    reasoning_h: str = ""
+    reasoning_he: str = ""
 
 
 def _key(q: ResolvedQuestion) -> tuple[str, str]:
@@ -61,6 +63,8 @@ def _build_row(
         brier_delta=bh - bhe,
         z=z,
         abs_z=abs(z),
+        reasoning_h=prior.get("reasoning", ""),
+        reasoning_he=posterior.get("reasoning", ""),
     )
 
 

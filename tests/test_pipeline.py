@@ -13,6 +13,7 @@ from rag_forecast.config import Config
 from rag_forecast.data import ResolvedQuestion
 from rag_forecast.pipeline import (
     Row,
+    _build_row,
     _filter_questions,
     _forecast_all,
     _load_processed,
@@ -213,7 +214,42 @@ def test_write_combined_csv_handles_schema_drift(tmp_path: Path) -> None:
         assert reader.fieldnames == list(Row.__annotations__.keys())
         assert "legacy_extra" not in (reader.fieldnames or [])
     assert result[0]["abs_z"] == ""  # missing prior column -> empty cell
+    assert result[0]["reasoning_h"] == ""
+    assert result[0]["reasoning_he"] == ""
     assert result[1]["abs_z"] == "0.4"
+
+
+def test_forecast_explanations_survive_csv_and_resume(tmp_path: Path) -> None:
+    prior_reasoning = 'Base rate, without evidence: "unlikely".\nPrior explanation.'
+    posterior_reasoning = 'The article says "yes", so I update.\nEvidence explanation.'
+    row = _build_row(
+        _q("q1"),
+        {"probability": 0.2, "reasoning": prior_reasoning},
+        {"probability": 0.7, "reasoning": posterior_reasoning},
+        [{"title": "Evidence"}],
+    )
+    assert row.reasoning_h == prior_reasoning
+    assert row.reasoning_he == posterior_reasoning
+    assert row.p_h == 0.2
+    assert row.p_he == 0.7
+
+    first = tmp_path / "first.csv"
+    _write_combined_csv([], [row], first)
+    keys, prior_rows = _load_processed([first])
+    assert keys == {("q1", "manifold")}
+    assert prior_rows[0]["reasoning_h"] == prior_reasoning
+    assert prior_rows[0]["reasoning_he"] == posterior_reasoning
+
+    resumed = tmp_path / "resumed.csv"
+    _write_combined_csv(prior_rows, [_row("q2")], resumed)
+    with resumed.open(newline="") as f:
+        reader = csv.DictReader(f)
+        assert reader.fieldnames[-2:] == ["reasoning_h", "reasoning_he"]
+        result = list(reader)
+    assert result[0]["reasoning_h"] == prior_reasoning
+    assert result[0]["reasoning_he"] == posterior_reasoning
+    assert result[1]["reasoning_h"] == ""
+    assert result[1]["reasoning_he"] == ""
 
 
 class _FakeRetriever:
