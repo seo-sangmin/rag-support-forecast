@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import csv
+import json
 import random
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -205,6 +206,12 @@ def _write_combined_csv(
             w.writerow(asdict(r))
 
 
+def _write_metadata(out_csv: Path, metadata: dict) -> None:
+    path = out_csv.with_suffix(".meta.json")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
+
+
 async def run(
     cfg: Config,
     max_questions: int | None,
@@ -240,12 +247,35 @@ async def run(
         else:
             questions = questions[:max_questions]
 
+    selected_ids = [{"id": q.id, "source": q.source} for q in questions]
+    metadata = {
+        "seed": seed,
+        "random": random_sample,
+        "max_questions": max_questions,
+        "question_sets": list(cfg.question_set_dates),
+        "resume_from": [str(p) for p in (resume_from or [])],
+        "model": cfg.model,
+        "temperature": cfg.temperature,
+        "max_tokens": cfg.max_tokens,
+        "lookback_days": cfg.lookback_days,
+        "asknews_n_articles": cfg.asknews_n_articles,
+        "asknews_method": cfg.asknews_method,
+        "asknews_snippet_chars": cfg.asknews_snippet_chars,
+        "selected_question_ids": selected_ids,
+        "complete": False,
+        "missing_question_ids": selected_ids,
+    }
+    # Save the intended batch before retrieval or forecasting can fail.
+    _write_metadata(out_csv, metadata)
+
     if not questions:
         print(
             f"Nothing new to process; rewriting prior {len(prior_rows)} "
             f"rows to {out_csv}"
         )
         _write_combined_csv(prior_rows, [], out_csv)
+        metadata["complete"] = True
+        _write_metadata(out_csv, metadata)
         return 0
 
     forecaster = ForecastClient(cfg)
@@ -259,6 +289,13 @@ async def run(
     rows = await _forecast_all(questions, evidence, forecaster, cfg)
 
     _write_combined_csv(prior_rows, rows, out_csv)
+    completed_keys = {(r.id, r.source) for r in rows}
+    missing = [q for q in selected_ids if (q["id"], q["source"]) not in completed_keys]
+    metadata["missing_question_ids"] = missing
+    metadata["complete"] = not missing
+    _write_metadata(out_csv, metadata)
     total = len(prior_rows) + len(rows)
     print(f"Wrote {len(rows)} new rows ({total} total) to {out_csv}")
+    if missing:
+        print(f"  ! incomplete batch: {len(missing)} selected questions are missing")
     return len(rows)

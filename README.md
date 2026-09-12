@@ -41,7 +41,7 @@ measure |Z| rank-correlates with the per-question Brier-score improvement.
 100 of the 348 questions so far, sampled at random and spanning 8 sources
 (Polymarket, Wikipedia, FRED, DBnomics, ACLED, yfinance, Manifold, Metaculus).
 Runs are resume-chained, so the latest CSV is the cumulative dataset:
-`data/results/run_20260705T105447Z.csv` and its `_summary.json`.
+`data/archive/results/run_20260705T105447Z.csv` and its `_summary.json`.
 
 These saved results predate the explicit forecast-as-of date and the inclusion
 of market-specific criteria in prompts; they have not been regenerated.
@@ -64,7 +64,8 @@ the losses where it hurt. Caveats: this is 100 of 348 questions, a single
 model, and p is only just below 0.05.
 
 The evidence-cutoff audit over all 100 questions' cached retrievals
-(`data/results/leakage_20260705T110757Z.json`) checked 927 articles and found
+(`data/archive/results/leakage_20260705T110757Z.json`) checked
+927 articles and found
 **zero** published after their question's `freeze_datetime` and zero with
 unverifiable publication dates.
 
