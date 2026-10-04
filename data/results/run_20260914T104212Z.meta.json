@@ -1,0 +1,130 @@
+{
+  "seed": 0,
+  "random": true,
+  "max_questions": 27,
+  "question_sets": [
+    "2025-10-26"
+  ],
+  "resume_from": [
+    "data/results/run_20260914T104045Z.csv"
+  ],
+  "model": "claude-haiku-4-5-20251001",
+  "temperature": 0.0,
+  "max_tokens": 1024,
+  "lookback_days": 60,
+  "asknews_n_articles": 10,
+  "asknews_method": "nl",
+  "asknews_snippet_chars": 2000,
+  "selected_question_ids": [
+    {
+      "id": "0x4928bece364d2def95c920459ab1fa54f449f99f33b0dbc93d6a84f80d9c9669",
+      "source": "polymarket"
+    },
+    {
+      "id": "0x9d24d9f9b5995949cb158d943793dea20bd448e1b3971cb6f7418bb15e719661",
+      "source": "polymarket"
+    },
+    {
+      "id": "b56531512fb6a9e91e9af934df3b6f506a3f2103e10af0ce96705c79dec40ae9",
+      "source": "acled"
+    },
+    {
+      "id": "OBFR",
+      "source": "fred"
+    },
+    {
+      "id": "558aebef0c3c95c9559e54f27e8fa908da02917d9833abb9a2330d10b1b2b953",
+      "source": "wikipedia"
+    },
+    {
+      "id": "61c0fb3703e68cee2439afd5c2d71522bc6649a1fa154491f58981456fa8ab68",
+      "source": "wikipedia"
+    },
+    {
+      "id": "0x7455e92b9e9c842ca260e65f0d640108223fd9f3430f997472825763654d96c7",
+      "source": "polymarket"
+    },
+    {
+      "id": "AZNPqIQuA0",
+      "source": "manifold"
+    },
+    {
+      "id": "5d675aaaef89c7e9b340de20f164638503d97a39dcac53d5db6762f613f2c591",
+      "source": "wikipedia"
+    },
+    {
+      "id": "0x16d24ebfbf42d9f4c24f11962424d41829db6cc542593c09acee647958020382",
+      "source": "polymarket"
+    },
+    {
+      "id": "CPT",
+      "source": "yfinance"
+    },
+    {
+      "id": "DEXKOUS",
+      "source": "fred"
+    },
+    {
+      "id": "242e17fa4cf02fba614df523a64f8527f7776f3443e6281386b5eddcd84a097c",
+      "source": "wikipedia"
+    },
+    {
+      "id": "meteofrance_TEMPERATURE_celsius.07481.D",
+      "source": "dbnomics"
+    },
+    {
+      "id": "WALCL",
+      "source": "fred"
+    },
+    {
+      "id": "meteofrance_TEMPERATURE_celsius.07005.D",
+      "source": "dbnomics"
+    },
+    {
+      "id": "MU",
+      "source": "yfinance"
+    },
+    {
+      "id": "IC4WSA",
+      "source": "fred"
+    },
+    {
+      "id": "5d3843b63337bfacb27814102cd56f9d2bc77974d84c80d81aa0bdb2a0e057d9",
+      "source": "wikipedia"
+    },
+    {
+      "id": "GNRC",
+      "source": "yfinance"
+    },
+    {
+      "id": "meteofrance_TEMPERATURE_celsius.07607.D",
+      "source": "dbnomics"
+    },
+    {
+      "id": "K8qazyZJ3tXyuLlzkkyk",
+      "source": "manifold"
+    },
+    {
+      "id": "meteofrance_TEMPERATURE_celsius.07020.D",
+      "source": "dbnomics"
+    },
+    {
+      "id": "edf3adf1735d53cb20af975a837c6076f11edbebb6551ac2d2e4f47c590f790a",
+      "source": "acled"
+    },
+    {
+      "id": "10220",
+      "source": "metaculus"
+    },
+    {
+      "id": "14b53bc593c52fa6616a9d0b81b58de35be6d1361196c29778ba80a1b04f1f63",
+      "source": "wikipedia"
+    },
+    {
+      "id": "5882ac81e7ec14b2d8b3da350027e1e7fee5373489361cc744e6d8f4e3a1f372",
+      "source": "wikipedia"
+    }
+  ],
+  "complete": true,
+  "missing_question_ids": []
+}

@@ -1,0 +1,62 @@
+{
+  "seed": 0,
+  "random": true,
+  "max_questions": 10,
+  "question_sets": [
+    "2025-10-26"
+  ],
+  "resume_from": [
+    "data/results/run_20260914T103954Z.csv"
+  ],
+  "model": "claude-haiku-4-5-20251001",
+  "temperature": 0.0,
+  "max_tokens": 1024,
+  "lookback_days": 60,
+  "asknews_n_articles": 10,
+  "asknews_method": "nl",
+  "asknews_snippet_chars": 2000,
+  "selected_question_ids": [
+    {
+      "id": "0x34a8aa834927033bb6ac7bd96c508972611b826ca6d61e59c6d7d0cf3571d463",
+      "source": "polymarket"
+    },
+    {
+      "id": "0x77b5bfe44beb0641905f76ee2f32f96f47d8863bcad586678224a6dc02f03ad3",
+      "source": "polymarket"
+    },
+    {
+      "id": "25c3f1b2e05b73f6803f231e4f0f12b9c9e87f6fbbc9d8c2fd71044ab729fdd7",
+      "source": "acled"
+    },
+    {
+      "id": "NFCILEVERAGE",
+      "source": "fred"
+    },
+    {
+      "id": "25e629b0a54ee795ccbb7c44968f319952cae286525fa43501a290151a3f1d6c",
+      "source": "wikipedia"
+    },
+    {
+      "id": "0xfccc16f3bba1210d40db55ee1b71c741be5b14dc3512aba5dc32de5c6e0c4bde",
+      "source": "polymarket"
+    },
+    {
+      "id": "0x58e092763b1321e8368538bf5b78fc200d9409e105700e06eceb66b35ef371aa",
+      "source": "polymarket"
+    },
+    {
+      "id": "6Zyd999ZP9",
+      "source": "manifold"
+    },
+    {
+      "id": "0xf34b156ecf111694d6e6841a7effb807f9483cb0cabfaa3e50283530d96d58ce",
+      "source": "polymarket"
+    },
+    {
+      "id": "0x07c96dbd0f70e5a27a0e15c22042abcc57bc6acc7f740f7935e0a08cde5e5138",
+      "source": "polymarket"
+    }
+  ],
+  "complete": true,
+  "missing_question_ids": []
+}

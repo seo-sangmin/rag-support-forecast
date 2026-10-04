@@ -7,7 +7,7 @@ SYSTEM_PRIOR = (
     "You will be given a binary forecasting question. "
     "Use only your prior knowledge; do not assume access to real-time information. "
     "Reply with a single JSON object on one line and nothing else: "
-    '{"reasoning": "<brief reasoning, <= 80 words>", '
+    '{"reasoning": "<brief reasoning, <= 100 words>", '
     '"probability": <number in [0, 1] giving P(question resolves YES)>}.'
 )
 
@@ -16,7 +16,7 @@ SYSTEM_POSTERIOR = (
     "You will be given a binary forecasting question and a set of retrieved evidence "
     "snippets. Treat sources skeptically; weigh evidence against your prior. "
     "Reply with a single JSON object on one line and nothing else: "
-    '{"reasoning": "<brief reasoning that references the evidence, <= 120 words>", '
+    '{"reasoning": "<brief reasoning that references the evidence, <= 100 words>", '
     '"probability": <number in [0, 1] giving P(question resolves YES | evidence)>}.'
 )
 
@@ -24,8 +24,7 @@ SYSTEM_POSTERIOR = (
 def render_question(q: ResolvedQuestion) -> str:
     parts = [
         f"Forecast as of: {q.freeze_datetime.isoformat()}\n"
-        "Treat this as the current date for forecasting. "
-        "Use only information available on or before this date.",
+        "Treat this as the current date for forecasting.",
         f"Question: {q.question}",
     ]
     if q.resolution_criteria:

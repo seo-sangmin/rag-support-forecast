@@ -1,0 +1,32 @@
+{
+  "seed": 0,
+  "random": true,
+  "max_questions": 3,
+  "question_sets": [
+    "2025-10-26"
+  ],
+  "resume_from": [],
+  "model": "claude-haiku-4-5-20251001",
+  "temperature": 0.0,
+  "max_tokens": 1024,
+  "lookback_days": 60,
+  "asknews_n_articles": 10,
+  "asknews_method": "nl",
+  "asknews_snippet_chars": 2000,
+  "selected_question_ids": [
+    {
+      "id": "0x2a34915c245f4b94976dda8afddb56452caf0ba2307500f78d7f08813d467917",
+      "source": "polymarket"
+    },
+    {
+      "id": "0x73f71c364e6085e956abcd950f2176abcf3a6959022b5cc008fd505f296e335a",
+      "source": "polymarket"
+    },
+    {
+      "id": "342a14e2377140e8a95d331b6c112002f902a6bacd1017b3ead112d3438b6bb1",
+      "source": "acled"
+    }
+  ],
+  "complete": true,
+  "missing_question_ids": []
+}

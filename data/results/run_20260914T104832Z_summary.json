@@ -1,0 +1,27 @@
+{
+  "n": 100,
+  "mean_brier_h": 0.18694343999999996,
+  "mean_brier_he": 0.16471800999999997,
+  "mean_brier_delta": 0.02222543,
+  "mean_brier_delta_ci": [
+    -0.007908694999999992,
+    0.05665224799999999
+  ],
+  "frac_brier_improved": 0.31,
+  "mean_abs_z": 0.19397400490382416,
+  "frac_z_positive": 0.47,
+  "spearman_abs_z_vs_brier_delta": {
+    "rho": 0.04714777421722408,
+    "p_value": 0.6413520206934727,
+    "ci": [
+      -0.21738722668754845,
+      0.28433195890522506
+    ]
+  },
+  "ci_method": {
+    "method": "percentile bootstrap, resampling questions with replacement",
+    "confidence": 0.95,
+    "n_resamples": 10000,
+    "seed": 0
+  }
+}
