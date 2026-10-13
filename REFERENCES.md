@@ -25,6 +25,10 @@ backticks are its belief-shift measure keys.
   <https://doi.org/10.1198/016214506000001437> — the entropy and divergence of
   a proper scoring rule, behind the expected-improvement measures (Method
   step 6).
+- Shannon, C. E. (1948). A mathematical theory of communication. *Bell System
+  Technical Journal*, 27(3), 379–423.
+  <https://doi.org/10.1002/j.1538-7305.1948.tb01338.x> — entropy H, behind
+  `ur_log`.
 - Kullback, S., & Leibler, R. A. (1951). On information and sufficiency.
   *Annals of Mathematical Statistics*, 22(1), 79–86.
   <https://doi.org/10.1214/aoms/1177729694> — KL divergence (`kl`).
