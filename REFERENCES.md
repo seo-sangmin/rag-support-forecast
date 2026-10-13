@@ -22,9 +22,9 @@ backticks are its belief-shift measure keys.
 - Gneiting, T., & Raftery, A. E. (2007). Strictly proper scoring rules,
   prediction, and estimation. *Journal of the American Statistical
   Association*, 102(477), 359–378.
-  <https://doi.org/10.1198/016214506000001437> — the entropy and divergence of
-  a proper scoring rule, behind the expected-improvement measures (Method
-  step 6).
+  <https://doi.org/10.1198/016214506000001437> — expected score = entropy +
+  divergence (Section 2.2); the four expected-improvement measures in Method
+  step 6 follow from it.
 - Shannon, C. E. (1948). A mathematical theory of communication. *Bell System
   Technical Journal*, 27(3), 379–423.
   <https://doi.org/10.1002/j.1538-7305.1948.tb01338.x> — entropy H, behind
