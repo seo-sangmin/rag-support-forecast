@@ -58,6 +58,12 @@ belief-shift measure keys.
 
 ## Related work
 
+- Halawi, D., Zhang, F., Yueh-Han, C., & Steinhardt, J. (2024). Approaching
+  human-level forecasting with language models. *Advances in Neural
+  Information Processing Systems*, 37, 50426–50468.
+  <https://proceedings.neurips.cc/paper_files/paper/2024/hash/5a5acfd0876c940d81619c1dc60e7748-Abstract-Conference.html>
+  — a retrieval-augmented LLM forecasting system that nears the human crowd
+  aggregate.
 - Tabet, A. N., & Luštrek, M. (2026). When does evidence help prompted LLM
   forecasting? Evidence access and prompt structure across 12 models.
   *ICML 2026 Workshop: Forecasting as a New Frontier of Intelligence*.
