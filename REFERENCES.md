@@ -1,8 +1,8 @@
 # References
 
-Works behind the methods in the [README](README.md). Step numbers refer to
-its [Method](README.md#method) section, and names in backticks are its
-belief-shift measure keys.
+Works behind the methods and motivation in the [README](README.md). Step
+numbers refer to its [Method](README.md#method) section, and names in
+backticks are its belief-shift measure keys.
 
 ## Forecasting and scoring rules
 
@@ -62,8 +62,8 @@ belief-shift measure keys.
   human-level forecasting with language models. *Advances in Neural
   Information Processing Systems*, 37, 50426–50468.
   <https://proceedings.neurips.cc/paper_files/paper/2024/hash/5a5acfd0876c940d81619c1dc60e7748-Abstract-Conference.html>
-  — a retrieval-augmented LLM forecasting system that nears the human crowd
-  aggregate.
+  — retrieval improves average Brier score; the source for the README's
+  opening claim.
 - Tabet, A. N., & Luštrek, M. (2026). When does evidence help prompted LLM
   forecasting? Evidence access and prompt structure across 12 models.
   *ICML 2026 Workshop: Forecasting as a New Frontier of Intelligence*.
