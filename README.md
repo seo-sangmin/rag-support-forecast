@@ -206,7 +206,9 @@ handling, run metadata, the leakage audit, and the sliding-window rate limiter.
 
 ## References
 
+Full citations for the scoring rules, confirmation measures, statistics and
+related work are in [REFERENCES.md](REFERENCES.md).
+
 - ForecastBench: <https://www.forecastbench.org/>
 - ForecastBench datasets: <https://github.com/forecastingresearch/forecastbench-datasets>
 - AskNews Python SDK: <https://github.com/emergentmethods/asknews-python-sdk>
-- Crupi & Tentori, *Confirmation Theory*: <https://www.vincenzocrupi.com/website/wp-content/uploads/2017/02/CrupiTentori_OxfordHandbook2016.pdf>
