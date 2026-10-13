@@ -3,19 +3,20 @@
 Retrieval-augmented forecasting can improve LLM forecasts, but it is unclear
 when and why retrieved evidence helps. This repo runs a minimum viable
 experiment on binary forecasting questions from
-[ForecastBench](https://www.forecastbench.org/) to test whether the model's own
+[ForecastBench](https://www.forecastbench.org/) to ask whether the model's own
 probability shift after retrieval is a measurable signal of retrieval's actual
 forecasting value:
 
-> **For binary forecasting questions, LLM-estimated Bayesian confirmation
-> measures computed from P(H) and P(H|E) are positively associated with
-> improvements in LLM forecasting performance after retrieval, as evaluated by
-> proper scoring rules against resolved outcomes.**
+> **How strongly are measures, computed from an LLM's forecasts before and
+> after retrieval, associated with realized improvements in Brier score and
+> log loss?**
 
 For each question we elicit two probabilities from Claude Haiku 4.5 — the prior
-P(H) (no retrieval) and the posterior P(H|E) (with date-bounded AskNews
-evidence) — then check whether the magnitude of the Crupi–Tentori confirmation
-measure |Z| rank-correlates with the per-question Brier-score improvement.
+p = P(H) (no retrieval) and the posterior q = P(H|E) (with date-bounded AskNews
+evidence). From p and q we compute six belief-shift measures (Δ², KL
+divergence, two uncertainty reductions, and the Crupi–Tentori and
+Kemeny–Oppenheim confirmation measures), then correlate each one (Pearson and
+Spearman) with the per-question improvement in Brier score and in log loss.
 
 ## Method
 
@@ -31,72 +32,53 @@ measure |Z| rank-correlates with the per-question Brier-score improvement.
    leakage (top 10 results).
 4. Elicit **P(H|E)** from the same model with the same forecast-as-of date and
    the retrieved snippets added.
-5. Compute **Brier scores** `(p − outcome)²` against the resolved outcome.
-6. Compute the **Crupi–Tentori Z**: `(P(H|E) − P(H)) / (1 − P(H))` if
-   `P(H|E) ≥ P(H)`, else `(P(H|E) − P(H)) / P(H)`.
-7. Report the **Spearman rank correlation** between `|Z|` and
-   `Brier(P(H)) − Brier(P(H|E))`, plus 95% **bootstrap confidence intervals**
-   for it and for the mean Brier improvement. A bootstrap CI resamples the
-   questions with replacement 10,000 times, recomputes the statistic each
-   time, and keeps the middle 95% of those values.
+5. Score both forecasts against the resolved outcome y ∈ {0, 1} with the
+   **Brier score** `(p − y)²` and the **log loss**
+   `−[y·log p + (1 − y)·log(1 − p)]`. A question's **improvement** is
+   score(p) − score(q), so positive means retrieval helped. For log loss and
+   the log-based measures below, probabilities are clipped to
+   `[1e-6, 1 − 1e-6]` so a forecast of exactly 0 or 1 gives a finite value.
+6. Compute six **belief-shift measures** from p and q, with Δ = q − p. The
+   first four are expected score improvements under a stated assumption; the
+   last two are Bayesian confirmation measures.
 
-## Results
+   | key | formula | why |
+   | --- | --- | --- |
+   | `delta_sq` | Δ² | If the true probability is t = p + λΔ, the expected Brier improvement is (2λ − 1)·Δ², a positive multiple of Δ² when λ > ½. |
+   | `kl` | KL(q‖p) = q·log(q/p) + (1 − q)·log((1 − q)/(1 − p)) | If the true probability is q (λ = 1), this is the expected log-loss improvement. |
+   | `ur_brier` | (q − p)(p + q − 1) | E_p[Brier(p)] − E_q[Brier(q)] = p(1 − p) − q(1 − q): the drop in each forecast's own expected Brier score. Signed. |
+   | `ur_log` | H(p) − H(q), with H(r) = −r·log r − (1 − r)·log(1 − r) | E_p[LogLoss(p)] − E_q[LogLoss(q)]: the drop in entropy. Signed. |
+   | `abs_z` | \|Z\|, with Z = Δ/(1 − p) if q ≥ p, else Δ/p | Crupi–Tentori confirmation. |
+   | `abs_ko` | \|Δ/(p + q − 2pq)\| | Kemeny–Oppenheim confirmation (P(E\|H) − P(E\|¬H))/(P(E\|H) + P(E\|¬H)), rewritten in p and q with Bayes' rule. |
 
-**The current run does not support the hypothesis.** |Z| is essentially
-uncorrelated with the Brier improvement (rho = 0.05, p = 0.64). Retrieval still
-lowered the mean Brier score slightly, but that improvement is not
-distinguishable from zero.
+7. For each of the 6 × 2 (measure, improvement) pairs, report the **Pearson**
+   and **Spearman** correlations with 95% **bootstrap confidence intervals**,
+   plus bootstrap CIs for the mean Brier and log-loss improvements. A
+   bootstrap CI resamples the questions with replacement 10,000 times,
+   recomputes the statistic each time, and keeps the middle 95% of those
+   values. Pearson tracks how the *mean* improvement moves with a measure,
+   which is what a scoring rule averages; Spearman uses only ranks, so it
+   follows the typical question rather than the mean. Both p-values are also
+   reported, but the Pearson p-value assumes normally distributed data, and a
+   per-question improvement is far from normal, so read the bootstrap CI.
 
-The run covers 100 of the 348 questions, sampled at random (seed 0) and
-spanning 8 sources (Polymarket, Wikipedia, FRED, DBnomics, ACLED, yfinance,
-Manifold, Metaculus). Runs are resume-chained (3 → 10 → 27 → 60 new questions
-per batch), so the latest CSV is the cumulative dataset:
-`data/results/run_20260914T104832Z.csv`, with its `_summary.json` and
-`.meta.json`.
+## Status
 
-| statistic (n = 100) | current run (Sep 2026) | earlier run (Jul 2026) |
-| --- | --- | --- |
-| Spearman rho, \|Z\| vs Brier improvement | **0.05** (p = 0.64) | 0.21 (p = 0.039) |
-| 95% CI for rho | −0.22 to 0.28 | −0.03 to 0.41 |
-| mean Brier, prior P(H) | 0.187 | 0.186 |
-| mean Brier, posterior P(H\|E) | 0.165 | 0.162 |
-| mean Brier improvement | +0.022 | +0.024 |
-| 95% CI for mean improvement | −0.008 to +0.057 | −0.006 to +0.056 |
-| questions improved / worse / unchanged | 31% / 50% / 19% | 36% / 42% / 22% |
-| mean \|Z\| | 0.194 | 0.227 |
-| questions with Z > 0 | 47% | 43% |
+So far one pilot run covers 100 of the 348 questions, sampled at random
+(seed 0) across 8 sources: `data/results/run_20260914T104832Z.csv` (the last of
+four resume-chained batches, so it holds all 100), with its `_summary.json`
+(every statistic from Method step 7) and `.meta.json`. The other 248 questions
+have not been run yet. The pilot's numbers are exploratory, because the six
+measures, log loss and Pearson were added after the pilot's original test
+(Spearman of |Z| vs Brier improvement) came out null. Notes from the pilot:
 
-**What changed between the runs.** Both runs use the same 100 questions, the
-same cached AskNews evidence, and the same model at temperature 0. Only the
-prompts differ. The current prompts state `freeze_datetime` as the
-forecast-as-of date, add market-specific rules (present for 4 of the 100
-questions), and cap the reasoning at 100 words for both prompts (previously 80
-for the prior and 120 for the posterior). These prompt edits alone changed 69
-of the 100 priors and 56 of the 100 posteriors, and moved rho from 0.21 to
-0.05.
-
-**How to read this.**
-
-- The earlier "modest support" was fragile. Its p-value was just under 0.05,
-  its bootstrap CI already included zero, and a prompt revision that left the
-  questions and evidence unchanged erased it.
-- The current CI (−0.22 to 0.28) is wide. The data show no clear association,
-  but they cannot rule out a modest positive one (up to about 0.28) either.
-  More questions would narrow it.
-- Retrieval made forecasts worse on more questions (50%) than it improved
-  (31%). The mean still improved because a few gains were large: the five
-  biggest gains alone add up to more than the net total.
-- Caveats: 100 of 348 questions, one model.
-
-The earlier run is archived in `data/archive/` (results and its prompt cache).
-Its CIs in the table come from running the current `analyze_results.py` on
-`data/archive/results/run_20260705T105447Z.csv`; the archived `_summary.json`
-predates CI reporting.
-
-The evidence-cutoff audit over all 100 questions' cached retrievals
-(`data/results/leakage_20260914T110031Z.json`) checked 927 articles and found
-**zero** published after their question's `freeze_datetime` and zero with
-unverifiable publication dates.
+- Changing only the prompts, with the same questions, evidence and model,
+  moved that original test's Spearman rho from 0.21 to 0.05.
+- The size-of-move measures (Δ², KL, |Z|, |KO|) have high Pearson but
+  near-zero Spearman correlations with improvement. The Pearson values rest on
+  about five large moves that all went toward the outcome.
+- The uncertainty reductions correlate positively on both statistics, but
+  almost entirely through the questions that resolved NO.
 
 ## Setup
 
@@ -160,9 +142,16 @@ pairs selected for this batch. At the end of the run it sets `complete` and
 lists any `missing_question_ids` (questions skipped because retrieval or
 forecasting failed).
 
-`analyze_results.py` writes the aggregate statistics shown in
-[Results](#results), including the bootstrap CIs and the settings used to
-compute them, to `run_<timestamp>_summary.json`.
+`analyze_results.py` writes the aggregate statistics, including the
+bootstrap CIs and the settings used to compute them, to
+`run_<timestamp>_summary.json`. It computes log loss and the
+six measures from the CSV's `p_h`, `p_he` and `outcome` columns, so it works on
+any existing run CSV. The correlation grid is under
+`correlations[<improvement>][<measure>][pearson|spearman]`, each with
+`estimate`, `p_value` and `ci`.
+
+`data/archive/` holds the July 2026 runs made with the earlier prompts (result
+CSVs, summaries and leakage audits) and their prompt cache.
 
 ## Project layout
 
@@ -174,7 +163,8 @@ src/rag_forecast/
   forecasting.py   — rate-limited Anthropic client, strict-JSON parse, cached
   rate_limiter.py  — async sliding-window RPM/ITPM/OTPM limiter
   prompts.py       — prior/posterior elicitation prompts
-  metrics.py       — brier, z_crupi_tentori, spearman, bootstrap_ci
+  metrics.py       — brier, log_loss, shift_measures, z_crupi_tentori,
+                     pearson, spearman, bootstrap_ci
   cache.py         — content-hash JSON cache
   audit.py         — evidence-cutoff leakage audit over the AskNews cache
   pipeline.py      — async orchestration, writes per-question CSV and run metadata
@@ -192,7 +182,8 @@ tests/             — metrics, prompts, data loader, cache, pipeline, run metad
 pytest -q
 ```
 
-Covers the Brier and Crupi–Tentori Z formulas, Spearman edge cases, bootstrap
+Covers the Brier, log-loss and Crupi–Tentori Z formulas, each belief-shift
+measure against its definition, Pearson and Spearman edge cases, bootstrap
 CIs, prompt rendering, the question/resolution loader, the cache, resume and CSV
 handling, run metadata, the leakage audit, and the sliding-window rate limiter.
 
@@ -202,7 +193,9 @@ handling, run metadata, the leakage audit, and the sliding-window rate limiter.
   `freeze_datetime` (not the resolution date), so retrieval can't surface news
   that reveals the outcome. `scripts/audit_leakage.py` verifies this held for
   the cached evidence, offline, and fails closed on articles whose
-  `published_date` can't be verified as pre-freeze.
+  `published_date` can't be verified as pre-freeze. On the pilot's 927 cached
+  articles it found none published after freeze and none with unverifiable
+  dates (`data/results/leakage_20260914T110031Z.json`).
 - **Model cutoff**: `claude-haiku-4-5-20251001`'s Jul 2025 training cutoff
   precedes every question's `freeze_datetime` and AskNews search window, so
   neither the outcomes nor the retrieved evidence were in training.
