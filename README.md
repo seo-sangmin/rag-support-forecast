@@ -3,19 +3,20 @@
 Retrieval-augmented forecasting can improve LLM forecasts, but it is unclear
 when and why retrieved evidence helps. This repo runs a minimum viable
 experiment on binary forecasting questions from
-[ForecastBench](https://www.forecastbench.org/) to test whether the model's own
+[ForecastBench](https://www.forecastbench.org/) to ask whether the model's own
 probability shift after retrieval is a measurable signal of retrieval's actual
 forecasting value:
 
-> **For binary forecasting questions, LLM-estimated Bayesian confirmation
-> measures computed from P(H) and P(H|E) are positively associated with
-> improvements in LLM forecasting performance after retrieval, as evaluated by
-> proper scoring rules against resolved outcomes.**
+> **How strongly are measures, computed from an LLM's forecasts before and
+> after retrieval, associated with realized improvements in Brier score and
+> log loss?**
 
 For each question we elicit two probabilities from Claude Haiku 4.5 — the prior
-P(H) (no retrieval) and the posterior P(H|E) (with date-bounded AskNews
-evidence) — then check whether the magnitude of the Crupi–Tentori confirmation
-measure |Z| rank-correlates with the per-question Brier-score improvement.
+p = P(H) (no retrieval) and the posterior q = P(H|E) (with date-bounded AskNews
+evidence). From p and q we compute six belief-shift measures (Δ², KL
+divergence, two uncertainty reductions, and the Crupi–Tentori and
+Kemeny–Oppenheim confirmation measures), then correlate each one (Pearson and
+Spearman) with the per-question improvement in Brier score and in log loss.
 
 ## Method
 
@@ -31,19 +32,41 @@ measure |Z| rank-correlates with the per-question Brier-score improvement.
    leakage (top 10 results).
 4. Elicit **P(H|E)** from the same model with the same forecast-as-of date and
    the retrieved snippets added.
-5. Compute **Brier scores** `(p − outcome)²` against the resolved outcome.
-6. Compute the **Crupi–Tentori Z**: `(P(H|E) − P(H)) / (1 − P(H))` if
-   `P(H|E) ≥ P(H)`, else `(P(H|E) − P(H)) / P(H)`.
-7. Report the **Spearman rank correlation** between `|Z|` and
-   `Brier(P(H)) − Brier(P(H|E))`, plus 95% **bootstrap confidence intervals**
-   for it and for the mean Brier improvement. A bootstrap CI resamples the
-   questions with replacement 10,000 times, recomputes the statistic each
-   time, and keeps the middle 95% of those values.
+5. Score both forecasts against the resolved outcome y ∈ {0, 1} with the
+   **Brier score** `(p − y)²` and the **log loss**
+   `−[y·log p + (1 − y)·log(1 − p)]`. A question's **improvement** is
+   score(p) − score(q), so positive means retrieval helped. For log loss and
+   the log-based measures below, probabilities are clipped to
+   `[1e-6, 1 − 1e-6]` so a forecast of exactly 0 or 1 gives a finite value.
+6. Compute six **belief-shift measures** from p and q, with Δ = q − p. The
+   first four are expected score improvements under a stated assumption; the
+   last two are Bayesian confirmation measures.
+
+   | key | formula | why |
+   | --- | --- | --- |
+   | `delta_sq` | Δ² | If the true probability is t = p + λΔ, the expected Brier improvement is (2λ − 1)·Δ², a positive multiple of Δ² when λ > ½. |
+   | `kl` | KL(q‖p) = q·log(q/p) + (1 − q)·log((1 − q)/(1 − p)) | If the true probability is q (λ = 1), this is the expected log-loss improvement. |
+   | `ur_brier` | (q − p)(p + q − 1) | E_p[Brier(p)] − E_q[Brier(q)] = p(1 − p) − q(1 − q): the drop in each forecast's own expected Brier score. Signed. |
+   | `ur_log` | H(p) − H(q), with H(r) = −r·log r − (1 − r)·log(1 − r) | E_p[LogLoss(p)] − E_q[LogLoss(q)]: the drop in entropy. Signed. |
+   | `abs_z` | \|Z\|, with Z = Δ/(1 − p) if q ≥ p, else Δ/p | Crupi–Tentori confirmation. |
+   | `abs_ko` | \|Δ/(p + q − 2pq)\| | Kemeny–Oppenheim confirmation (P(E\|H) − P(E\|¬H))/(P(E\|H) + P(E\|¬H)), rewritten in p and q with Bayes' rule. |
+
+7. For each of the 6 × 2 (measure, improvement) pairs, report the **Pearson**
+   and **Spearman** correlations with 95% **bootstrap confidence intervals**,
+   plus bootstrap CIs for the mean Brier and log-loss improvements. A
+   bootstrap CI resamples the questions with replacement 10,000 times,
+   recomputes the statistic each time, and keeps the middle 95% of those
+   values. Pearson tracks how the *mean* improvement moves with a measure,
+   which is what a scoring rule averages; Spearman uses only ranks, so it
+   follows the typical question rather than the mean. Both p-values are also
+   reported, but the Pearson p-value assumes normally distributed data, and a
+   per-question improvement is far from normal, so read the bootstrap CI.
 
 ## Results
 
-**The current run does not support the hypothesis.** |Z| is essentially
-uncorrelated with the Brier improvement (rho = 0.05, p = 0.64). Retrieval still
+**The current run does not support the original hypothesis** that |Z| is
+positively associated with the Brier improvement: their Spearman correlation
+is essentially zero (rho = 0.05, p = 0.64). Retrieval still
 lowered the mean Brier score slightly, but that improvement is not
 distinguishable from zero.
 
@@ -97,6 +120,43 @@ The evidence-cutoff audit over all 100 questions' cached retrievals
 (`data/results/leakage_20260914T110031Z.json`) checked 927 articles and found
 **zero** published after their question's `freeze_datetime` and zero with
 unverifiable publication dates.
+
+### Exploratory: six measures × two scores
+
+These come from the same 100-question run and are **exploratory**. The extra
+measures, log loss and Pearson were added after the |Z| test above came out
+null; the grid holds 24 correlations with no correction for multiple
+comparisons; and several measures nearly duplicate each other (on this run,
+Δ² and KL rank-correlate at 0.95, and UR_Brier and UR_log at 0.99).
+
+Retrieval lowered the mean log loss from 0.537 to 0.477 (improvement +0.059,
+95% CI −0.015 to +0.146). As with Brier, the mean improved, but the CI
+includes zero.
+
+Each cell is the correlation with its 95% bootstrap CI (n = 100):
+
+| measure | Pearson r, Brier | Pearson r, log loss | Spearman rho, Brier | Spearman rho, log loss |
+| --- | --- | --- | --- | --- |
+| Δ² | 0.82 (0.51 to 0.92) | 0.86 (0.55 to 0.94) | −0.07 (−0.33 to 0.19) | −0.08 (−0.35 to 0.19) |
+| KL(q‖p) | 0.82 (0.52 to 0.92) | 0.86 (0.56 to 0.95) | −0.05 (−0.30 to 0.20) | −0.07 (−0.33 to 0.19) |
+| UR_Brier | 0.40 (0.16 to 0.62) | 0.42 (0.18 to 0.67) | 0.43 (0.21 to 0.62) | 0.49 (0.28 to 0.68) |
+| UR_log | 0.39 (0.16 to 0.60) | 0.41 (0.18 to 0.66) | 0.42 (0.20 to 0.60) | 0.48 (0.27 to 0.66) |
+| \|Z\| | 0.54 (0.26 to 0.72) | 0.58 (0.34 to 0.74) | 0.05 (−0.22 to 0.28) | 0.05 (−0.22 to 0.30) |
+| \|KO\| | 0.48 (0.20 to 0.65) | 0.50 (0.24 to 0.66) | 0.04 (−0.19 to 0.25) | 0.01 (−0.22 to 0.24) |
+
+- **Pearson and Spearman disagree for the size-of-move measures** (Δ², KL,
+  |Z|, |KO|). Pearson is clearly positive, Spearman is about zero. The Pearson
+  values rest on a few questions: the five largest moves all went toward the
+  outcome and together add up to 135% of the net Brier improvement. Dropping
+  those five lowers Pearson r for Δ² vs Brier from 0.82 to 0.17, and dropping
+  the ten largest gives −0.14 (a one-off check, not in the summary JSON).
+- **The uncertainty reductions are the only measures where both correlations
+  are positive** with CIs above zero. Algebraically, the realized Brier
+  improvement equals Δ·(2y − 1) − UR_Brier, so this says that moving away from
+  ½ tended to go with moving toward the outcome. That pattern comes almost
+  entirely from the 69 questions that resolved NO (Spearman 0.72 there,
+  against 0.05 among the 31 that resolved YES), where most forecasts were
+  below ½ and becoming more certain meant moving toward 0.
 
 ## Setup
 
@@ -162,7 +222,11 @@ forecasting failed).
 
 `analyze_results.py` writes the aggregate statistics shown in
 [Results](#results), including the bootstrap CIs and the settings used to
-compute them, to `run_<timestamp>_summary.json`.
+compute them, to `run_<timestamp>_summary.json`. It computes log loss and the
+six measures from the CSV's `p_h`, `p_he` and `outcome` columns, so it works on
+any existing run CSV. The correlation grid is under
+`correlations[<improvement>][<measure>][pearson|spearman]`, each with
+`estimate`, `p_value` and `ci`.
 
 ## Project layout
 
@@ -174,7 +238,8 @@ src/rag_forecast/
   forecasting.py   — rate-limited Anthropic client, strict-JSON parse, cached
   rate_limiter.py  — async sliding-window RPM/ITPM/OTPM limiter
   prompts.py       — prior/posterior elicitation prompts
-  metrics.py       — brier, z_crupi_tentori, spearman, bootstrap_ci
+  metrics.py       — brier, log_loss, shift_measures, z_crupi_tentori,
+                     pearson, spearman, bootstrap_ci
   cache.py         — content-hash JSON cache
   audit.py         — evidence-cutoff leakage audit over the AskNews cache
   pipeline.py      — async orchestration, writes per-question CSV and run metadata
@@ -192,7 +257,8 @@ tests/             — metrics, prompts, data loader, cache, pipeline, run metad
 pytest -q
 ```
 
-Covers the Brier and Crupi–Tentori Z formulas, Spearman edge cases, bootstrap
+Covers the Brier, log-loss and Crupi–Tentori Z formulas, each belief-shift
+measure against its definition, Pearson and Spearman edge cases, bootstrap
 CIs, prompt rendering, the question/resolution loader, the cache, resume and CSV
 handling, run metadata, the leakage audit, and the sliding-window rate limiter.
 
