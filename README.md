@@ -64,9 +64,11 @@ justified. SQ2 and SQ3 take the size out.
 ## Pilot results
 
 100 of the 348 questions (random, seed 0, 8 sources): `data/results/run_20260914T104832Z.csv`
-and its `_summary.json`. 81 forecasts moved. **Exploratory:** five of the
-measures, log loss, Pearson, SQ2 and SQ3 were all designed after the original
-test (Spearman of |Z| vs Brier improvement) came out null. Mean Brier went from
+and its `_summary.json`. 81 forecasts moved. **Exploratory:** the pilot's
+original test was the Spearman correlation of |Z| with Brier improvement.
+Changing only the prompts (same questions, evidence and model) moved it from
+0.21 to 0.05, and the other five measures, log loss, Pearson, SQ2 and SQ3 were
+all added after that. Mean Brier went from
 0.187 to 0.165 (improvement +0.022 [−0.008, +0.057]) and log loss from 0.537
 to 0.477 (+0.059 [−0.015, +0.146]); q beat p on 31 of the 100 questions.
 Cells are estimate [95% CI].
@@ -106,20 +108,9 @@ entirely through questions that resolved NO.
 Every measure's top group was about the right size (λ̂ 0.85–1.02, c\* 1.01–1.02)
 and captured 97–100% of the available improvement. The lowest groups'
 intervals are too wide to tell whether smaller moves were less justified.
-Groups 2 and 3 are in the summary JSON.
-
-**SQ2: λ̂ by source**
-
-| source | n moved | λ̂ |
-| --- | --- | --- |
-| acled | 10 | −1.33 [−2.55, −0.31] |
-| dbnomics | 9 | −3.20 [−8.65, +3.10] |
-| fred | 13 | −0.34 [−3.08, +2.08] |
-| manifold | 6 | +1.07 [+0.77, +1.26] |
-| metaculus | 3 | +0.94 [−9.71, +1.67] |
-| polymarket | 17 | +1.04 [+0.09, +1.71] |
-| wikipedia | 16 | +0.68 [−1.47, +1.06] |
-| yfinance | 7 | +5.50 [−8.27, +12.14] |
+Groups 2 and 3 are in the summary JSON. λ̂ also differs by source, from
+−1.33 [−2.55, −0.31] for acled to +1.04 [+0.09, +1.71] for polymarket (all
+sources are in the summary JSON), which is why groups are formed within sources.
 
 **SQ3: keep-p rule vs always q, one source held out at a time** (D > 0 = rule wins)
 
@@ -134,12 +125,17 @@ Groups 2 and 3 are in the summary JSON.
 
 No rule is distinguishable from always using q.
 
-**Limits:** questions come in families resolved by one shared cause (48
-yfinance stock questions for the same week, 49 dbnomics temperatures for the
-same day, 50 fred rates), and all resolve within one week, so the CIs are too
-narrow, and a result can only claim to carry over to another source in the
-same week. Changing only the prompts moved the original test's Spearman rho
-from 0.21 to 0.05.
+**Limits:**
+- **The CIs are probably too narrow.** The bootstrap treats questions as
+  independent, but many are decided by one shared event. In the full
+  348-question set, 48 yfinance questions ask whether a stock rose over the
+  same week, 49 dbnomics questions ask about temperatures on the same day, and
+  50 fred questions ask about interest rates. Linked questions carry less
+  independent information than their count suggests.
+- **The results describe one forecast date.** Every forecast was made as of
+  2025-10-16, and the 67 questions from the five dataset sources all resolved
+  on 2025-11-02. Holding out a source (SQ3) tests whether a rule carries over
+  to a new source, not to another period, where the shared events would differ.
 
 ## Setup
 
@@ -190,9 +186,10 @@ tests/             run with `pytest -q`
   `freeze_datetime` (not the resolution date), so retrieval can't surface news
   that reveals the outcome. `scripts/audit_leakage.py` verifies this held for
   the cached evidence, offline, and fails closed on articles whose
-  `published_date` can't be verified as pre-freeze. On the pilot's 927 cached
-  articles it found none published after freeze and none with unverifiable
-  dates (`data/results/leakage_20260914T110031Z.json`).
+  `published_date` can't be verified as pre-freeze. Rerun on 2026-10-18 over the
+  927 cached articles for the pilot's 100 questions (the other 248 have no
+  cached evidence yet), it found none published after freeze and none with
+  unverifiable dates (`data/results/leakage_20261018T135507Z.json`).
 - **Model cutoff**: `claude-haiku-4-5-20251001`'s Jul 2025 training cutoff
   precedes every question's `freeze_datetime` and AskNews search window, so
   neither the outcomes nor the retrieved evidence were in training.
