@@ -28,6 +28,9 @@ CI_RESAMPLES = 10_000
 CI_SEED = 0
 LOG_LOSS_EPS = 1e-6
 GROUPS = 4  # within-source groups per measure (SQ2, SQ3)
+# Dataset questions sharing a source and resolution day are decided by one event (e.g.
+# one week's market), so they form one family for the bootstrap; market questions don't.
+DATASET_SOURCES = ("acled", "dbnomics", "fred", "wikipedia", "yfinance")
 
 
 def brier_gain(p, q, y):
@@ -72,7 +75,13 @@ def main() -> None:
 
     df = pd.read_csv(args.csv)
     n = len(df)
-    ci_kwargs = {"confidence": CI_CONFIDENCE, "n_resamples": CI_RESAMPLES, "seed": CI_SEED}
+    family = np.where(
+        df["source"].isin(DATASET_SOURCES),
+        df["source"] + "|" + df["resolution_date"].astype(str),
+        df["source"] + "|" + df["id"].astype(str),
+    )
+    families = pd.factorize(family)[0]
+    ci_kwargs = {"confidence": CI_CONFIDENCE, "n_resamples": CI_RESAMPLES, "seed": CI_SEED, "clusters": families}
     brier_delta_ci = bootstrap_ci([df["brier_delta"]], np.mean, **ci_kwargs)
     log_loss_h = log_loss(df["p_h"].to_numpy(), df["outcome"].to_numpy(), LOG_LOSS_EPS)
     log_loss_he = log_loss(df["p_he"].to_numpy(), df["outcome"].to_numpy(), LOG_LOSS_EPS)
@@ -99,16 +108,13 @@ def main() -> None:
     p, q, y, src = (mv[c].to_numpy() for c in ("p_h", "p_he", "outcome", "source"))
     testable = np.array([(str(i), s) not in train_only for i, s in zip(mv["id"], src)])
     codes = pd.factorize(src)[0]  # bootstrap_ci takes numbers, so sources go in as codes
-    strat = {**ci_kwargs, "strata": codes}
+    moved_ci = {**ci_kwargs, "clusters": families[moved]}
 
+    # No CI per source: a dataset source on one date is a single family.
     warrant = {"by_source": {}}
     for s in np.unique(src):
         r = src == s
-        warrant["by_source"][s] = {
-            "n": int(r.sum()),
-            "lambda_hat": lambda_hat(p[r], q[r], y[r]),
-            "lambda_hat_ci": list(bootstrap_ci([p[r], q[r], y[r]], lambda_hat, **ci_kwargs)),
-        }
+        warrant["by_source"][s] = {"n": int(r.sum()), "lambda_hat": lambda_hat(p[r], q[r], y[r])}
     moved_measures = shift_measures(p, q, LOG_LOSS_EPS)
     for m_name, m in moved_measures.items():
         groups = within_source_groups(m, src, GROUPS)
@@ -124,16 +130,16 @@ def main() -> None:
                 "mean_delta_sq": float(np.mean((q[r] - p[r]) ** 2)),
                 "brier": {
                     "achieved": b_gain,
-                    "achieved_ci": list(bootstrap_ci(cols, in_group(brier_gain, g), **strat)),
+                    "achieved_ci": list(bootstrap_ci(cols, in_group(brier_gain, g), **moved_ci)),
                     "lambda_hat": lam,
-                    "lambda_hat_ci": list(bootstrap_ci(cols, in_group(lambda_hat, g), **strat)),
+                    "lambda_hat_ci": list(bootstrap_ci(cols, in_group(lambda_hat, g), **moved_ci)),
                     "share": (2 * lam - 1) / lam**2 if b_gain > 0 else None,
                 },
                 "log_loss": {
                     "achieved": l_gain,
-                    "achieved_ci": list(bootstrap_ci(cols, in_group(log_gain, g), **strat)),
+                    "achieved_ci": list(bootstrap_ci(cols, in_group(log_gain, g), **moved_ci)),
                     "c_star": c,
-                    "c_star_ci": list(bootstrap_ci(cols, in_group(c_star, g), **strat)),
+                    "c_star_ci": list(bootstrap_ci(cols, in_group(c_star, g), **moved_ci)),
                     "share": l_gain / l_avail if l_gain > 0 else None,
                 },
             }
@@ -146,7 +152,7 @@ def main() -> None:
             ci = bootstrap_ci(
                 [m, codes, gain, testable],
                 lambda m_, s_, g_, t_: leave_one_source_out(m_, s_, g_, t_ > 0.5, GROUPS)[0],
-                **strat,
+                **moved_ci,
             )
             groups = within_source_groups(m, src, GROUPS)
             decision[out_name][m_name] = {
@@ -175,8 +181,10 @@ def main() -> None:
         "warrant": warrant,
         "decision": decision,
         "ci_method": {
-            "method": "percentile bootstrap, resampling questions with replacement",
-            "warrant_decision_method": "resampling within each source; groups and leave-one-source-out recomputed per resample",
+            "method": "percentile bootstrap resampling families with replacement; groups and "
+            "leave-one-source-out recomputed per resample",
+            "family": "dataset questions sharing a source and resolution date; each other question alone",
+            "dataset_sources": list(DATASET_SOURCES),
             "groups_per_source": GROUPS,
             "confidence": CI_CONFIDENCE,
             "n_resamples": CI_RESAMPLES,

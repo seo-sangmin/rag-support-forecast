@@ -46,7 +46,11 @@ justified. SQ2 and SQ3 take the size out.
 
 7. **SQ1:** Pearson and Spearman correlation of each measure with each
    improvement. All CIs are 95% percentile bootstrap intervals (10,000
-   resamples of the questions, seed 0).
+   resamples, seed 0) that resample **families**, not single questions: the
+   dataset questions (acled, dbnomics, fred, wikipedia, yfinance) that share a
+   source and resolution day form one family, because one event, such as one
+   week's stock market or one day's weather, decides them together; each market
+   question is its own family.
 8. **SQ2:** use the questions whose forecast moved (Δ ≠ 0). For each measure,
    rank questions within their own source, cut each source into 4 groups, and
    pool group g across sources, so every group has the same source mix. Per
@@ -54,12 +58,13 @@ justified. SQ2 and SQ3 take the size out.
    scale c that makes p + cΔ score best under Brier, and **c\***, the same
    under log loss (B: 1 = right size, < 1 too large, > 1 too small); *share* =
    achieved ÷ the gain at that best scale (shown when achieved > 0). λ̂ is also
-   given per source. CIs resample within each source and regroup each time.
+   given per source, without a CI (a dataset source on one date is a single
+   family). The groups are rebuilt in each resample.
 9. **SQ3:** hold out one source at a time. Using only the other sources, mark
    group g "keep p" if its mean improvement is below 0, and apply the marks to
    the held-out source. **D** = mean over tested questions of score(always q)
    − score(rule), so D > 0 means the rule wins. The CI reruns the whole
-   procedure on each within-source resample.
+   procedure on each resample.
 
 ## Pilot results
 
@@ -69,20 +74,20 @@ original test was the Spearman correlation of |Z| with Brier improvement.
 Changing only the prompts (same questions, evidence and model) moved it from
 0.21 to 0.05, and the other five measures, log loss, Pearson, SQ2 and SQ3 were
 all added after that. Mean Brier went from
-0.187 to 0.165 (improvement +0.022 [−0.008, +0.057]) and log loss from 0.537
-to 0.477 (+0.059 [−0.015, +0.146]); q beat p on 31 of the 100 questions.
+0.187 to 0.165 (improvement +0.022 [−0.005, +0.071]) and log loss from 0.537
+to 0.477 (+0.059 [−0.006, +0.177]); q beat p on 31 of the 100 questions.
 Cells are estimate [95% CI].
 
 **SQ1: correlation of each measure with the improvement**
 
 | measure | Brier: Pearson | Brier: Spearman | log loss: Pearson | log loss: Spearman |
 | --- | --- | --- | --- | --- |
-| Δ² | +0.82 [+0.51, +0.92] | −0.07 [−0.33, +0.19] | +0.86 [+0.55, +0.94] | −0.08 [−0.35, +0.19] |
-| KL | +0.82 [+0.52, +0.92] | −0.05 [−0.30, +0.20] | +0.86 [+0.56, +0.95] | −0.07 [−0.33, +0.19] |
-| UR_B | +0.40 [+0.16, +0.62] | +0.43 [+0.21, +0.62] | +0.42 [+0.18, +0.67] | +0.49 [+0.28, +0.68] |
-| UR_L | +0.39 [+0.16, +0.60] | +0.42 [+0.20, +0.60] | +0.41 [+0.18, +0.66] | +0.48 [+0.27, +0.66] |
-| \|Z\| | +0.54 [+0.26, +0.72] | +0.05 [−0.22, +0.28] | +0.58 [+0.34, +0.74] | +0.05 [−0.22, +0.30] |
-| \|KO\| | +0.48 [+0.20, +0.65] | +0.04 [−0.19, +0.25] | +0.50 [+0.24, +0.66] | +0.01 [−0.22, +0.24] |
+| Δ² | +0.82 [+0.56, +0.92] | −0.07 [−0.31, +0.34] | +0.86 [+0.60, +0.93] | −0.08 [−0.33, +0.33] |
+| KL | +0.82 [+0.56, +0.91] | −0.05 [−0.28, +0.37] | +0.86 [+0.60, +0.94] | −0.07 [−0.31, +0.37] |
+| UR_B | +0.40 [+0.17, +0.61] | +0.43 [+0.07, +0.77] | +0.42 [+0.20, +0.66] | +0.49 [+0.14, +0.80] |
+| UR_L | +0.39 [+0.16, +0.60] | +0.42 [+0.07, +0.73] | +0.41 [+0.21, +0.65] | +0.48 [+0.15, +0.77] |
+| \|Z\| | +0.54 [+0.29, +0.71] | +0.05 [−0.20, +0.44] | +0.58 [+0.37, +0.74] | +0.05 [−0.20, +0.45] |
+| \|KO\| | +0.48 [+0.26, +0.68] | +0.04 [−0.16, +0.42] | +0.50 [+0.30, +0.69] | +0.01 [−0.20, +0.41] |
 
 The size measures' high Pearson rests on about five large moves, and their
 Spearman is near 0. The uncertainty reductions are positive on both, almost
@@ -92,46 +97,46 @@ entirely through questions that resolved NO.
 
 | measure | group | n | Brier achieved | λ̂ | log-loss achieved | c\* | share (Brier / log) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Δ² | lowest | 20 | −0.002 [−0.013, +0.003] | −1.02 [−7.19, +2.20] | −0.017 [−0.045, −0.001] | −0.67 [−1.00, −0.00] | — / — |
-| Δ² | top | 23 | +0.102 [−0.024, +0.211] | +0.85 [+0.34, +1.08] | +0.283 [−0.029, +0.561] | +1.02 [+0.33, +1.10] | 97% / 100% |
-| KL | lowest | 15 | −0.002 [−0.014, +0.006] | −0.99 [−4.60, +4.45] | −0.012 [−0.042, +0.007] | −0.67 [−1.14, +2.00] | — / — |
-| KL | top | 23 | +0.109 [−0.005, +0.220] | +0.87 [+0.47, +1.13] | +0.298 [+0.016, +0.592] | +1.02 [+0.49, +1.10] | 98% / 100% |
-| UR_B | lowest | 17 | −0.033 [−0.095, +0.032] | −0.36 [−1.37, +1.47] | −0.083 [−0.220, +0.093] | −0.20 [−0.68, +1.20] | — / — |
-| UR_B | top | 25 | +0.085 [+0.002, +0.196] | +0.96 [+0.53, +1.18] | +0.245 [+0.036, +0.536] | +1.01 [+0.77, +1.03] | 100% / 99% |
-| UR_L | lowest | 16 | +0.006 [−0.065, +0.054] | +0.89 [−1.58, +2.89] | −0.005 [−0.162, +0.131] | +0.35 [−0.36, +2.68] | 98% / — |
-| UR_L | top | 25 | +0.084 [+0.001, +0.191] | +0.96 [+0.52, +1.17] | +0.243 [+0.035, +0.530] | +1.01 [+0.78, +1.03] | 100% / 99% |
-| \|Z\| | lowest | 18 | −0.005 [−0.014, +0.013] | −1.69 [−4.36, +2.73] | −0.025 [−0.050, +0.026] | −0.67 [−1.00, +1.60] | — / — |
-| \|Z\| | top | 24 | +0.094 [−0.013, +0.195] | +0.87 [+0.39, +1.08] | +0.277 [+0.006, +0.535] | +1.01 [+0.47, +1.03] | 98% / 100% |
-| \|KO\| | lowest | 17 | −0.012 [−0.040, +0.008] | −1.27 [−3.03, +1.72] | −0.032 [−0.091, +0.014] | −1.50 [−2.00, +1.75] | — / — |
-| \|KO\| | top | 24 | +0.131 [+0.001, +0.214] | +1.02 [+0.51, +1.18] | +0.340 [+0.021, +0.575] | +1.01 [+0.56, +1.03] | 100% / 99% |
+| Δ² | lowest | 20 | −0.002 [−0.015, +0.005] | −1.02 [−8.91, +5.14] | −0.017 [−0.046, +0.007] | −0.67 [−1.14, +2.00] | — / — |
+| Δ² | top | 23 | +0.102 [−0.016, +0.255] | +0.85 [+0.41, +1.14] | +0.283 [−0.002, +0.635] | +1.02 [+0.41, +1.10] | 97% / 100% |
+| KL | lowest | 15 | −0.002 [−0.023, +0.009] | −0.99 [−9.51, +8.90] | −0.012 [−0.062, +0.014] | −0.67 [−1.50, +2.00] | — / — |
+| KL | top | 23 | +0.109 [−0.001, +0.272] | +0.87 [+0.50, +1.17] | +0.298 [+0.036, +0.685] | +1.02 [+0.54, +1.10] | 98% / 100% |
+| UR_B | lowest | 17 | −0.033 [−0.095, +0.056] | −0.36 [−1.28, +2.38] | −0.083 [−0.223, +0.148] | −0.20 [−0.68, +1.86] | — / — |
+| UR_B | top | 25 | +0.085 [−0.000, +0.217] | +0.96 [+0.49, +1.16] | +0.245 [+0.034, +0.566] | +1.01 [+0.74, +1.03] | 100% / 99% |
+| UR_L | lowest | 16 | +0.006 [−0.062, +0.072] | +0.89 [−1.58, +3.13] | −0.005 [−0.157, +0.185] | +0.35 [−0.50, +3.33] | 98% / — |
+| UR_L | top | 25 | +0.084 [−0.000, +0.209] | +0.96 [+0.50, +1.14] | +0.243 [+0.033, +0.549] | +1.01 [+0.75, +1.03] | 100% / 99% |
+| \|Z\| | lowest | 18 | −0.005 [−0.022, +0.014] | −1.69 [−7.34, +3.97] | −0.025 [−0.068, +0.028] | −0.67 [−1.00, +2.42] | — / — |
+| \|Z\| | top | 24 | +0.094 [−0.006, +0.220] | +0.87 [+0.43, +1.11] | +0.277 [+0.026, +0.569] | +1.01 [+0.57, +1.03] | 98% / 100% |
+| \|KO\| | lowest | 17 | −0.012 [−0.038, +0.004] | −1.27 [−6.02, +1.41] | −0.032 [−0.090, +0.006] | −1.50 [−2.00, +1.06] | — / — |
+| \|KO\| | top | 24 | +0.131 [+0.008, +0.241] | +1.02 [+0.57, +1.17] | +0.340 [+0.042, +0.608] | +1.01 [+0.67, +1.03] | 100% / 99% |
 
 Every measure's top group was about the right size (λ̂ 0.85–1.02, c\* 1.01–1.02)
 and captured 97–100% of the available improvement. The lowest groups'
 intervals are too wide to tell whether smaller moves were less justified.
-Groups 2 and 3 are in the summary JSON. λ̂ also differs by source, from
-−1.33 [−2.55, −0.31] for acled to +1.04 [+0.09, +1.71] for polymarket (all
-sources are in the summary JSON), which is why groups are formed within sources.
+Groups 2 and 3 are in the summary JSON. λ̂ also differs by source, from −1.33
+for acled to +1.04 for polymarket (all sources are in the summary JSON), which
+is why groups are formed within sources.
 
 **SQ3: keep-p rule vs always q, one source held out at a time** (D > 0 = rule wins)
 
 | measure | Brier: D | log loss: D | keep p in groups (chosen from all data, Brier / log) |
 | --- | --- | --- | --- |
-| Δ² | +0.000 [−0.035, +0.014] | +0.004 [−0.077, +0.036] | 1, 2 / 1, 2 |
-| KL | +0.001 [−0.032, +0.018] | +0.006 [−0.067, +0.046] | 1, 2 / 1, 2 |
-| UR_B | +0.007 [−0.035, +0.025] | +0.030 [−0.080, +0.062] | 1, 2 / 1, 2 |
-| UR_L | +0.010 [−0.037, +0.024] | +0.022 [−0.083, +0.060] | 2 / 1, 2 |
-| \|Z\| | −0.001 [−0.036, +0.020] | +0.003 [−0.080, +0.052] | 1, 2 / 1, 2 |
-| \|KO\| | +0.011 [−0.032, +0.025] | +0.021 [−0.076, +0.058] | 1, 2, 3 / 1, 2, 3 |
+| Δ² | +0.000 [−0.033, +0.011] | +0.004 [−0.073, +0.031] | 1, 2 / 1, 2 |
+| KL | +0.001 [−0.030, +0.016] | +0.006 [−0.065, +0.042] | 1, 2 / 1, 2 |
+| UR_B | +0.007 [−0.042, +0.024] | +0.030 [−0.094, +0.064] | 1, 2 / 1, 2 |
+| UR_L | +0.010 [−0.041, +0.025] | +0.022 [−0.093, +0.063] | 2 / 1, 2 |
+| \|Z\| | −0.001 [−0.039, +0.019] | +0.003 [−0.082, +0.052] | 1, 2 / 1, 2 |
+| \|KO\| | +0.011 [−0.036, +0.023] | +0.021 [−0.085, +0.056] | 1, 2, 3 / 1, 2, 3 |
 
 No rule is distinguishable from always using q.
 
 **Limits:**
-- **The CIs are probably too narrow.** The bootstrap treats questions as
-  independent, but many are decided by one shared event. In the full
-  348-question set, 48 yfinance questions ask whether a stock rose over the
-  same week, 49 dbnomics questions ask about temperatures on the same day, and
-  50 fred questions ask about interest rates. Linked questions carry less
-  independent information than their count suggests.
+- **Few independent families.** Resampling families keeps linked questions
+  together (in the pilot, 12 of 13 dbnomics stations warmed against a forecast
+  near 0.37, and only 2 of 11 yfinance stocks rose against about 0.51), but one
+  date offers only 5 dataset families among 38, so how much such shared events
+  vary is estimated from very few draws. Market questions about one event (e.g.
+  three Spotify top-artist questions) are still treated as separate families.
 - **The results describe one forecast date.** Every forecast was made as of
   2025-10-16, and the 67 questions from the five dataset sources all resolved
   on 2025-11-02. Holding out a source (SQ3) tests whether a rule carries over

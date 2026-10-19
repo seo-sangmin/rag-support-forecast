@@ -178,11 +178,11 @@ def test_bootstrap_ci_too_few() -> None:
     assert math.isnan(low) and math.isnan(high)
 
 
-def test_bootstrap_ci_strata_keep_their_sizes() -> None:
-    # Every resample draws 3 rows from stratum 0 and 7 from stratum 1, so the count is fixed.
-    strata = [0] * 3 + [1] * 7
-    low, high = bootstrap_ci([strata], np.sum, n_resamples=200, strata=strata)
-    assert low == high == 7
+def test_bootstrap_ci_keeps_clusters_whole() -> None:
+    # Cluster 0's three rows are always drawn together, so the sum is a multiple of 3.
+    values, clusters = [1, 1, 1, 0], [0, 0, 0, 1]
+    low, high = bootstrap_ci([values], lambda v: np.sum(v) % 3, n_resamples=200, clusters=clusters)
+    assert low == high == 0
 
 
 P = np.array([0.2, 0.6, 0.5, 0.1, 0.8, 0.3])

@@ -131,6 +131,8 @@ def leave_one_source_out(measure, source, gain, testable, k: int = 4):
         contribution = np.where(np.isin(groups[test], keep_p), -gain[test], 0.0)
         tested.append(contribution)
         per_source[s], marks[s] = float(contribution.mean()), keep_p
+    if not tested:  # e.g. a bootstrap resample with no testable rows
+        return float("nan"), per_source, marks
     return float(np.concatenate(tested).mean()), per_source, marks
 
 
@@ -156,15 +158,15 @@ def bootstrap_ci(
     confidence: float = 0.95,
     n_resamples: int = 10_000,
     seed: int = 0,
-    strata: Sequence | None = None,
+    clusters: Sequence | None = None,
 ) -> tuple[float, float]:
     """Percentile bootstrap confidence interval for ``statistic``; returns (low, high).
 
     Each resample draws n rows with replacement and recomputes ``statistic``.
     The same row indices are used for every column, so paired values (a
-    question's |Z| and its Brier delta) stay together. With ``strata`` (e.g.
-    each row's source), rows are drawn within each stratum, so every resample
-    keeps the same number of rows per stratum.
+    question's |Z| and its Brier delta) stay together. With ``clusters`` (e.g.
+    each row's family of linked questions), whole clusters are drawn with
+    replacement instead, so linked rows always stay together.
 
     Raises ValueError if any input value is NaN or infinite; otherwise resamples
     that happen to skip the bad row would yield a CI for an undefined statistic.
@@ -179,13 +181,13 @@ def bootstrap_ci(
     if n < 2:
         return float("nan"), float("nan")
     rng = np.random.default_rng(seed)
-    pools = None if strata is None else [np.flatnonzero(np.asarray(strata) == s) for s in np.unique(strata)]
+    pools = None if clusters is None else [np.flatnonzero(np.asarray(clusters) == c) for c in np.unique(clusters)]
     estimates = np.empty(n_resamples)
     for i in range(n_resamples):
         if pools is None:
             idx = rng.integers(0, n, size=n)
         else:
-            idx = np.concatenate([pool[rng.integers(0, pool.size, size=pool.size)] for pool in pools])
+            idx = np.concatenate([pools[j] for j in rng.integers(0, len(pools), size=len(pools))])
         estimates[i] = statistic(*(a[idx] for a in arrays))
     estimates = estimates[np.isfinite(estimates)]
     if estimates.size == 0:
