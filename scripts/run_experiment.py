@@ -46,7 +46,7 @@ def main() -> None:
         type=Path,
         nargs="+",
         default=None,
-        help="One or more prior results CSV paths. Their (id, source) rows "
+        help="One or more prior results CSV paths. Their (id, source, freeze_datetime) rows "
         "are excluded from sampling and merged into the new output CSV.",
     )
     parser.add_argument(
