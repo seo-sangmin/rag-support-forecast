@@ -10,12 +10,16 @@ import numpy as np
 import pytest
 
 from rag_forecast.metrics import (
+    best_log_scale,
     bootstrap_ci,
     brier,
+    lambda_hat,
+    leave_one_source_out,
     log_loss,
     pearson,
     shift_measures,
     spearman,
+    within_source_groups,
     z_crupi_tentori,
 )
 
@@ -172,6 +176,56 @@ def test_bootstrap_ci_same_seed_is_reproducible() -> None:
 def test_bootstrap_ci_too_few() -> None:
     low, high = bootstrap_ci([[1.0]], np.mean)
     assert math.isnan(low) and math.isnan(high)
+
+
+def test_bootstrap_ci_keeps_clusters_whole() -> None:
+    # Cluster 0's three rows are always drawn together, so the sum is a multiple of 3.
+    values, clusters = [1, 1, 1, 0], [0, 0, 0, 1]
+    low, high = bootstrap_ci([values], lambda v: np.sum(v) % 3, n_resamples=200, clusters=clusters)
+    assert low == high == 0
+
+
+P = np.array([0.2, 0.6, 0.5, 0.1, 0.8, 0.3])
+Q = np.array([0.6, 0.4, 0.7, 0.3, 0.5, 0.35])
+Y = np.array([1.0, 0.0, 0.0, 1.0, 0.0, 1.0])
+
+
+def test_lambda_hat_is_best_brier_scale() -> None:
+    lam = lambda_hat(P, Q, Y)
+    total = lambda c: np.sum((P + c * (Q - P) - Y) ** 2)  # noqa: E731
+    assert total(lam) < total(lam - 0.01) and total(lam) < total(lam + 0.01)
+    gain = np.sum((P - Y) ** 2 - (Q - Y) ** 2)
+    assert math.isclose(gain, (2 * lam - 1) * np.sum((Q - P) ** 2))
+
+
+def test_best_log_scale_is_minimum() -> None:
+    c, gain = best_log_scale(P, Q, Y)
+    total = lambda c: np.mean(log_loss(P + c * (Q - P), Y))  # noqa: E731
+    assert total(c) < total(c - 0.01) and total(c) < total(c + 0.01)
+    assert math.isclose(gain, total(0.0) - total(c))
+
+
+def test_within_source_groups_split_each_source() -> None:
+    measure = [1, 2, 3, 4, 1, 1, 5, 6]
+    source = ["a"] * 4 + ["b"] * 4
+    # Source a splits evenly; source b's tied lowest pair shares group 2.
+    assert within_source_groups(measure, source).tolist() == [1, 2, 3, 4, 2, 2, 3, 4]
+
+
+def test_leave_one_source_out_never_uses_the_tested_source() -> None:
+    measure = np.tile([1.0, 2.0, 3.0, 4.0], 3)
+    source = np.repeat(["a", "b", "c"], 4)
+    gain = np.tile([-1.0, 1.0, 1.0, 1.0], 3)
+    testable = np.array([True] * 8 + [False, True, True, True])
+    d, per_source, marks = leave_one_source_out(measure, source, gain, testable)
+    # Group 1 lost on the other sources, so the rule keeps p there and gains 1 per such row.
+    assert marks["a"] == [1] and per_source["a"] == 0.25
+    # Source c's untestable group-1 row is never scored: only its 3 testable rows are.
+    assert per_source["c"] == 0.0 and math.isclose(d, (0.25 + 0.25 + 0.0) * 4 / 11)
+    # Changing source a's own outcomes cannot change the marks used to test it.
+    flipped = gain.copy()
+    flipped[:4] = -flipped[:4]
+    assert leave_one_source_out(measure, source, flipped, testable)[2]["a"] == marks["a"]
 
 
 @pytest.mark.parametrize("bad", [float("nan"), float("inf")])
