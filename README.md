@@ -131,16 +131,17 @@ is why groups are formed within sources.
 No rule is distinguishable from always using q.
 
 **Limits:**
-- **Few independent families.** Resampling families keeps linked questions
-  together (in the pilot, 12 of 13 dbnomics stations warmed against a forecast
-  near 0.37, and only 2 of 11 yfinance stocks rose against about 0.51), but one
-  date offers only 5 dataset families among 38, so how much such shared events
-  vary is estimated from very few draws. Market questions about one event (e.g.
-  three Spotify top-artist questions) are still treated as separate families.
-- **The results describe one forecast date.** Every forecast was made as of
-  2025-10-16, and the 67 questions from the five dataset sources all resolved
-  on 2025-11-02. Holding out a source (SQ3) tests whether a rule carries over
-  to a new source, not to another period, where the shared events would differ.
+- **One forecast date.** Every forecast was made as of 2025-10-16, and the 67
+  questions from the five dataset sources all resolved on 2025-11-02, each
+  source decided by one shared event (in the pilot, 12 of 13 dbnomics stations
+  warmed against a forecast near 0.37, and only 2 of 11 yfinance stocks rose
+  against about 0.51). This has two consequences. The CIs, which resample
+  families, see only 5 such shared events (5 dataset families among 38), so
+  how much they vary is estimated from very few draws. And holding out a source
+  (SQ3) tests whether a rule carries over to a new source, not to another
+  period with different shared events. More forecast dates would address both.
+- **Same-event market questions** (e.g. three Spotify top-artist questions) are
+  still treated as separate families; there are only a few such groups.
 
 ## Setup
 
