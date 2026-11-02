@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import sys
+from dataclasses import replace
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -21,6 +22,9 @@ from rag_forecast.pipeline import (
     _sample_questions,
     _write_combined_csv,
 )
+
+
+FREEZE = "2025-10-16T00:00:00+00:00"  # _q's freeze_datetime, as written to CSV
 
 
 def _q(qid: str, source: str = "manifold") -> ResolvedQuestion:
@@ -66,28 +70,28 @@ def _write_csv(path: Path, rows: list[dict], fieldnames: list[str]) -> None:
 
 
 def test_load_processed_dedupes_across_files(tmp_path: Path) -> None:
-    fields = ["id", "source", "p_h"]
+    fields = ["id", "source", "freeze_datetime", "p_h"]
     a = tmp_path / "a.csv"
     b = tmp_path / "b.csv"
     _write_csv(
         a,
         [
-            {"id": "q1", "source": "manifold", "p_h": "0.1"},
-            {"id": "q2", "source": "fred", "p_h": "0.2"},
+            {"id": "q1", "source": "manifold", "freeze_datetime": FREEZE, "p_h": "0.1"},
+            {"id": "q2", "source": "fred", "freeze_datetime": FREEZE, "p_h": "0.2"},
         ],
         fields,
     )
     _write_csv(
         b,
         [
-            {"id": "q2", "source": "fred", "p_h": "0.99"},  # duplicate; ignored
-            {"id": "q3", "source": "manifold", "p_h": "0.3"},
+            {"id": "q2", "source": "fred", "freeze_datetime": FREEZE, "p_h": "0.99"},  # duplicate; ignored
+            {"id": "q3", "source": "manifold", "freeze_datetime": FREEZE, "p_h": "0.3"},
         ],
         fields,
     )
 
     keys, rows = _load_processed([a, b])
-    assert keys == {("q1", "manifold"), ("q2", "fred"), ("q3", "manifold")}
+    assert keys == {("q1", "manifold", FREEZE), ("q2", "fred", FREEZE), ("q3", "manifold", FREEZE)}
     assert [(r["id"], r["source"], r["p_h"]) for r in rows] == [
         ("q1", "manifold", "0.1"),
         ("q2", "fred", "0.2"),
@@ -114,14 +118,14 @@ def test_load_processed_empty_or_none_returns_empty() -> None:
 
 def test_filter_questions_excludes_processed() -> None:
     qs = [_q(f"q{i}") for i in range(1, 6)]
-    processed = {("q2", "manifold"), ("q4", "manifold")}
+    processed = {("q2", "manifold", FREEZE), ("q4", "manifold", FREEZE)}
     remaining = _filter_questions(qs, processed)
     assert [q.id for q in remaining] == ["q1", "q3", "q5"]
 
 
 def test_filter_questions_keys_on_id_and_source() -> None:
     qs = [_q("q1", "manifold"), _q("q1", "fred")]
-    processed = {("q1", "manifold")}
+    processed = {("q1", "manifold", FREEZE)}
     remaining = _filter_questions(qs, processed)
     assert [(q.id, q.source) for q in remaining] == [("q1", "fred")]
 
@@ -236,7 +240,7 @@ def test_forecast_explanations_survive_csv_and_resume(tmp_path: Path) -> None:
     first = tmp_path / "first.csv"
     _write_combined_csv([], [row], first)
     keys, prior_rows = _load_processed([first])
-    assert keys == {("q1", "manifold")}
+    assert keys == {("q1", "manifold", FREEZE)}
     assert prior_rows[0]["reasoning_h"] == prior_reasoning
     assert prior_rows[0]["reasoning_he"] == posterior_reasoning
 
@@ -304,21 +308,21 @@ async def test_retrieve_all_drops_errors_and_keeps_empty() -> None:
     evidence = await _retrieve_all(qs, retriever, Config())
 
     # q2 errored -> dropped from the map; q3's empty list is kept.
-    assert set(evidence) == {("q1", "manifold"), ("q3", "manifold")}
-    assert evidence[("q1", "manifold")] == [{"title": "a"}]
-    assert evidence[("q3", "manifold")] == []
+    assert set(evidence) == {("q1", "manifold", FREEZE), ("q3", "manifold", FREEZE)}
+    assert evidence[("q1", "manifold", FREEZE)] == [{"title": "a"}]
+    assert evidence[("q3", "manifold", FREEZE)] == []
 
 
 async def test_forecast_all_skips_questions_without_evidence() -> None:
     qs = [_q("q1"), _q("q2")]  # q2 never retrieved
-    evidence = {("q1", "manifold"): [{"title": "a"}]}
+    evidence = {("q1", "manifold", FREEZE): [{"title": "a"}]}
     rows = await _forecast_all(qs, evidence, _FakeForecaster(), Config())
     assert [r.id for r in rows] == ["q1"]
 
 
 async def test_forecast_all_empty_evidence_still_produces_row() -> None:
     qs = [_q("q1")]
-    evidence = {("q1", "manifold"): []}  # retrieved, just no articles
+    evidence = {("q1", "manifold", FREEZE): []}  # retrieved, just no articles
     rows = await _forecast_all(qs, evidence, _FakeForecaster(), Config())
     assert len(rows) == 1
     assert rows[0].n_evidence == 0
@@ -326,7 +330,7 @@ async def test_forecast_all_empty_evidence_still_produces_row() -> None:
 
 async def test_forecast_all_skips_row_on_prompt_error() -> None:
     qs = [_q("q1"), _q("q2")]
-    evidence = {("q1", "manifold"): [{"t": 1}], ("q2", "manifold"): [{"t": 1}]}
+    evidence = {("q1", "manifold", FREEZE): [{"t": 1}], ("q2", "manifold", FREEZE): [{"t": 1}]}
     forecaster = _FakeForecaster(errors={"q2"})
     rows = await _forecast_all(qs, evidence, forecaster, Config())
     assert [r.id for r in rows] == ["q1"]
@@ -348,3 +352,32 @@ async def test_retrieve_then_forecast_end_to_end() -> None:
     assert r.brier_h == pytest.approx(0.25)  # (0.5 - 1)^2
     assert r.brier_he == pytest.approx(0.09)  # (0.7 - 1)^2
     assert r.brier_delta == pytest.approx(0.16)
+
+
+async def test_same_question_in_two_sets_keeps_own_evidence_and_row(tmp_path: Path) -> None:
+    # Consecutive ForecastBench sets repeat questions with a later freeze.
+    early = _q("q1")
+    late = replace(early, freeze_datetime=datetime(2025, 10, 30, tzinfo=timezone.utc))
+    late_freeze = late.freeze_datetime.isoformat()
+
+    class DatedRetriever:  # one article, published at the question's own freeze
+        async def retrieve(self, q: ResolvedQuestion) -> list[dict]:
+            return [{"published_date": q.freeze_datetime.isoformat()}]
+
+    seen: dict[str, str] = {}
+
+    class RecordingForecaster(_FakeForecaster):
+        async def estimate_p_h_given_e(self, q: ResolvedQuestion, evidence: list[dict]) -> dict:
+            seen[q.freeze_datetime.isoformat()] = evidence[0]["published_date"]
+            return await super().estimate_p_h_given_e(q, evidence)
+
+    evidence = await _retrieve_all([early, late], DatedRetriever(), Config())
+    rows = await _forecast_all([early, late], evidence, RecordingForecaster(), Config())
+    # Each posterior saw only its own window: no article from after its freeze.
+    assert seen == {FREEZE: FREEZE, late_freeze: late_freeze}
+
+    out = tmp_path / "out.csv"
+    _write_combined_csv([], rows, out)
+    keys, _ = _load_processed([out])
+    assert keys == {("q1", "manifold", FREEZE), ("q1", "manifold", late_freeze)}
+    assert _filter_questions([early, late], {("q1", "manifold", FREEZE)}) == [late]

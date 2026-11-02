@@ -34,8 +34,15 @@ class Row:
     reasoning_he: str = ""
 
 
-def _key(q: ResolvedQuestion) -> tuple[str, str]:
-    return (q.id, q.source)
+def _key(q: ResolvedQuestion) -> tuple[str, str, str]:
+    # A question can recur in a later question set with a later freeze; each copy
+    # is its own forecast with its own evidence window, so the freeze is in the key.
+    return (q.id, q.source, q.freeze_datetime.isoformat())
+
+
+def _row_key(r: dict) -> tuple[str, str, str]:
+    """``_key`` for a results-CSV row."""
+    return (r.get("id", ""), r.get("source", ""), r.get("freeze_datetime", ""))
 
 
 def _build_row(
@@ -73,10 +80,10 @@ async def _retrieve_all(
     questions: list[ResolvedQuestion],
     retriever: AskNewsRetriever,
     cfg: Config,
-) -> dict[tuple[str, str], list[dict]]:
+) -> dict[tuple[str, str, str], list[dict]]:
     """Phase 1 -- fetch evidence for every question (AskNews only).
 
-    Returns a map from ``(id, source)`` to that question's evidence. A retrieval
+    Returns a map from ``_key(q)`` to that question's evidence. A retrieval
     error drops the question from the map (and so from prompting); an empty
     result list is kept, since "no articles" is valid evidence.
     """
@@ -142,26 +149,26 @@ async def _forecast_all(
 
 def _load_processed(
     paths: list[Path] | None,
-) -> tuple[set[tuple[str, str]], list[dict]]:
-    """Return ((id, source) keys already processed, prior rows verbatim).
+) -> tuple[set[tuple[str, str, str]], list[dict]]:
+    """Return (``_row_key`` keys already processed, prior rows verbatim).
 
     First-seen wins on duplicates across paths, so passing the most recent
     CSV last preserves the earliest recorded values.
     """
     if not paths:
         return set(), []
-    keys: set[tuple[str, str]] = set()
+    keys: set[tuple[str, str, str]] = set()
     rows: list[dict] = []
     for p in paths:
         if not p.exists():
             raise FileNotFoundError(f"--resume-from path not found: {p}")
         with p.open(newline="") as f:
             reader = csv.DictReader(f)
-            missing = {"id", "source"} - set(reader.fieldnames or [])
+            missing = {"id", "source", "freeze_datetime"} - set(reader.fieldnames or [])
             if missing:
                 raise ValueError(f"{p}: missing required columns {sorted(missing)}")
             for r in reader:
-                k = (r["id"], r["source"])
+                k = _row_key(r)
                 if k in keys:
                     continue
                 keys.add(k)
@@ -170,9 +177,9 @@ def _load_processed(
 
 
 def _filter_questions(
-    questions: list[ResolvedQuestion], processed: set[tuple[str, str]]
+    questions: list[ResolvedQuestion], processed: set[tuple[str, str, str]]
 ) -> list[ResolvedQuestion]:
-    return [q for q in questions if (q.id, q.source) not in processed]
+    return [q for q in questions if _key(q) not in processed]
 
 
 def _sample_questions(
@@ -187,19 +194,19 @@ def _write_combined_csv(
     prior_rows: list[dict], new_rows: list[Row], out_csv: Path
 ) -> None:
     fieldnames = list(Row.__annotations__.keys())
-    seen: set[tuple[str, str]] = set()
+    seen: set[tuple[str, str, str]] = set()
     out_csv.parent.mkdir(parents=True, exist_ok=True)
     with out_csv.open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
         w.writeheader()
         for r in prior_rows:
-            k = (r.get("id", ""), r.get("source", ""))
+            k = _row_key(r)
             if k in seen:
                 continue
             seen.add(k)
             w.writerow({c: r.get(c, "") for c in fieldnames})
         for r in new_rows:
-            k = (r.id, r.source)
+            k = (r.id, r.source, r.freeze_datetime)
             if k in seen:
                 continue
             seen.add(k)
@@ -247,7 +254,10 @@ async def run(
         else:
             questions = questions[:max_questions]
 
-    selected_ids = [{"id": q.id, "source": q.source} for q in questions]
+    selected_ids = [
+        {"id": q.id, "source": q.source, "freeze_datetime": q.freeze_datetime.isoformat()}
+        for q in questions
+    ]
     metadata = {
         "seed": seed,
         "random": random_sample,
@@ -289,8 +299,8 @@ async def run(
     rows = await _forecast_all(questions, evidence, forecaster, cfg)
 
     _write_combined_csv(prior_rows, rows, out_csv)
-    completed_keys = {(r.id, r.source) for r in rows}
-    missing = [q for q in selected_ids if (q["id"], q["source"]) not in completed_keys]
+    completed_keys = {(r.id, r.source, r.freeze_datetime) for r in rows}
+    missing = [q for q in selected_ids if _row_key(q) not in completed_keys]
     metadata["missing_question_ids"] = missing
     metadata["complete"] = not missing
     _write_metadata(out_csv, metadata)
