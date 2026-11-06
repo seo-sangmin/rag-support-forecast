@@ -31,7 +31,10 @@ def _q(qid: str, source: str = "manifold") -> ResolvedQuestion:
 
 
 def _ids(*questions: ResolvedQuestion) -> list[dict[str, str]]:
-    return [{"id": q.id, "source": q.source} for q in questions]
+    return [
+        {"id": q.id, "source": q.source, "freeze_datetime": q.freeze_datetime.isoformat()}
+        for q in questions
+    ]
 
 
 def _metadata(out: Path) -> dict:
@@ -40,9 +43,11 @@ def _metadata(out: Path) -> dict:
 
 def _resume_csv(path: Path, q: ResolvedQuestion) -> None:
     with path.open("w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["id", "source", "p_h"])
+        writer = csv.DictWriter(f, fieldnames=["id", "source", "freeze_datetime", "p_h"])
         writer.writeheader()
-        writer.writerow({"id": q.id, "source": q.source, "p_h": "0.123"})
+        writer.writerow(
+            {"id": q.id, "source": q.source, "freeze_datetime": q.freeze_datetime.isoformat(), "p_h": "0.123"}
+        )
 
 
 def _mock_clients(
