@@ -63,7 +63,7 @@ justified. SQ2 and SQ3 take the size out.
    than λ̂. c\* is searched in [−50, 50]. > 50 means the best scale lies beyond
    that, as when every move in the group pointed toward its outcome (< −50:
    every move away). *share* = achieved ÷ the gain at that best scale (shown
-   when achieved > 0). λ̂ is also
+   when achieved > 0). λ̂ and c\* are also
    given per source, without a CI (a dataset source on one date is a single
    family). The groups are rebuilt in each resample.
 9. **SQ3:** hold out one source at a time. Using only the other sources, mark
@@ -121,9 +121,10 @@ to 1.05) and captured 97 to 100% of the available improvement under both
 scores. The lowest groups' intervals are too wide to tell whether smaller moves
 were less justified. Each lowest group's c\* interval reaches the −50 cap,
 because some resamples keep only moves that pointed away from their outcome.
-Groups 2 and 3 are in the summary JSON. λ̂ also differs by source, from −1.33
-for acled to +1.04 for polymarket (all sources are in the summary JSON), which
-is why groups are formed within sources.
+Groups 2 and 3 are in the summary JSON. λ̂ and c\* also differ by source, for
+example −1.33 and −1.05 for acled but +1.04 and +1.04 for polymarket (all
+sources are in the summary JSON), which is why groups are formed within
+sources.
 
 **SQ3: keep-p rule vs always q, one source held out at a time** (D > 0 = rule wins)
 

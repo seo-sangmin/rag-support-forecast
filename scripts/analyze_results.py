@@ -119,7 +119,13 @@ def main() -> None:
     warrant = {"by_source": {}}
     for s in np.unique(src):
         r = src == s
-        warrant["by_source"][s] = {"n": int(r.sum()), "lambda_hat": lambda_hat(p[r], q[r], y[r])}
+        c = c_star(p[r], q[r], y[r])
+        warrant["by_source"][s] = {
+            "n": int(r.sum()),
+            "lambda_hat": lambda_hat(p[r], q[r], y[r]),
+            "c_star": c,
+            "c_star_capped": at_cap(c),
+        }
     moved_measures = shift_measures(p, q, LOG_LOSS_EPS)
     for m_name, m in moved_measures.items():
         groups = within_source_groups(m, src, GROUPS)

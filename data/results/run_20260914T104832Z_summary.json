@@ -244,35 +244,51 @@
     "by_source": {
       "acled": {
         "n": 10,
-        "lambda_hat": -1.3327222731439048
+        "lambda_hat": -1.3327222731439048,
+        "c_star": -1.0466203090082558,
+        "c_star_capped": false
       },
       "dbnomics": {
         "n": 9,
-        "lambda_hat": -3.1953352769679304
+        "lambda_hat": -3.1953352769679304,
+        "c_star": -3.602771998256853,
+        "c_star_capped": false
       },
       "fred": {
         "n": 13,
-        "lambda_hat": -0.3403298350824589
+        "lambda_hat": -0.3403298350824589,
+        "c_star": -0.31250648226115935,
+        "c_star_capped": false
       },
       "manifold": {
         "n": 6,
-        "lambda_hat": 1.069262838734129
+        "lambda_hat": 1.069262838734129,
+        "c_star": 1.1619636810993834,
+        "c_star_capped": false
       },
       "metaculus": {
         "n": 3,
-        "lambda_hat": 0.9370929036681521
+        "lambda_hat": 0.9370929036681521,
+        "c_star": 0.8370378016981617,
+        "c_star_capped": false
       },
       "polymarket": {
         "n": 17,
-        "lambda_hat": 1.043562118251012
+        "lambda_hat": 1.043562118251012,
+        "c_star": 1.041554583530026,
+        "c_star_capped": false
       },
       "wikipedia": {
         "n": 16,
-        "lambda_hat": 0.6804100484397884
+        "lambda_hat": 0.6804100484397884,
+        "c_star": 0.6590150833873132,
+        "c_star_capped": false
       },
       "yfinance": {
         "n": 7,
-        "lambda_hat": 5.499999999999999
+        "lambda_hat": 5.499999999999999,
+        "c_star": 6.332057280718054,
+        "c_star_capped": false
       }
     },
     "delta_sq": {
