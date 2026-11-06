@@ -28,6 +28,7 @@ CI_RESAMPLES = 10_000
 CI_SEED = 0
 LOG_LOSS_EPS = 1e-6
 GROUPS = 4  # within-source groups per measure (SQ2, SQ3)
+C_STAR_CAP = 50.0  # c* is searched in [-cap, cap]. Reaching the cap means the best scale is infinite
 # Dataset questions sharing a source and resolution day are decided by one event (e.g.
 # one week's market), so they form one family for the bootstrap; market questions don't.
 DATASET_SOURCES = ("acled", "dbnomics", "fred", "wikipedia", "yfinance")
@@ -42,7 +43,11 @@ def log_gain(p, q, y):
 
 
 def c_star(p, q, y):
-    return best_log_scale(p, q, y, LOG_LOSS_EPS)[0]
+    return best_log_scale(p, q, y, LOG_LOSS_EPS, C_STAR_CAP)[0]
+
+
+def at_cap(c):
+    return abs(c) > C_STAR_CAP - 1e-3  # the bounded search stops within about 1e-5 of the cap
 
 
 def in_group(fn, g):
@@ -123,7 +128,8 @@ def main() -> None:
         for g in range(1, GROUPS + 1):
             r = groups == g
             lam, b_gain = lambda_hat(p[r], q[r], y[r]), brier_gain(p[r], q[r], y[r])
-            c, l_avail = best_log_scale(p[r], q[r], y[r], LOG_LOSS_EPS)
+            c, l_avail = best_log_scale(p[r], q[r], y[r], LOG_LOSS_EPS, C_STAR_CAP)
+            c_ci = bootstrap_ci(cols, in_group(c_star, g), **moved_ci)
             l_gain = log_gain(p[r], q[r], y[r])
             warrant[m_name][g] = {
                 "n": int(r.sum()),
@@ -139,7 +145,9 @@ def main() -> None:
                     "achieved": l_gain,
                     "achieved_ci": list(bootstrap_ci(cols, in_group(log_gain, g), **moved_ci)),
                     "c_star": c,
-                    "c_star_ci": list(bootstrap_ci(cols, in_group(c_star, g), **moved_ci)),
+                    "c_star_ci": list(c_ci),
+                    "c_star_capped": at_cap(c),
+                    "c_star_ci_capped": [at_cap(v) for v in c_ci],
                     "share": l_gain / l_avail if l_gain > 0 else None,
                 },
             }
@@ -176,6 +184,7 @@ def main() -> None:
         "mean_log_loss_delta": float(log_loss_delta.mean()) if n else None,
         "mean_log_loss_delta_ci": list(log_loss_delta_ci) if n else None,
         "log_loss_clip_eps": LOG_LOSS_EPS,
+        "c_star_cap": C_STAR_CAP,
         "correlations": correlations,
         "n_moved": int(moved.sum()),
         "warrant": warrant,

@@ -200,9 +200,16 @@ def test_lambda_hat_is_best_brier_scale() -> None:
 
 def test_best_log_scale_is_minimum() -> None:
     c, gain = best_log_scale(P, Q, Y)
-    total = lambda c: np.mean(log_loss(P + c * (Q - P), Y))  # noqa: E731
+    lp, lq = np.log(P / (1 - P)), np.log(Q / (1 - Q))
+    total = lambda c: np.mean(log_loss(1 / (1 + np.exp(-(lp + c * (lq - lp)))), Y))  # noqa: E731
     assert total(c) < total(c - 0.01) and total(c) < total(c + 0.01)
     assert math.isclose(gain, total(0.0) - total(c))
+
+
+def test_best_log_scale_stops_at_cap_when_every_move_was_right() -> None:
+    # Both moves point toward their outcome, so stronger moves always help: c* is infinite.
+    c, _ = best_log_scale([0.4, 0.5], [0.9, 0.3], [1.0, 0.0], cap=50.0)
+    assert c > 50.0 - 1e-3
 
 
 def test_within_source_groups_split_each_source() -> None:
