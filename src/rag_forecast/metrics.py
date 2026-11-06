@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Callable, Sequence
 
 import numpy as np
-from scipy import optimize, stats
+from scipy import optimize, special, stats
 
 
 def brier(p: float, outcome: float) -> float:
@@ -75,22 +75,25 @@ def lambda_hat(p, q, y) -> float:
     return float(np.sum(d * (y - p)) / np.sum(d * d))
 
 
-def best_log_scale(p, q, y, eps: float = 1e-6) -> tuple[float, float]:
-    """Scale c* minimizing the mean log loss of p + c(q - p); returns (c*, mean log-loss gain over p).
+def best_log_scale(p, q, y, eps: float = 1e-6, cap: float = 50.0) -> tuple[float, float]:
+    """Scale c* minimizing the mean log loss of sigmoid(logit p + c(logit q - logit p)).
 
-    The mean log loss is convex in c, so c* < 1 means the moves were too large and
-    c* > 1 too small. c is bounded so every scaled forecast stays in [eps, 1 - eps].
+    c scales each move in log odds, which raises the likelihood ratio the move implies
+    to the power c: c* < 1 means the moves were too large, c* > 1 too small. Every c
+    gives a valid probability, and the mean log loss is convex in c. If every move
+    pointed toward its outcome (or every move away), the best c is infinite, so c is
+    searched in [-cap, cap] and |c*| = cap means infinite. p and q are clipped to
+    [eps, 1 - eps]. Returns (c*, mean log loss gain over p).
     """
     p, q, y = (np.asarray(a, dtype=float) for a in (p, q, y))
-    d = q - p
-    up, down = d > 0, d < 0
-    lo = np.max(np.concatenate([(eps - p[up]) / d[up], (1 - eps - p[down]) / d[down]]))
-    hi = np.min(np.concatenate([(1 - eps - p[up]) / d[up], (eps - p[down]) / d[down]]))
+    lp, lq = (special.logit(np.clip(a, eps, 1.0 - eps)) for a in (p, q))
 
     def loss(c: float) -> float:
-        return float(np.mean(log_loss(p + c * d, y, eps)))
+        z = lp + c * (lq - lp)  # log odds of the scaled forecast
+        # Log loss of sigmoid(z): log(1 + e^-z) if y = 1, log(1 + e^z) if y = 0, exact for any c.
+        return float(np.mean(y * np.logaddexp(0.0, -z) + (1 - y) * np.logaddexp(0.0, z)))
 
-    c = float(optimize.minimize_scalar(loss, bounds=(lo, hi), method="bounded").x)
+    c = float(optimize.minimize_scalar(loss, bounds=(-cap, cap), method="bounded").x)
     return c, loss(0.0) - loss(c)
 
 

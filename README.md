@@ -55,9 +55,15 @@ justified. SQ2 and SQ3 take the size out.
    rank questions within their own source, cut each source into 4 groups, and
    pool group g across sources, so every group has the same source mix. Per
    group: *achieved* = mean improvement (A); **λ̂** = ΣΔ(y − p)/ΣΔ², the single
-   scale c that makes p + cΔ score best under Brier, and **c\***, the same
-   under log loss (B: 1 = right size, < 1 too large, > 1 too small); *share* =
-   achieved ÷ the gain at that best scale (shown when achieved > 0). λ̂ is also
+   scale c that makes p + cΔ score best under Brier, and **c\***, the single
+   scale c of each move in log odds, logit p + c·(logit q − logit p), that
+   scores best under log loss (B: 1 = right size, < 1 too large, > 1 too
+   small). Scaling in log odds keeps every scaled forecast a probability, so
+   c\* is never stopped at 0 or 1, but it measures size on a different scale
+   than λ̂. c\* is searched in [−50, 50]. > 50 means the best scale lies beyond
+   that, as when every move in the group pointed toward its outcome (< −50:
+   every move away). *share* = achieved ÷ the gain at that best scale (shown
+   when achieved > 0). λ̂ and c\* are also
    given per source, without a CI (a dataset source on one date is a single
    family). The groups are rebuilt in each resample.
 9. **SQ3:** hold out one source at a time. Using only the other sources, mark
@@ -97,25 +103,28 @@ entirely through questions that resolved NO.
 
 | measure | group | n | Brier achieved | λ̂ | log-loss achieved | c\* | share (Brier / log) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Δ² | lowest | 20 | −0.002 [−0.015, +0.005] | −1.02 [−8.91, +5.14] | −0.017 [−0.046, +0.007] | −0.67 [−1.14, +2.00] | — / — |
-| Δ² | top | 23 | +0.102 [−0.016, +0.255] | +0.85 [+0.41, +1.14] | +0.283 [−0.002, +0.635] | +1.02 [+0.41, +1.10] | 97% / 100% |
-| KL | lowest | 15 | −0.002 [−0.023, +0.009] | −0.99 [−9.51, +8.90] | −0.012 [−0.062, +0.014] | −0.67 [−1.50, +2.00] | — / — |
-| KL | top | 23 | +0.109 [−0.001, +0.272] | +0.87 [+0.50, +1.17] | +0.298 [+0.036, +0.685] | +1.02 [+0.54, +1.10] | 98% / 100% |
-| UR_B | lowest | 17 | −0.033 [−0.095, +0.056] | −0.36 [−1.28, +2.38] | −0.083 [−0.223, +0.148] | −0.20 [−0.68, +1.86] | — / — |
-| UR_B | top | 25 | +0.085 [−0.000, +0.217] | +0.96 [+0.49, +1.16] | +0.245 [+0.034, +0.566] | +1.01 [+0.74, +1.03] | 100% / 99% |
-| UR_L | lowest | 16 | +0.006 [−0.062, +0.072] | +0.89 [−1.58, +3.13] | −0.005 [−0.157, +0.185] | +0.35 [−0.50, +3.33] | 98% / — |
-| UR_L | top | 25 | +0.084 [−0.000, +0.209] | +0.96 [+0.50, +1.14] | +0.243 [+0.033, +0.549] | +1.01 [+0.75, +1.03] | 100% / 99% |
-| \|Z\| | lowest | 18 | −0.005 [−0.022, +0.014] | −1.69 [−7.34, +3.97] | −0.025 [−0.068, +0.028] | −0.67 [−1.00, +2.42] | — / — |
-| \|Z\| | top | 24 | +0.094 [−0.006, +0.220] | +0.87 [+0.43, +1.11] | +0.277 [+0.026, +0.569] | +1.01 [+0.57, +1.03] | 98% / 100% |
-| \|KO\| | lowest | 17 | −0.012 [−0.038, +0.004] | −1.27 [−6.02, +1.41] | −0.032 [−0.090, +0.006] | −1.50 [−2.00, +1.06] | — / — |
-| \|KO\| | top | 24 | +0.131 [+0.008, +0.241] | +1.02 [+0.57, +1.17] | +0.340 [+0.042, +0.608] | +1.01 [+0.67, +1.03] | 100% / 99% |
+| Δ² | lowest | 20 | −0.002 [−0.015, +0.005] | −1.02 [−8.91, +5.14] | −0.017 [−0.046, +0.007] | −2.00 [< −50, +1.24] | — / — |
+| Δ² | top | 23 | +0.102 [−0.016, +0.255] | +0.85 [+0.41, +1.14] | +0.283 [−0.002, +0.635] | +0.81 [+0.46, +1.47] | 97% / 97% |
+| KL | lowest | 15 | −0.002 [−0.023, +0.009] | −0.99 [−9.51, +8.90] | −0.012 [−0.062, +0.014] | −1.53 [< −50, +2.38] | — / — |
+| KL | top | 23 | +0.109 [−0.001, +0.272] | +0.87 [+0.50, +1.17] | +0.298 [+0.036, +0.685] | +0.84 [+0.53, +1.64] | 98% / 98% |
+| UR_B | lowest | 17 | −0.033 [−0.095, +0.056] | −0.36 [−1.28, +2.38] | −0.083 [−0.223, +0.148] | −0.49 [< −50, +1.63] | — / — |
+| UR_B | top | 25 | +0.085 [−0.000, +0.217] | +0.96 [+0.49, +1.16] | +0.245 [+0.034, +0.566] | +1.01 [+0.54, +1.97] | 100% / 100% |
+| UR_L | lowest | 16 | +0.006 [−0.062, +0.072] | +0.89 [−1.58, +3.13] | −0.005 [−0.157, +0.185] | +0.45 [< −50, +1.81] | 98% / — |
+| UR_L | top | 25 | +0.084 [−0.000, +0.209] | +0.96 [+0.50, +1.14] | +0.243 [+0.033, +0.549] | +1.01 [+0.53, +1.97] | 100% / 100% |
+| \|Z\| | lowest | 18 | −0.005 [−0.022, +0.014] | −1.69 [−7.34, +3.97] | −0.025 [−0.068, +0.028] | −4.88 [< −50, +1.39] | — / — |
+| \|Z\| | top | 24 | +0.094 [−0.006, +0.220] | +0.87 [+0.43, +1.11] | +0.277 [+0.026, +0.569] | +0.85 [+0.49, +1.58] | 98% / 99% |
+| \|KO\| | lowest | 17 | −0.012 [−0.038, +0.004] | −1.27 [−6.02, +1.41] | −0.032 [−0.090, +0.006] | −1.50 [< −50, +0.82] | — / — |
+| \|KO\| | top | 24 | +0.131 [+0.008, +0.241] | +1.02 [+0.57, +1.17] | +0.340 [+0.042, +0.608] | +1.05 [+0.53, +1.59] | 100% / 100% |
 
-Every measure's top group was about the right size (λ̂ 0.85–1.02, c\* 1.01–1.02)
-and captured 97–100% of the available improvement. The lowest groups'
-intervals are too wide to tell whether smaller moves were less justified.
-Groups 2 and 3 are in the summary JSON. λ̂ also differs by source, from −1.33
-for acled to +1.04 for polymarket (all sources are in the summary JSON), which
-is why groups are formed within sources.
+Every measure's top group was about the right size (λ̂ 0.85 to 1.02, c\* 0.81
+to 1.05) and captured 97 to 100% of the available improvement under both
+scores. The lowest groups' intervals are too wide to tell whether smaller moves
+were less justified. Each lowest group's c\* interval reaches the −50 cap,
+because some resamples keep only moves that pointed away from their outcome.
+Groups 2 and 3 are in the summary JSON. λ̂ and c\* also differ by source, for
+example −1.33 and −1.05 for acled but +1.04 and +1.04 for polymarket (all
+sources are in the summary JSON), which is why groups are formed within
+sources.
 
 **SQ3: keep-p rule vs always q, one source held out at a time** (D > 0 = rule wins)
 
