@@ -8,11 +8,15 @@ when and why retrieved evidence helps. On binary questions from
 > (p) and after (q) reading retrieved evidence, tell us when to trust the
 > updated forecast?**
 
-| sub-question | asks |
-| --- | --- |
-| **SQ1 Prediction** | How strongly is each measure associated with the realized Brier and log-loss improvement? |
-| **SQ2 Warrant** | Within one source, are shifts with higher measure values better justified: (A) does q beat p, and (B) was the move the right size? |
-| **SQ3 Decision** | On a source it has never seen, does "keep p in the measure groups where q did worse on the other sources" beat always using q? |
+Here "when to trust" means which moves (p to q) are justified, so SQ2 carries
+the main question. SQ3 asks whether acting on the answer improves scores on a
+source the rule has not seen.
+
+| sub-question | asks | answered by |
+| --- | --- | --- |
+| **SQ1 Prediction** | How strongly is each measure associated with the realized Brier and log-loss improvement? | estimates only |
+| **SQ2 Warrant** | Within one source, are shifts with higher measure values better justified: (A) does q beat p, and (B) was the move the right size? | H1 (A), H2 (B), H4 |
+| **SQ3 Decision** | On a source it has never seen, does "keep p in the measure groups where q did worse on the other sources" beat always using q? | estimate only |
 
 Why SQ2 and SQ3: with Δ = q − p and outcome y, a question's improvement is
 (size of the move) × (λᵢ − break-even), where λᵢ = (y − p)/Δ is how justified
@@ -20,6 +24,60 @@ the move was (1 = right size, 0 = unsupported, < 0 = wrong way). The size is
 2Δ² for Brier and Δ·Δlogit for log loss, so any measure that grows with move
 size correlates with improvement (SQ1) even when big moves are no better
 justified. SQ2 and SQ3 take the size out.
+
+## Hypotheses (draft)
+
+Drafted after the pilot and before the exploration run, and not preregistered
+yet (see [Stages](#stages)). A measure's *top group* is its highest of the 4
+groups formed within each source (Method step 8), and *the rest* is its other
+three groups pooled. H1, H2 and H4 are tested for each of the six measures.
+Each test checks one direction at the 5% level, except H2, which is an
+equivalence test.
+
+| | claim | answers | pass rule | test dates (rough) |
+| --- | --- | --- | --- | --- |
+| **H1** | In each top group, q beats p. | SQ2 (A) | *achieved* > 0 under Brier and under log loss | 1 |
+| **H2** | Top group moves are about the right size. | SQ2 (B) | λ̂ and c\* inside a band around 1, for example 0.7 to 1.3 | 2 or more |
+| **H3** | Over all questions, q beats p. | baseline | mean improvement > 0 under Brier and under log loss | 2 |
+| **H4** | Top group moves are better justified than the rest. | main question (SQ2) | λ̂(top) − λ̂(rest) > 0 | 2 or more |
+
+H4 compares λ̂ itself, not its distance to 1, which is H2's question. λ̂ is the
+average of λᵢ weighted by Δ², and a group's total Brier improvement is
+ΣΔ² × (2λ̂ − 1), so a higher λ̂ means more improvement for the same total move
+size. If q were right on average (the chance that y = 1 equals q, whatever p
+and q are), every group would have λ = 1, so with enough data H1 to H3 would
+pass and H4's gap would be 0. A passing H4 therefore shows what H1 to H3
+cannot: the measures separate more justified moves from less justified ones.
+
+Reported as estimates with intervals, without a pass rule:
+- **SQ1 correlations**, because they mix move size with how justified the move
+  was (see above).
+- **SQ3 D**, because even the best single set of "keep p" marks, chosen knowing
+  the outcomes, would gain only 0.003 to 0.013 Brier per moved question on the
+  pilot (depending on the measure). That is at or below the smallest D two test
+  dates could detect (0.011 to 0.015).
+- **|Z| and |KO| vs Δ²** (do the confirmation measures pick better moves than
+  move size?), because their top groups share most questions with Δ²'s (19 and
+  16 of 24 on the pilot), so the comparison rests on the few questions where
+  they differ.
+
+The test dates come from a rough pilot check (family bootstrap, standard errors
+scaled to about 380 questions per date, 80% power) and are redone after the
+exploration run. Still open: H2's band, how to correct for testing six measures
+under two scores, and H4 under log loss (c\* in place of λ̂, not yet checked).
+`analyze_results.py` does not compute H4 yet.
+
+## Stages
+
+1. **Pilot** (done): 100 of the 348 questions, exploratory. Its results shaped
+   the hypotheses, so it cannot test them.
+2. **Exploration run**: questions from another ForecastBench date, with their
+   outcomes looked at. It checks whether the pilot patterns hold and supplies
+   the numbers for the power check.
+3. **Preregistration**: fixes the hypotheses, pass rules and number of test
+   dates before any test outcome is seen.
+4. **Test run**: as many new dates as the power check calls for, analyzed once
+   as preregistered.
 
 ## Method
 
