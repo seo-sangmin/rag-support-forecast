@@ -5,18 +5,18 @@ when and why retrieved evidence helps. On binary questions from
 [ForecastBench](https://www.forecastbench.org/), this repo asks:
 
 > **Can measures of an LLM's belief shift, computed from its forecast before
-> (p) and after (q) reading retrieved evidence, tell us when to trust the
-> updated forecast?**
+> (p) and after (q) reading retrieved evidence, tell which of its updates are
+> justified?**
 
-Here "when to trust" means which moves (p to q) are justified, so SQ2 carries
-the main question. SQ3 asks whether acting on the answer improves scores on a
-source the rule has not seen.
+| sub-question | asks |
+| --- | --- |
+| **SQ1 Prediction** | How strongly is each measure associated with the realized Brier and log-loss improvement? |
+| **SQ2 Warrant** | Within one source, are shifts with higher measure values better justified: (A) does q beat p, and (B) was the move the right size? |
+| **SQ3 Decision** | On a source it has never seen, does "keep p in the measure groups where q did worse on the other sources" beat always using q? |
 
-| sub-question | asks | answered by |
-| --- | --- | --- |
-| **SQ1 Prediction** | How strongly is each measure associated with the realized Brier and log-loss improvement? | estimates only |
-| **SQ2 Warrant** | Within one source, are shifts with higher measure values better justified: (A) does q beat p, and (B) was the move the right size? | H1 (A), H2 (B), H4 |
-| **SQ3 Decision** | On a source it has never seen, does "keep p in the measure groups where q did worse on the other sources" beat always using q? | estimate only |
+Only one part of SQ2, the comparison of each measure's top group with the
+rest, has a pass rule: the [hypothesis](#hypothesis-draft). Everything else is
+reported as an estimate with its interval.
 
 Why SQ2 and SQ3: with Δ = q − p and outcome y, a question's improvement is
 (size of the move) × (λᵢ − break-even), where λᵢ = (y − p)/Δ is how justified
@@ -25,31 +25,40 @@ the move was (1 = right size, 0 = unsupported, < 0 = wrong way). The size is
 size correlates with improvement (SQ1) even when big moves are no better
 justified. SQ2 and SQ3 take the size out.
 
-## Hypotheses (draft)
+## Hypothesis (draft)
 
 Drafted after the pilot and before the exploration run, and not preregistered
-yet (see [Stages](#stages)). A measure's *top group* is its highest of the 4
-groups formed within each source (Method step 8), and *the rest* is its other
-three groups pooled. H1, H2 and H4 are tested for each of the six measures.
-Each test checks one direction at the 5% level, except H2, which is an
-equivalence test.
+yet (see [Stages](#stages)).
 
-| | claim | answers | pass rule | test dates (rough) |
-| --- | --- | --- | --- | --- |
-| **H1** | In each top group, q beats p. | SQ2 (A) | *achieved* > 0 under Brier and under log loss | 1 |
-| **H2** | Top group moves are about the right size. | SQ2 (B) | λ̂ and c\* inside a band around 1, for example 0.7 to 1.3 | 2 or more |
-| **H3** | Over all questions, q beats p. | baseline | mean improvement > 0 under Brier and under log loss | 2 |
-| **H4** | Top group moves are better justified than the rest. | main question (SQ2) | λ̂(top) − λ̂(rest) > 0 | 2 or more |
+**H: in each measure's top group, moves are better justified than in the
+rest.** A measure's *top group* is its highest of the 4 groups formed within
+each source (Method step 8), and *the rest* is its other three groups pooled.
+H is tested for each of the six measures, and passes for a measure only if
+both gaps are above 0:
 
-H4 compares λ̂ itself, not its distance to 1, which is H2's question. λ̂ is the
-average of λᵢ weighted by Δ², and a group's total Brier improvement is
-ΣΔ² × (2λ̂ − 1), so a higher λ̂ means more improvement for the same total move
-size. If q were right on average (the chance that y = 1 equals q, whatever p
-and q are), every group would have λ = 1, so with enough data H1 to H3 would
-pass and H4's gap would be 0. A passing H4 therefore shows what H1 to H3
-cannot: the measures separate more justified moves from less justified ones.
+- Brier: λ̂(top) − λ̂(rest) > 0
+- log loss: c\*(top) − c\*(rest) > 0
+
+Each gap is checked in one direction at the 5% level. If either gap is really
+0 or below, its check passes by luck at most 5% of the time, and H needs both
+checks to pass. So the two scores need no correction.
+
+Why the gaps compare λ̂ and c\* themselves: λ̂ is the average of λᵢ weighted
+by Δ², and a group's total Brier improvement is ΣΔ² × (2λ̂ − 1), so a higher λ̂
+means more improvement for the same total move size. c\* plays the same role
+for log loss. Whether the moves were the right size (λ̂ and c\* near 1) is
+reported as an estimate below.
+
+Why only one hypothesis: if q were right on average (the chance that y = 1
+equals q, whatever p and q are), every group would have λ = 1 and c\* = 1.
+Then q would beat p in every group and overall, and every group's moves would
+be the right size, yet both gaps would be 0. So only the gaps can tell measures
+that pick out justified moves from measures that do not.
 
 Reported as estimates with intervals, without a pass rule:
+- **Baseline:** does q beat p over all questions?
+- **SQ2 for each group:** *achieved*, λ̂ and c\* (does q beat p, and was the
+  move the right size?).
 - **SQ1 correlations**, because they mix move size with how justified the move
   was (see above).
 - **SQ3 D**, because even the best single set of "keep p" marks, chosen knowing
@@ -61,21 +70,24 @@ Reported as estimates with intervals, without a pass rule:
   16 of 24 on the pilot), so the comparison rests on the few questions where
   they differ.
 
-The test dates come from a rough pilot check (family bootstrap, standard errors
-scaled to about 380 questions per date, 80% power) and are redone after the
-exploration run. Still open: H2's band, how to correct for testing six measures
-under two scores, and H4 under log loss (c\* in place of λ̂, not yet checked).
-`analyze_results.py` does not compute H4 yet.
+Test dates (rough): 2 or more. On the pilot the gaps are +0.41 to +1.17, and
+every interval includes 0. The smallest gap that two test dates could detect is
+about 0.4 to 0.7 (family bootstrap, standard errors scaled to about 380
+questions per date, one direction at 5%, 80% power). For c\*, the standard
+error is taken from the middle half of the bootstrap values, because the few
+resamples where the top group's c\* reaches the +50 cap inflate the usual one.
+All of this is redone after the exploration run. Still open: how to correct
+for testing six measures. `analyze_results.py` does not compute H yet.
 
 ## Stages
 
 1. **Pilot** (done): 100 of the 348 questions, exploratory. Its results shaped
-   the hypotheses, so it cannot test them.
+   the hypothesis, so it cannot test it.
 2. **Exploration run**: questions from another ForecastBench date, with their
    outcomes looked at. It checks whether the pilot patterns hold and supplies
    the numbers for the power check.
-3. **Preregistration**: fixes the hypotheses, pass rules and number of test
-   dates before any test outcome is seen.
+3. **Preregistration**: fixes the hypothesis, its pass rule and the number of
+   test dates before any test outcome is seen.
 4. **Test run**: as many new dates as the power check calls for, analyzed once
    as preregistered.
 
