@@ -118,12 +118,17 @@ intervals have only 5 such events to resample. Full tables and limits are in
    resamples) over **families**: dataset questions (acled, dbnomics, fred,
    wikipedia, yfinance) with the same source and resolution day share one
    deciding event, so they form one family. Each market question is its own.
-8. **SQ2:** in each of H's 4 groups (pooled across sources, so all have the
-   same source mix): mean improvement (A), and λ̂ and c\* (B).
-9. **SQ3:** hold out one source at a time. Mark group g "keep p" if its mean
-   improvement on the other sources is below 0, and apply the marks to the
-   held out source. D = mean score(always q) − score(rule), so D > 0 means the
-   rule wins.
+8. **SQ2:** use the questions whose forecast moved (Δ ≠ 0). For each measure,
+   rank them within their own source, cut each source into 4 groups
+   (1 = lowest), and pool group g across sources, so every group has the same
+   source mix. Per group: *achieved* = mean improvement (A), and λ̂ and c\* (B).
+9. **H:** pool groups 3 and 4 (top half) and groups 1 and 2 (low half), compute
+   λ̂ and c\* over each half's moves, and take top minus low. Each gap gets a
+   95% family bootstrap interval, with the groups rebuilt in each resample.
+10. **SQ3:** hold out one source at a time. Mark group g "keep p" if its mean
+    improvement on the other sources is below 0, and apply the marks to the
+    held out source. D = mean score(always q) − score(rule), so D > 0 means
+    the rule wins.
 
 ## Running the code
 
