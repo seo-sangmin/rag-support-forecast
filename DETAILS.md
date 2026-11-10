@@ -69,28 +69,16 @@ hypothesis, and everything else is an
 Whether the moves were the right size (λ̂ and c\* near 1) is reported as an
 estimate.
 
-**Why halves.**
+**Why halves.** A measure tells justified updates apart if the updates it
+rates high are better justified than those it rates low. The median is the
+default line between high and low, so the halves split each source at its
+median. The split is the same for every measure and is fixed now, so the
+exploration run does not change it.
 
-1. A measure tells justified updates apart if the updates it rates high are
-   better justified than those it rates low. The median is the default line
-   between high and low, and the halves split each source at its median.
-2. The pilot fits this split: for five measures, λ̂ and c\* drop between
-   groups 2 and 3, while groups 3 and 4 look alike (see the
-   [SQ2 table](#sq2-warrant-by-group)).
-3. An earlier draft compared the top group with the other three. To choose
-   between the two, compare their *power*: the chance that a check passes on
-   the test data if the pilot's gap were the true gap (computed as in
-   [Power and test dates](#power-and-test-dates)). H needs both checks, so
-   each number below is the lower of its two checks' power.
-
-On two test dates, halves would change H's power like this (earlier draft →
-halves):
-
-- higher for Δ² (65% → 94%), UR_B (50% → 98%) and UR_L (53% → 99%)
-- about the same for KL (83% → 86%) and |Z| (39% → 40%)
-- lower for |KO| (100% → 48%), whose drop comes between groups 3 and 4
-
-The exploration run checks this choice again.
+The choice was not blind. It was made after seeing the pilot, where λ̂ and
+c\* drop between groups 2 and 3 for five measures while groups 3 and 4 look
+alike (|KO| drops between groups 3 and 4 instead). See the
+[SQ2 table](#sq2-warrant-by-group).
 
 ### Testing six measures
 
@@ -121,11 +109,12 @@ The rough plan is 2 or more test dates. The steps behind it:
 3. For c\*, the standard error is taken from the middle half of the bootstrap
    values. The few resamples where a half's c\* reaches the ±50 cap (about 3%
    at most) would inflate the usual one.
-4. With a normal approximation, a gap's check passes when the estimated gap is
-   more than 1.96 standard errors above 0. A true gap of 2.8 standard errors
-   clears that bar 80% of the time. So 2.8 standard errors is the smallest gap
-   two test dates could detect with 80% power: about 0.7 to 1.5 for λ̂ and
-   0.5 to 2.3 for c\*.
+4. *Power* is the chance that a check passes when the true gap has a given
+   size. With a normal approximation, a gap's check passes when the estimated
+   gap is more than 1.96 standard errors above 0. A true gap of 2.8 standard
+   errors clears that bar 80% of the time, so its power is 80%. That makes
+   2.8 standard errors the smallest gap two test dates could detect with 80%
+   power: about 0.7 to 1.5 for λ̂ and 0.5 to 2.3 for c\*.
 5. All of this is redone after the exploration run.
 
 ### Estimates without a pass rule
