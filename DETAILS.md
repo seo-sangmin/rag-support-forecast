@@ -1,4 +1,4 @@
-# Analysis plan and pilot detail
+# Reasons for H, method detail and pilot tables
 
 The [README](README.md) gives the question, the draft hypothesis H and a
 summary of the pilot. This file keeps the detail behind them: why H has its

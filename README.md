@@ -39,8 +39,8 @@ A gap counts as above 0 when its 95% bootstrap interval lies above 0 (one
 direction at 2.5%). Each measure's result answers its own question, so there
 is no correction for testing six. No test compares the measures, so the six
 results are not a ranking. Everything else (q vs p overall, SQ1, SQ2 per
-group, SQ3) is an estimate with its interval. [PLAN.md](PLAN.md) gives the
-reasons and the power checks.
+group, SQ3) is an estimate with its interval. [DETAILS.md](DETAILS.md) gives
+the reasons and the power checks.
 
 ## Stages
 
@@ -84,7 +84,7 @@ improvement) fell from 0.21 to 0.05 when only the prompts changed, and all
 other analyses were added after that. All forecasts are as of 2025-10-16, and
 the 67 dataset questions were decided by just 5 shared events, so the
 intervals have only 5 such events to resample. Full tables and limits are in
-[PLAN.md](PLAN.md).
+[DETAILS.md](DETAILS.md).
 
 ## Method
 
