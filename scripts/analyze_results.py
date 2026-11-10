@@ -29,6 +29,7 @@ CI_SEED = 0
 LOG_LOSS_EPS = 1e-6
 GROUPS = 4  # within-source groups per measure (SQ2, SQ3)
 C_STAR_CAP = 50.0  # c* is searched in [-cap, cap]. Reaching the cap means the best scale is infinite
+H_ALPHA = 0.025  # H checks each gap in one direction at this level, per measure
 # Dataset questions sharing a source and resolution day are decided by one event (e.g.
 # one week's market), so they form one family for the bootstrap; market questions don't.
 DATASET_SOURCES = ("acled", "dbnomics", "fred", "wikipedia", "yfinance")
@@ -56,6 +57,18 @@ def in_group(fn, g):
     def stat(m, s, p, q, y):
         rows = within_source_groups(m, s, GROUPS) == g
         return fn(p[rows], q[rows], y[rows]) if rows.any() else float("nan")
+
+    return stat
+
+
+def half_gap(fn):
+    """Bootstrap statistic: regroup within sources, then fn(top half) - fn(low half)."""
+
+    def stat(m, s, p, q, y):
+        top = within_source_groups(m, s, GROUPS) > GROUPS // 2
+        if top.all() or not top.any():
+            return float("nan")
+        return fn(p[top], q[top], y[top]) - fn(p[~top], q[~top], y[~top])
 
     return stat
 
@@ -158,6 +171,25 @@ def main() -> None:
                 },
             }
 
+    # H: top half (groups 3 and 4 pooled) minus low half (groups 1 and 2 pooled), for λ̂ and c*.
+    # A gap passes if the low end of its 1 - 2α interval (its one direction bound) is above 0.
+    hypothesis = {
+        "top_half_groups": list(range(GROUPS // 2 + 1, GROUPS + 1)),
+        "alpha_one_direction": H_ALPHA,
+        "gap_ci_confidence": 1 - 2 * H_ALPHA,
+    }
+    h_ci = {**moved_ci, "confidence": 1 - 2 * H_ALPHA}
+    for m_name, m in moved_measures.items():
+        top = within_source_groups(m, src, GROUPS) > GROUPS // 2
+        cell = {}
+        for score, fn in (("brier", lambda_hat), ("log_loss", c_star)):
+            hi, lo = fn(p[top], q[top], y[top]), fn(p[~top], q[~top], y[~top])
+            ci = bootstrap_ci([m, codes, p, q, y], half_gap(fn), **h_ci)
+            cell[score] = {"top_half": hi, "low_half": lo, "gap": hi - lo, "gap_ci": list(ci), "passes": ci[0] > 0}
+        cell["log_loss"]["capped"] = [at_cap(cell["log_loss"]["top_half"]), at_cap(cell["log_loss"]["low_half"])]
+        cell["passes"] = cell["brier"]["passes"] and cell["log_loss"]["passes"]
+        hypothesis[m_name] = cell
+
     decision = {}
     for out_name, gain in ((k, v[moved]) for k, v in outcomes.items()):
         decision[out_name] = {}
@@ -194,6 +226,7 @@ def main() -> None:
         "correlations": correlations,
         "n_moved": int(moved.sum()),
         "warrant": warrant,
+        "hypothesis": hypothesis,
         "decision": decision,
         "ci_method": {
             "method": "percentile bootstrap resampling families with replacement; groups and "
