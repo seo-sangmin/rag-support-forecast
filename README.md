@@ -4,9 +4,9 @@ Retrieval-augmented forecasting can improve LLM forecasts, but it is unclear
 when and why retrieved evidence helps. On binary questions from
 [ForecastBench](https://www.forecastbench.org/), this repo asks:
 
-> **Can measures of an LLM's belief shift, computed from its forecast before
-> (p) and after (q) reading retrieved evidence, tell which of its updates are
-> justified?**
+> **For each of six measures of an LLM's belief shift, computed from its
+> forecast before (p) and after (q) reading retrieved evidence, does that
+> measure tell which of its updates are justified?**
 
 | sub-question | asks |
 | --- | --- |
@@ -40,9 +40,11 @@ the six measures, and passes for a measure only if both gaps are above 0:
 - Brier: λ̂(top half) − λ̂(low half) > 0
 - log loss: c\*(top half) − c\*(low half) > 0
 
-Each gap is checked in one direction at the 5% level. If either gap is really
-0 or below, its check passes by luck at most 5% of the time, and H needs both
-checks to pass. So the two scores need no correction.
+Each gap is checked in one direction at the 2.5% level, the same bar the usual
+two sided 5% test sets for a positive result. So a gap passes when its 95%
+bootstrap interval lies above 0. If either gap is really 0 or below, its check
+passes by luck at most 2.5% of the time, and H needs both checks to pass. So
+the two scores need no correction.
 
 No test compares the measures with each other (for example, whether |Z| picks
 better moves than plain move size Δ²), so H's six results are not a ranking:
@@ -59,9 +61,9 @@ high are better justified than those it rates low, and the median is the
 default line between high and low. On the pilot, λ̂ and c\* also drop between
 groups 2 and 3 for five measures, while groups 3 and 4 look alike (see the SQ2
 table). If the pilot gaps were true, halves would raise H's power on two test
-dates for Δ² (76% → 97%), UR_B (62% → 99%) and UR_L (65% → 100%), keep KL
-(90% → 92%) and |Z| (52% → 53%) about the same, and lower it for |KO|
-(100% → 60%), whose drop comes between groups 3 and 4. The exploration run
+dates for Δ² (65% → 94%), UR_B (50% → 98%) and UR_L (53% → 99%), keep KL
+(83% → 86%) and |Z| (39% → 40%) about the same, and lower it for |KO|
+(100% → 48%), whose drop comes between groups 3 and 4. The exploration run
 checks this choice again.
 
 Why only one hypothesis: if q were right on average (the chance that y = 1
@@ -79,18 +81,23 @@ Reported as estimates with intervals, without a pass rule:
 - **SQ3 D**, because even the best single set of "keep p" marks, chosen knowing
   the outcomes, would gain only 0.003 to 0.013 Brier per moved question on the
   pilot (depending on the measure). That is at or below the smallest D two test
-  dates could detect (0.011 to 0.015).
+  dates could detect (0.012 to 0.017).
 
 Test dates (rough): 2 or more. On the pilot the λ̂ gaps are +1.21 to +2.43 and
-the c\* gaps +0.96 to +1.80, but every λ̂ gap's lower 5% bootstrap bound is
-below 0, so H would pass for no measure. The smallest gap that two test dates
-could detect is about 0.6 to 1.3 for λ̂ and 0.5 to 2.1 for c\* (family
-bootstrap, standard errors scaled to about 380 questions per date, one
-direction at 5%, 80% power). For c\*, the standard error is taken from the
+the c\* gaps +0.96 to +1.80, but every λ̂ gap's 95% interval includes 0, so H
+would pass for no measure. The smallest gap that two test dates could detect is
+about 0.7 to 1.5 for λ̂ and 0.5 to 2.3 for c\* (family bootstrap, standard
+errors scaled to about 380 questions per date, one direction at 2.5%, 80%
+power). For c\*, the standard error is taken from the
 middle half of the bootstrap values, because the few resamples where a half's
 c\* reaches the ±50 cap (at most 2.3%) inflate the usual one.
-All of this is redone after the exploration run. Still open: how to correct
-for testing six measures. `analyze_results.py` does not compute H yet.
+All of this is redone after the exploration run. There is no correction for
+testing six measures, because each measure's result answers its own question,
+so every conclusion is about one measure. Each conclusion has a 2.5% chance of
+a lucky pass, and across the six, the chance that at least one does is about 8
+to 12% on the pilot. `analyze_results.py` reports H under `hypothesis` in
+the summary JSON: each half's λ̂ and c\*, both gaps, and each gap's 95%
+interval, whose low end is the one direction check.
 
 ## Stages
 
@@ -287,7 +294,7 @@ keep the pilot out of the SQ3 test when analyzing pilot + new questions, add
 - `run_<timestamp>.meta.json`: seed, sampling flags, model and retrieval
   settings, the selected questions and any that failed.
 - `run_<timestamp>_summary.json`: all results, under `correlations` (SQ1),
-  `warrant` (SQ2), `decision` (SQ3) and `ci_method`.
+  `warrant` (SQ2), `hypothesis` (H), `decision` (SQ3) and `ci_method`.
 - `data/archive/`: the July 2026 runs made with the earlier prompts.
 
 ## Project layout
