@@ -97,11 +97,33 @@ alike (|KO| drops between groups 3 and 4 instead). See the
 
 ### Power and test dates
 
-The rough plan is 2 or more test dates. The steps behind it:
+**The gap that matters is 1.0**, for both the λ̂ gap and the c\* gap. It was
+fixed after the pilot and before the exploration run, so no exploration
+outcome can shape it. What it means:
+
+1. A half's Brier improvement is ΣΔ² × (2λ̂ − 1) (see
+   [Why H has this form](#why-h-has-this-form)). So each unit of movement
+   earns 2λ̂ − 1.
+2. Suppose the top half's moves are the right size: λ̂ = 1, which earns +1
+   per unit.
+3. A gap of 1.0 then puts the low half at λ̂ = 0. Its moves carry no
+   information and lose 1 per unit.
+4. So a measure with this gap separates informative moves from moves that
+   carry no information. A c\* gap of 1.0 means about the same under log
+   loss.
+
+Smaller gaps would matter too. A gap of 0.5, for example, puts the low half
+at λ̂ = 0.5, where its moves only break even. But no realistic number of test
+dates could detect it (see the table below). A gap of 1.0 is about the
+smallest gap with a plain meaning that a realistic number of test dates can
+detect.
+
+**Test dates needed.** `scripts/h_power.py` computes them in these steps:
 
 1. On the pilot, the λ̂ gaps are +1.21 to +2.43 and the c\* gaps +0.96 to
    +1.80. But every λ̂ gap's 95% interval includes 0, so H passes for no
-   measure on the pilot.
+   measure on the pilot. These gaps are likely too big to plan with, because
+   the pilot shaped H.
 2. More questions give narrower intervals. A standard error shrinks in
    proportion to 1/√(number of questions), so the pilot's family bootstrap
    standard errors are scaled from its 100 questions to about 380 questions
@@ -112,10 +134,39 @@ The rough plan is 2 or more test dates. The steps behind it:
 4. *Power* is the chance that a check passes when the true gap has a given
    size. With a normal approximation, a gap's check passes when the estimated
    gap is more than 1.96 standard errors above 0. A true gap of 2.8 standard
-   errors clears that bar 80% of the time, so its power is 80%. That makes
-   2.8 standard errors the smallest gap two test dates could detect with 80%
-   power: about 0.7 to 1.5 for λ̂ and 0.5 to 2.3 for c\*.
-5. All of this is redone after the exploration run.
+   errors clears that bar 80% of the time, so its power is 80%.
+5. H passes only when both of its gaps pass. The two gaps rise and fall
+   together across resamples (correlation 0.73 to 0.98), so H's power is the
+   chance that both checks pass under that correlation.
+6. The table gives the fewest test dates for 80% power, if both true gaps
+   equal the gap in the first column.
+
+| gap | Δ² | KL | UR_B | UR_L | \|Z\| | \|KO\| |
+| --- | --- | --- | --- | --- | --- | --- |
+| 0.25 | 70 | 57 | 42 | 42 | 190 | 91 |
+| 0.5 | 18 | 15 | 11 | 11 | 48 | 23 |
+| 0.75 | 8 | 7 | 5 | 5 | 22 | 11 |
+| **1.0** | **5** | **4** | **3** | **3** | **12** | **6** |
+| 1.5 | 2 | 2 | 2 | 2 | 6 | 3 |
+
+- At the gap of 1.0, five measures need 3 to 6 test dates. |Z| needs 12,
+  because its c\* gap is the noisiest.
+- Two test dates reach 80% power only at a gap of 1.5, and not even there for
+  |Z| and |KO|.
+- Besides the pilot's date and one exploration date, about 24 ForecastBench
+  dates have resolved questions so far. But dates two weeks apart share 40 to
+  70 market questions, so counts far above 10 are not realistic, even before
+  cost.
+
+**Not fixed yet: the number of test dates.** The pilot's spread rests on only
+5 shared events (see [Limits](#limits)), and the exploration run gives a
+better one. Before the preregistration, the script is rerun on the
+exploration data, and the preregistration then fixes the number of test
+dates for the gap of 1.0:
+
+```bash
+python scripts/h_power.py data/results/run_<timestamp>.csv  # about 1 min
+```
 
 ### Estimates without a pass rule
 
