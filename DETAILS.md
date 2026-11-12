@@ -10,6 +10,8 @@ summary of the pilot. This file gives the detail behind them, in three parts:
 3. [Pilot results](#pilot-results): the full tables and the limits.
 
 Terms such as λᵢ, λ̂ and c\* are defined in the README's key terms.
+For the statistical background to H’s pass rule and the test-date estimates,
+see the [hypothesis and power references](REFERENCES.md#hypothesis-and-power).
 
 ## Hypothesis H
 

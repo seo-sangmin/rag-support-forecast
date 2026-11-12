@@ -160,7 +160,11 @@ config).
 
 ## References
 
-Full citations are in [REFERENCES.md](REFERENCES.md). Data and tools:
+The [annotated bibliography](REFERENCES.md) covers the forecasting methods,
+[hypothesis and power calculation](REFERENCES.md#hypothesis-and-power), and
+[related work on LLM forecasts](REFERENCES.md#related-work).
+
+Data and tools:
 [ForecastBench](https://www.forecastbench.org/),
 [its datasets](https://github.com/forecastingresearch/forecastbench-datasets),
 [AskNews Python SDK](https://github.com/emergentmethods/asknews-python-sdk).
