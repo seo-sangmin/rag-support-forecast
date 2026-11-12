@@ -114,9 +114,17 @@ outcome can shape it. What it means:
    carry no information. A c\* gap of 1.0 means about the same under log
    loss.
 
-Smaller gaps would matter too. A gap of 0.5, for example, puts the low half
-at λ̂ = 0.5, where its moves only break even. But no realistic number of test
-dates could detect it (see the table below). A gap of 1.0 is about the
+With the top half at λ̂ = 1, a gap g puts the low half at λ̂ = 1 − g, which
+earns 2λ̂ − 1 = 1 − 2g per unit. So the gaps in the table below mean:
+
+- **0.25:** low half λ̂ = 0.75. Its moves still help, earning +0.5 per unit.
+- **0.5:** λ̂ = 0.5. They break even (0).
+- **0.75:** λ̂ = 0.25. They hurt a little (−0.5).
+- **1.0:** λ̂ = 0. They carry no information (−1).
+- **1.5:** λ̂ = −0.5. They point the wrong way (−2).
+
+Gaps below 1.0 would matter too. But no realistic number of test dates could
+detect a gap of 0.5 (see the table below). A gap of 1.0 is about the
 smallest gap with a plain meaning that a realistic number of test dates can
 detect.
 
