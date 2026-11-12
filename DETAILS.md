@@ -107,7 +107,9 @@ outcome can shape it. What it means:
 2. Suppose the top half's moves are the right size: λ̂ = 1, which earns +1
    per unit.
 3. A gap of 1.0 then puts the low half at λ̂ = 0. Its moves carry no
-   information and lose 1 per unit.
+   information, since keeping none of them would score best. Taking them
+   still loses 1 per unit, because the Brier score punishes a step away from
+   the outcome more than it rewards an equal step toward it.
 4. So a measure with this gap separates informative moves from moves that
    carry no information. A c\* gap of 1.0 means about the same under log
    loss.
