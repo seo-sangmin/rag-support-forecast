@@ -153,9 +153,10 @@ keys (step 6).
   evaluating language model forecasters. *International Conference on
   Learning Representations (ICLR)*.
   <https://openreview.net/forum?id=z85kARAoyD>. Search filtered by date and
-  stated training cutoffs can leak the future, and questions from one period
-  share outcome drivers. See Method steps 2 and 3 and the "one forecast date"
-  limit in [DETAILS.md](DETAILS.md#limits).
+  stated training cutoffs can leak the future, questions from one period
+  share outcome drivers, and keeping only resolved questions skews the
+  question mix. See Method steps 2 and 3 and the "one forecast date" and
+  "question mix" limits in [DETAILS.md](DETAILS.md#limits).
 - Mostafa, H., Shastri, O., & Lee, D. (2026). TimeSeek: Temporal reliability
   of agentic forecasters. *arXiv preprint* arXiv:2604.04220 (workshop paper).
   <https://arxiv.org/abs/2604.04220>. Web search improves every model's

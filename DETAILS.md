@@ -202,17 +202,21 @@ the moves rather than test the measures.
 
 ### Step 2: prior p
 
-- **Model cutoff.** `claude-haiku-4-5-20251001`'s Jul 2025 training cutoff
-  precedes every question's `freeze_datetime` and AskNews search window, so
-  neither the outcomes nor the retrieved evidence were in training.
+- **Model cutoff.** `claude-haiku-4-5-20251001` was released on 2025-10-15,
+  before every question's `freeze_datetime` (2025-10-16 at the earliest),
+  and a dated model snapshot doesn't change after release. So no outcome
+  can be in its training. Its stated Jul 2025 training cutoff also precedes
+  the AskNews search window, but a stated cutoff is not a guarantee. If the
+  model already knew some retrieved news, its moves would likely be
+  smaller, but no more likely to point toward the outcome.
 - **Temperature 0** maximizes reproducibility, and relies on decode time
   reasoning rather than ensembling samples.
 
 ### Step 3: evidence
 
 - **Evidence cutoff.** The AskNews search window ends at each question's
-  `freeze_datetime` (not the resolution date), so retrieval can't surface
-  news that reveals the outcome.
+  `freeze_datetime` (not the resolution date), so no article dated after
+  the freeze is retrieved.
 - **Leakage audit.** `scripts/audit_leakage.py` checks offline that this held
   for the cached evidence. It fails closed: an article whose `published_date`
   is missing or unreadable makes the audit fail instead of being skipped.
@@ -220,6 +224,19 @@ the moves rather than test the measures.
   questions (the other 248 have no cached evidence yet), it found none
   published after the freeze and none with unverifiable dates
   (`data/results/leakage_20261018T135507Z.json`).
+- **What a date check can't catch.** The cutoff and the audit make news
+  that reveals the outcome unlikely, not impossible:
+  1. An article with a wrong `published_date`, or edited after that date,
+     still passes.
+  2. The model reads AskNews's summary of each article, and the cache does
+     not record when AskNews wrote it.
+  3. The search runs long after the freeze (July 2026 for the pilot), so
+     the ranking in use then picks the top 10 articles. It may favor
+     articles that later turned out to matter.
+- **Why a leak matters for H.** Leaked news would mostly cause large moves
+  toward the outcome. For the size measures, such moves land in the top
+  half and never count as too large or the wrong way. So a leak could
+  produce the very pattern H tests.
 - **Lookback:** 60 days before `freeze_datetime`, for recent reporting
   without flooding the LLM with stale context.
 
@@ -388,3 +405,19 @@ q.
 - **Market questions about one event** (for example three Spotify top artist
   questions) are still treated as separate families, which makes the
   intervals slightly too narrow. There are only a few such groups.
+- **Question mix.** Results describe ForecastBench's mix of questions and
+  may not carry over to other kinds. Ranking within each source (Method
+  step 8) gives every group the same source mix, which protects comparisons
+  inside the sample but says nothing about other questions. Two features
+  stand out:
+  1. 245 of the 348 questions (70%) come from the five dataset sources,
+     whose questions follow a few fixed templates, such as whether a
+     weather station will be warmer on one date than on another.
+  2. Only questions resolved to 0 or 1 are kept. In the resolution set used
+     here, that dropped 143 of the 246 market questions, mostly long ones
+     (median close date 2030). The kept ones had a median market forecast
+     of 0.036 at the freeze and the dropped ones 0.35, so the kept market
+     questions are mostly short ones the crowd already saw as near certain
+     NO. Just 3 of them (1 in the pilot) resolved early while their market
+     was still open, so whether they were kept depended on how they
+     resolved.

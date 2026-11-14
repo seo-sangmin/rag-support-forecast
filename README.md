@@ -94,8 +94,8 @@ intervals have only 5 such events to resample. Full tables and limits are in
    question, resolution criteria and background, as of `freeze_datetime`. Its
    training data ends in Jul 2025, before every freeze date.
 3. **Evidence:** the top 10 AskNews results from the 60 days before
-   `freeze_datetime`, so nothing after the freeze leaks in. A leakage audit
-   found no violation in the pilot's 927 cached articles.
+   `freeze_datetime`, so no article dated after the freeze is used. A leakage
+   audit found no violation in the pilot's 927 cached articles.
 4. **Posterior q:** the same model and date, with the evidence added.
 5. **Scores:** Brier `(r − y)²` and log loss `−[y·log r + (1 − y)·log(1 − r)]`,
    with r clipped to `[1e-6, 1 − 1e-6]`. Improvement = score(p) − score(q).
