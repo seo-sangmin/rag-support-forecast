@@ -202,13 +202,14 @@ the moves rather than test the measures.
 
 ### Step 2: prior p
 
-- **Model cutoff.** `claude-haiku-4-5-20251001` was released on 2025-10-15,
-  before every question's `freeze_datetime` (2025-10-16 at the earliest),
-  and a dated model snapshot doesn't change after release. So no outcome
-  can be in its training. Its stated Jul 2025 training cutoff also precedes
-  the AskNews search window, but a stated cutoff is not a guarantee. If the
-  model already knew some retrieved news, its moves would likely be
-  smaller, but no more likely to point toward the outcome.
+- **Model cutoff.** Anthropic reports a July 2025 training-data cutoff for
+  `claude-haiku-4-5-20251001` and released the snapshot on October 15, 2025,
+  before every question's freeze. Outcomes that first became knowable after
+  release could not have been in its training data. A market can resolve
+  months after the underlying event. If the result was public before
+  release, the freeze and market resolution dates alone cannot tell us
+  whether the model saw it during training.
+  [Anthropic's model specifications](https://platform.claude.com/docs/en/models/haiku-4-5/overview#specifications).
 - **Temperature 0** maximizes reproducibility, and relies on decode time
   reasoning rather than ensembling samples.
 
@@ -224,8 +225,10 @@ the moves rather than test the measures.
   questions (the other 248 have no cached evidence yet), it found none
   published after the freeze and none with unverifiable dates
   (`data/results/leakage_20261018T135507Z.json`).
-- **What a date check can't catch.** The cutoff and the audit make news
-  that reveals the outcome unlikely, not impossible:
+- **What a date check can't catch.** An article published before the freeze
+  can report an event that has already happened. The San Diego FC question
+  in the [pilot](#pilot-results) is one example. Even when the outcome is
+  still uncertain at the freeze, the audit has three limits.
   1. An article with a wrong `published_date`, or edited after that date,
      still passes.
   2. The model reads AskNews's summary of each article, and the cache does
@@ -307,6 +310,16 @@ out one. D is a mean over the tested questions.
 100 of the 348 questions (random, seed 0, 8 sources):
 `data/results/run_20260914T104832Z.csv` and its `_summary.json`. 81 forecasts
 moved. Cells are estimate [95% CI].
+
+San Diego FC clinched a playoff berth on August 23, 2025. The question
+froze on October 16, and ForecastBench records the YES resolution on
+January 1, 2026. The retrieved articles reported the clinch, and the
+forecast went from 0.35 to 0.99. The reported pilot includes this question.
+As a sensitivity check, the mean Brier improvement was +0.0222 across all
+100 questions and +0.0182 across the other 99.
+[Club match report](https://www.sandiegofc.com/news/match-recap-san-diego-fc-clinches-playoff-berth-with-scoreless-draw-against-portland-timbers-at-snapdragon-stadium) ·
+[Cached articles](data/cache/2025-10-26/retrieval/asknews/014b85f809048a2207d3136a4b168b010bf3f79203b8f384b425f15cb197ebba.json) ·
+[Pilot forecasts](data/results/run_20260914T104832Z.csv).
 
 ### SQ1: correlation with the improvement
 
