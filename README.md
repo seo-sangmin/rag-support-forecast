@@ -48,7 +48,9 @@ group, SQ3) is an estimate with its interval.
 2. **Exploration run**: another ForecastBench date, outcomes looked at, to
    recheck the pilot patterns and the power numbers.
 3. **Preregistration**: fixes H, its pass rule and the number of test dates
-   before any test outcome is seen.
+   before any test outcome is seen. It also specifies how to identify
+   questions whose answers were already public at the freeze and whether
+   to include them in the test sample.
 4. **Test run**: the new dates, analyzed once as preregistered.
 
 ## Pilot results (exploratory)
@@ -91,11 +93,11 @@ intervals have only 5 such events to resample. Full tables and limits are in
 1. **Questions:** the 348 binary questions in ForecastBench's question and
    resolution sets dated 2025-10-26, one row per `(id, source)`.
 2. **Prior p:** `claude-haiku-4-5-20251001` at temperature 0, from the
-   question, resolution criteria and background, as of `freeze_datetime`. Its
-   training data ends in Jul 2025, before every freeze date.
+   question, resolution criteria and background, as of `freeze_datetime`.
+   Anthropic reports a July 2025 training-data cutoff for this model.
 3. **Evidence:** the top 10 AskNews results from the 60 days before
-   `freeze_datetime`, so nothing after the freeze leaks in. A leakage audit
-   found no violation in the pilot's 927 cached articles.
+   `freeze_datetime`. The audit verified that all 927 cached pilot articles
+   were dated on or before the freeze for their question.
 4. **Posterior q:** the same model and date, with the evidence added.
 5. **Scores:** Brier `(r − y)²` and log loss `−[y·log r + (1 − y)·log(1 − r)]`,
    with r clipped to `[1e-6, 1 − 1e-6]`. Improvement = score(p) − score(q).
