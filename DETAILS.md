@@ -325,7 +325,6 @@ forecast went from 0.35 to 0.99. The reported pilot includes this question.
 As a sensitivity check, the mean Brier improvement was +0.0222 across all
 100 questions and +0.0182 across the other 99.
 [Club match report](https://www.sandiegofc.com/news/match-recap-san-diego-fc-clinches-playoff-berth-with-scoreless-draw-against-portland-timbers-at-snapdragon-stadium) ·
-[Cached articles](data/cache/2025-10-26/retrieval/asknews/014b85f809048a2207d3136a4b168b010bf3f79203b8f384b425f15cb197ebba.json) ·
 [Pilot forecasts](data/results/run_20260914T104832Z.csv).
 
 ### SQ1: correlation with the improvement

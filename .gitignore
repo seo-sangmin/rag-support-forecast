@@ -16,3 +16,6 @@ dist/
 literature/
 context/
 AGENTS.md
+
+# AskNews search results (its terms do not allow sharing them)
+data/cache/*/retrieval/

@@ -149,7 +149,8 @@ pytest -q
 `--resume-from <csv>` adds questions to an earlier run. To keep the pilot out
 of the SQ3 test, pass `--train-only data/results/run_20260914T104832Z.csv` to
 the analysis. LLM and AskNews calls are cached under `data/cache/`, so reruns
-are free.
+are free. The AskNews cache is not in this repo, because AskNews's terms do not
+allow sharing its results.
 
 Each run writes `run_<timestamp>.csv` (one row per question, `p_h` = p,
 `p_he` = q, with reasoning) and `run_<timestamp>.meta.json` (seed, flags,
