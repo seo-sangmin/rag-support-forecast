@@ -167,6 +167,13 @@ detect.
   dates have resolved questions so far. But dates two weeks apart share 40 to
   70 market questions, so counts far above 10 are not realistic, even before
   cost.
+- The table treats every question as independent, so each test date in it
+  stands for 380 questions. A date that uses all its usable questions adds
+  less than that. Its dataset questions share one event per family (up to
+  about 50 per family, against about 13 in the pilot), and the market
+  questions it repeats from nearby dates add almost nothing new. So for such
+  dates the table is optimistic. A test spread over more dates, with each
+  market question used once, comes closer to the assumption.
 
 **Not fixed yet: the number of test dates.** The pilot's spread rests on only
 5 shared events (see [Limits](#limits)), and the exploration run gives a
