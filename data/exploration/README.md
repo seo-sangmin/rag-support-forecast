@@ -19,7 +19,8 @@ outcomes are looked at, so none of its questions can be part of the test.
 
 ## Questions (`questions.csv`)
 
-Drawn once with Python's `random.Random(0)`, in this order:
+Drawn once by `scripts/draw_questions.py` with Python's `random.Random(0)`,
+in this order:
 
 1. 2026-03-15, dataset questions: 15 per source (acled, dbnomics, fred,
    wikipedia, yfinance), each drawn with `sample` from the source's usable
@@ -40,6 +41,24 @@ Drawn once with Python's `random.Random(0)`, in this order:
 
 Batch 3 lies outside the test window, so it costs the test nothing. It adds
 4 dataset families and checks the Kalshi questions.
+
+## How to check
+
+The files in `data/raw/` come from ForecastBench's data repository at commit
+[`fe2a073`](https://github.com/forecastingresearch/forecastbench-datasets/commit/fe2a07344bf835fc44356c8f497a7542e8a58f94)
+(its nightly update of 2026-11-15). One command checks both these files and
+the list:
+
+```bash
+python scripts/draw_questions.py exploration
+git status --short data/exploration/questions.csv
+```
+
+The script downloads every ForecastBench file it needs from that commit (46
+files, under 40 MB) into a temporary folder. It stops with a message if a copy
+in `data/raw/` differs from the downloaded file. Otherwise it redraws the
+list, and if `git status` then prints nothing, the redrawn list is identical
+to the saved one. Both checks passed on 2026-11-17.
 
 ## Running
 
