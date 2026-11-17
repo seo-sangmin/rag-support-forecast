@@ -64,6 +64,6 @@ saved search results without new searches.
 
 **Planned test (for reference):** every ForecastBench question set from
 2025-12-07 to 2026-09-27 except 2026-03-15, each market question once on its
-first date (none from this exploration), and 15 or 20 dataset questions per
-source per date. The test forecasts should be made by early January 2027,
-while both models are still available.
+first date (none from the pilot or this exploration), and 15 or 20 dataset
+questions per source per date. The test forecasts should be made by early
+January 2027, while both models are still available.
