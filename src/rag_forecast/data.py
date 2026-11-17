@@ -61,8 +61,9 @@ def load_resolved_questions(date: str, cfg: Config) -> list[ResolvedQuestion]:
     """Download (if needed) and join question + resolution sets for a given date."""
     q_path = cfg.raw_dir / f"{date}-llm.json"
     r_path = cfg.raw_dir / f"{date}_resolution_set.json"
-    questions = _download(FORECASTBENCH_QUESTION_URL.format(date=date), q_path)
-    resolutions = _download(FORECASTBENCH_RESOLUTION_URL.format(date=date), r_path)
+    v = cfg.forecastbench_commit
+    questions = _download(FORECASTBENCH_QUESTION_URL.format(commit=v, date=date), q_path)
+    resolutions = _download(FORECASTBENCH_RESOLUTION_URL.format(commit=v, date=date), r_path)
 
     forecast_due_date = str(questions.get("forecast_due_date", date))
     by_key: dict[tuple[str, str], dict] = {

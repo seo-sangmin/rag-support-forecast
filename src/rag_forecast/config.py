@@ -7,11 +7,11 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 FORECASTBENCH_QUESTION_URL = (
     "https://raw.githubusercontent.com/forecastingresearch/forecastbench-datasets/"
-    "main/datasets/question_sets/{date}-llm.json"
+    "{commit}/datasets/question_sets/{date}-llm.json"
 )
 FORECASTBENCH_RESOLUTION_URL = (
     "https://raw.githubusercontent.com/forecastingresearch/forecastbench-datasets/"
-    "main/datasets/resolution_sets/{date}_resolution_set.json"
+    "{commit}/datasets/resolution_sets/{date}_resolution_set.json"
 )
 
 
@@ -54,5 +54,8 @@ class Config:
     output_tokens_per_minute: int = 7_500
 
     raw_dir: Path = field(default_factory=lambda: REPO_ROOT / "data" / "raw")
+    # ForecastBench version (a commit of forecastbench-datasets) that missing
+    # raw files are downloaded from
+    forecastbench_commit: str = "fe2a07344bf835fc44356c8f497a7542e8a58f94"
     cache_dir: Path = field(default_factory=lambda: REPO_ROOT / "data" / "cache")
     results_dir: Path = field(default_factory=lambda: REPO_ROOT / "data" / "results")
