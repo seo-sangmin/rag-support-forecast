@@ -34,9 +34,10 @@ H_ALPHA = 0.025  # H checks each gap in one direction at this level, per measure
 # Dataset questions sharing a source and resolution day are decided by one event (e.g.
 # one week's market), so they form one family for the bootstrap; market questions don't.
 DATASET_SOURCES = ("acled", "dbnomics", "fred", "wikipedia", "yfinance")
-# --drop-extreme-crowd leaves out market questions whose crowd price at the freeze was at most this
-# or at least 1 minus this, since their answer may already have been public. data/exploration/README.md
-# says how 0.05 was chosen.
+# --drop-maybe-settled leaves out questions whose answer may already have been public at the freeze:
+# market questions whose crowd price at the freeze was at most this or at least 1 minus this, and every
+# ACLED question, since its 30-day count starts before the freeze. data/exploration/README.md says how
+# 0.05 was chosen.
 EXTREME_CROWD = 0.05
 
 
@@ -78,8 +79,8 @@ def half_gap(fn):
     return stat
 
 
-def extreme_crowd(df):
-    """True for each market row whose crowd price at the freeze is <= EXTREME_CROWD or >= 1 - EXTREME_CROWD."""
+def maybe_settled(df):
+    """True for each ACLED row and each market row priced <= EXTREME_CROWD or >= 1 - EXTREME_CROWD at the freeze."""
     # The price is freeze_datetime_value in the saved question sets. A market question can recur on
     # later dates with another freeze and price, so the freeze is part of the key.
     price = {
@@ -89,7 +90,8 @@ def extreme_crowd(df):
     }
     return np.array(
         [
-            s not in DATASET_SOURCES and not (EXTREME_CROWD < float(price[(str(i), s, t)]) < 1 - EXTREME_CROWD)
+            s == "acled"
+            or (s not in DATASET_SOURCES and not (EXTREME_CROWD < float(price[(str(i), s, t)]) < 1 - EXTREME_CROWD))
             for i, s, t in zip(df["id"], df["source"], df["freeze_datetime"])
         ],
         dtype=bool,
@@ -113,17 +115,17 @@ def main() -> None:
         help="Result CSVs whose (id, source) rows help choose the SQ3 cuts but are never tested.",
     )
     parser.add_argument(
-        "--drop-extreme-crowd",
+        "--drop-maybe-settled",
         action="store_true",
-        help=f"Leave out market questions priced at most {EXTREME_CROWD} or at least {1 - EXTREME_CROWD} at the "
-        "freeze. The default output becomes <csv>_drop_extreme_crowd_summary.json.",
+        help=f"Leave out every ACLED question and market questions priced at most {EXTREME_CROWD} or at least "
+        f"{1 - EXTREME_CROWD} at the freeze. The default output becomes <csv>_drop_maybe_settled_summary.json.",
     )
     args = parser.parse_args()
 
     df = pd.read_csv(args.csv)
-    if args.drop_extreme_crowd:
-        extreme = extreme_crowd(df)
-        df = df[~extreme].reset_index(drop=True)
+    if args.drop_maybe_settled:
+        dropped = maybe_settled(df)
+        df = df[~dropped].reset_index(drop=True)
     n = len(df)
     family = np.where(
         df["source"].isin(DATASET_SOURCES),
@@ -244,7 +246,7 @@ def main() -> None:
 
     summary = {
         "n": n,
-        "drop_extreme_crowd": {"cutoff": EXTREME_CROWD, "n_dropped": int(extreme.sum())} if args.drop_extreme_crowd else None,
+        "drop_maybe_settled": {"cutoff": EXTREME_CROWD, "n_dropped": int(dropped.sum())} if args.drop_maybe_settled else None,
         "mean_brier_h": float(df["brier_h"].mean()) if n else None,
         "mean_brier_he": float(df["brier_he"].mean()) if n else None,
         "mean_brier_delta": float(df["brier_delta"].mean()) if n else None,
@@ -273,7 +275,7 @@ def main() -> None:
         },
     }
 
-    tag = "_drop_extreme_crowd" if args.drop_extreme_crowd else ""
+    tag = "_drop_maybe_settled" if args.drop_maybe_settled else ""
     out = args.out or args.csv.with_name(args.csv.stem + tag + "_summary.json")
     out.write_text(json.dumps(summary, indent=2))
     print(json.dumps(summary, indent=2))

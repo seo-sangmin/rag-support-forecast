@@ -80,14 +80,24 @@ not by model.
 
 ## Answers already public at the freeze
 
-A market question can be settled before its freeze. In the pilot, San Diego
-FC had clinched its playoff berth before the freeze (see
+A question can be settled before its freeze. In the pilot, San Diego FC had
+clinched its playoff berth before the freeze (see
 [DETAILS.md](../../DETAILS.md#pilot-results)). No test question is checked
 by hand. Instead, `scripts/analyze_results.py` is run twice on each results
-file, once as usual and once with `--drop-extreme-crowd`. The second run
-leaves out every market question whose crowd price at the freeze was 0.05 or
-less or 0.95 or more, and writes its own summary file ending in
-`_drop_extreme_crowd_summary.json`. Both values of H are reported.
+file, once as usual and once with `--drop-maybe-settled`. The second run
+writes its own summary file ending in `_drop_maybe_settled_summary.json`
+and leaves out two kinds of questions:
+
+1. Every market question whose crowd price at the freeze was 0.05 or less or
+   0.95 or more.
+2. Every ACLED question. ACLED questions count events in the 30 days before
+   the resolution date, and that window starts before the freeze (13 of its
+   30 days in the pilot, 14 in the 2026-03-15 set and 21 in the 2026-10-11
+   set). So events before the freeze can already decide a YES. Finding out
+   which ones were decided would need ACLED's daily event counts, so all of
+   them are left out.
+
+Both values of H are reported.
 
 The cutoff 0.05 was chosen on 2026-11-18 by checking the 42 markets in the
 pilot and in this list whose price was more than 0.03 and at most 0.10 from
