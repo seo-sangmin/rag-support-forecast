@@ -72,6 +72,12 @@ Keep the code, prompts and settings the same across batches. A later run on
 the same questions, such as Opus 4.5 or a rerun after a bug fix, reuses the
 saved search results without new searches.
 
+For Opus 4.5, add `--model claude-opus-4-5-20251101` to each command above
+and run it in the same folder as the Haiku batches, where the saved search
+results are. Its batch 2 must resume from its own batch 1 file, because
+`--resume-from` matches finished questions by id, source and freeze date,
+not by model.
+
 ## What it decides before the preregistration
 
 - Dataset questions per source in the test, 15 or 20, from the family

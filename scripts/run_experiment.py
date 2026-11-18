@@ -70,6 +70,11 @@ def main() -> None:
     parser.add_argument(
         "--batch", default=None, help="With --questions, run only the rows of this batch."
     )
+    parser.add_argument(
+        "--model",
+        default=Config.model,
+        help="Claude model id (default: the main model, %(default)s).",
+    )
     args = parser.parse_args()
     only = None
     if args.questions:
@@ -81,7 +86,7 @@ def main() -> None:
             }
 
     dates = tuple(d.strip() for d in args.question_sets.split(",") if d.strip())
-    cfg = Config(question_set_dates=dates, lookback_days=args.lookback_days)
+    cfg = Config(question_set_dates=dates, lookback_days=args.lookback_days, model=args.model)
     out_path = (
         Path(args.out)
         if args.out
