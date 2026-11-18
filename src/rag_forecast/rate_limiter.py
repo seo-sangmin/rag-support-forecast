@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import bisect
 import time
 from collections import deque
 from dataclasses import dataclass
@@ -141,7 +142,13 @@ class AsyncRateLimiter:
             # purge keeps it for exactly ``seconds`` more.
             offset = self._rpm.seconds - seconds
             anchor = now - max(0.0, offset)
-            self._rpm.events.append(_Reservation(time=anchor, amount=self._rpm.capacity))
+            # Insert in time order, since _purge and wait_seconds read the
+            # deque oldest first.
+            bisect.insort(
+                self._rpm.events,
+                _Reservation(time=anchor, amount=self._rpm.capacity),
+                key=lambda e: e.time,
+            )
 
 
 class AsyncTokenBucket:
