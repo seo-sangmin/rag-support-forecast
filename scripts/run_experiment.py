@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import csv
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -60,10 +61,32 @@ def main() -> None:
         default=None,
         help="Output CSV path; defaults to data/results/run_<timestamp>.csv.",
     )
+    parser.add_argument(
+        "--questions",
+        type=Path,
+        default=None,
+        help="CSV with question_set, id, source and batch columns. Only these questions run.",
+    )
+    parser.add_argument(
+        "--batch", default=None, help="With --questions, run only the rows of this batch."
+    )
+    parser.add_argument(
+        "--model",
+        default=Config.model,
+        help="Claude model id (default: the main model, %(default)s).",
+    )
     args = parser.parse_args()
+    only = None
+    if args.questions:
+        with args.questions.open(newline="") as f:
+            only = {
+                (r["question_set"], r["id"], r["source"])
+                for r in csv.DictReader(f)
+                if args.batch is None or r["batch"] == args.batch
+            }
 
     dates = tuple(d.strip() for d in args.question_sets.split(",") if d.strip())
-    cfg = Config(question_set_dates=dates, lookback_days=args.lookback_days)
+    cfg = Config(question_set_dates=dates, lookback_days=args.lookback_days, model=args.model)
     out_path = (
         Path(args.out)
         if args.out
@@ -78,6 +101,7 @@ def main() -> None:
             random_sample=args.random,
             seed=args.seed,
             resume_from=args.resume_from,
+            only=only,
         )
     )
 

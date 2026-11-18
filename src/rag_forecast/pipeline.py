@@ -227,10 +227,15 @@ async def run(
     random_sample: bool = False,
     seed: int = 0,
     resume_from: list[Path] | None = None,
+    only: set[tuple[str, str, str]] | None = None,
 ) -> int:
     questions: list[ResolvedQuestion] = []
     for date in cfg.question_set_dates:
         questions.extend(load_resolved_questions(date, cfg))
+    if only is not None:  # (question set date, id, source) keys to keep
+        questions = [q for q in questions if (q.question_set_date, q.id, q.source) in only]
+        if len(questions) != len(only):
+            print(f"  ! {len(only) - len(questions)} listed questions were not found")
     total_loaded = len(questions)
 
     processed_keys, prior_rows = _load_processed(resume_from)
