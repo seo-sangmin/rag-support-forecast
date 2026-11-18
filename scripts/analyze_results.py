@@ -22,6 +22,7 @@ from rag_forecast.metrics import (  # noqa: E402
     spearman,
     within_source_groups,
 )
+from rag_forecast.data import _parse_dt  # noqa: E402
 
 CI_CONFIDENCE = 0.95
 CI_RESAMPLES = 10_000
@@ -33,6 +34,9 @@ H_ALPHA = 0.025  # H checks each gap in one direction at this level, per measure
 # Dataset questions sharing a source and resolution day are decided by one event (e.g.
 # one week's market), so they form one family for the bootstrap; market questions don't.
 DATASET_SOURCES = ("acled", "dbnomics", "fred", "wikipedia", "yfinance")
+# --drop-extreme-crowd leaves out market questions whose crowd price at the freeze was at most this
+# or at least 1 minus this, since their answer may already have been public (San Diego FC in the pilot).
+EXTREME_CROWD = 0.03
 
 
 def brier_gain(p, q, y):
@@ -73,6 +77,24 @@ def half_gap(fn):
     return stat
 
 
+def extreme_crowd(df):
+    """True for each market row whose crowd price at the freeze is <= EXTREME_CROWD or >= 1 - EXTREME_CROWD."""
+    # The price is freeze_datetime_value in the saved question sets. A market question can recur on
+    # later dates with another freeze and price, so the freeze is part of the key.
+    price = {
+        (str(q["id"]), q["source"], _parse_dt(q["freeze_datetime"]).isoformat()): q.get("freeze_datetime_value")
+        for f in (REPO_ROOT / "data" / "raw").glob("*-llm.json")
+        for q in json.loads(f.read_text())["questions"]
+    }
+    return np.array(
+        [
+            s not in DATASET_SOURCES and not (EXTREME_CROWD < float(price[(str(i), s, t)]) < 1 - EXTREME_CROWD)
+            for i, s, t in zip(df["id"], df["source"], df["freeze_datetime"])
+        ],
+        dtype=bool,
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Analyze a per-question results CSV.")
     parser.add_argument("csv", type=Path, help="Path to per-question results CSV.")
@@ -89,9 +111,18 @@ def main() -> None:
         default=[],
         help="Result CSVs whose (id, source) rows help choose the SQ3 cuts but are never tested.",
     )
+    parser.add_argument(
+        "--drop-extreme-crowd",
+        action="store_true",
+        help=f"Leave out market questions priced at most {EXTREME_CROWD} or at least {1 - EXTREME_CROWD} at the "
+        "freeze. The default output becomes <csv>_drop_extreme_crowd_summary.json.",
+    )
     args = parser.parse_args()
 
     df = pd.read_csv(args.csv)
+    if args.drop_extreme_crowd:
+        extreme = extreme_crowd(df)
+        df = df[~extreme].reset_index(drop=True)
     n = len(df)
     family = np.where(
         df["source"].isin(DATASET_SOURCES),
@@ -212,6 +243,7 @@ def main() -> None:
 
     summary = {
         "n": n,
+        "drop_extreme_crowd": {"cutoff": EXTREME_CROWD, "n_dropped": int(extreme.sum())} if args.drop_extreme_crowd else None,
         "mean_brier_h": float(df["brier_h"].mean()) if n else None,
         "mean_brier_he": float(df["brier_he"].mean()) if n else None,
         "mean_brier_delta": float(df["brier_delta"].mean()) if n else None,
@@ -240,7 +272,8 @@ def main() -> None:
         },
     }
 
-    out = args.out or args.csv.with_name(args.csv.stem + "_summary.json")
+    tag = "_drop_extreme_crowd" if args.drop_extreme_crowd else ""
+    out = args.out or args.csv.with_name(args.csv.stem + tag + "_summary.json")
     out.write_text(json.dumps(summary, indent=2))
     print(json.dumps(summary, indent=2))
     print(f"\nWrote {out}")

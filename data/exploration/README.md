@@ -78,14 +78,25 @@ results are. Its batch 2 must resume from its own batch 1 file, because
 `--resume-from` matches finished questions by id, source and freeze date,
 not by model.
 
+## Answers already public at the freeze
+
+A market question can be settled before its freeze. In the pilot, San Diego
+FC had clinched its playoff berth before the freeze (see
+[DETAILS.md](../../DETAILS.md#pilot-results)). No question is checked by
+hand. Instead, `scripts/analyze_results.py` is run twice on each results
+file, once as usual and once with `--drop-extreme-crowd`. The second run
+leaves out every market question whose crowd price at the freeze was 0.03 or
+less or 0.97 or more, and writes its own summary file ending in
+`_drop_extreme_crowd_summary.json`. Both values of H are reported.
+
 ## What it decides before the preregistration
 
 - Dataset questions per source in the test, 15 or 20, from the family
   correlation and the spread, not from whether H passes here.
 - The power for each model, by rerunning `scripts/h_power.py` once it counts
   test questions instead of whole dates.
-- What to do with market questions whose answer was already public at the
-  freeze.
+- Which of the two values of H (see the previous section) decides whether H
+  passes.
 
 **Planned test (for reference):** every ForecastBench question set from
 2025-12-07 to 2026-09-27 except 2026-03-15, each market question once on its
