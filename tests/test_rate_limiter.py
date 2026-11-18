@@ -99,6 +99,24 @@ async def test_penalize_blocks_until_cooldown_elapses() -> None:
     assert 29.0 < wait <= 30.0
 
 
+async def test_requests_before_penalty_still_count_after_it_ends() -> None:
+    lim, clock = _limiter(rpm=45, itpm=10_000, otpm=10_000)
+    for _ in range(30):  # one request a second for 30s
+        await lim.acquire(input_estimate=1, output_estimate=1)
+        clock.advance(1.0)
+    await lim.penalize(seconds=10.0)
+    # The penalty blocks new requests for the requested 10s.
+    assert lim._rpm.wait_seconds(clock(), 1) == pytest.approx(10.0)
+
+    # Once it ends, only 45 - 30 = 15 more requests fit in the 60s window.
+    clock.advance(11.0)
+    allowed = 0
+    while allowed < 100 and lim._rpm.wait_seconds(clock(), 1) == 0.0:
+        lim._rpm.reserve(clock(), 1)
+        allowed += 1
+    assert allowed == 15
+
+
 async def test_acquire_is_concurrency_safe() -> None:
     lim, clock = _limiter(rpm=5, itpm=10_000, otpm=10_000)
     results = await asyncio.gather(
