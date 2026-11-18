@@ -35,8 +35,9 @@ H_ALPHA = 0.025  # H checks each gap in one direction at this level, per measure
 # one week's market), so they form one family for the bootstrap; market questions don't.
 DATASET_SOURCES = ("acled", "dbnomics", "fred", "wikipedia", "yfinance")
 # --drop-extreme-crowd leaves out market questions whose crowd price at the freeze was at most this
-# or at least 1 minus this, since their answer may already have been public (San Diego FC in the pilot).
-EXTREME_CROWD = 0.03
+# or at least 1 minus this, since their answer may already have been public. data/exploration/README.md
+# says how 0.05 was chosen.
+EXTREME_CROWD = 0.05
 
 
 def brier_gain(p, q, y):

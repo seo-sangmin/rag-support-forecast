@@ -82,12 +82,23 @@ not by model.
 
 A market question can be settled before its freeze. In the pilot, San Diego
 FC had clinched its playoff berth before the freeze (see
-[DETAILS.md](../../DETAILS.md#pilot-results)). No question is checked by
-hand. Instead, `scripts/analyze_results.py` is run twice on each results
+[DETAILS.md](../../DETAILS.md#pilot-results)). No test question is checked
+by hand. Instead, `scripts/analyze_results.py` is run twice on each results
 file, once as usual and once with `--drop-extreme-crowd`. The second run
-leaves out every market question whose crowd price at the freeze was 0.03 or
-less or 0.97 or more, and writes its own summary file ending in
+leaves out every market question whose crowd price at the freeze was 0.05 or
+less or 0.95 or more, and writes its own summary file ending in
 `_drop_extreme_crowd_summary.json`. Both values of H are reported.
+
+The cutoff 0.05 was chosen on 2026-11-18 by checking the 42 markets in the
+pilot and in this list whose price was more than 0.03 and at most 0.10 from
+0 or 1 ([`settled_check.csv`](settled_check.csv)). Each was checked against
+news and data dated before its freeze, without opening any forecast or
+looking at H. One was settled: China's rebar failure rate (Manifold), whose
+answer was in a government report of 2026-02-13 while its price sat 0.0426
+from 1. Two more had strong news before the freeze but were decided by
+numbers published after it, so they count as open. The 3 settled pilot
+markets sat 0.001, 0.01 and 0.0201 from 0 or 1. So 0.05 is the smallest
+round cutoff that catches all 4 settled markets.
 
 ## What it decides before the preregistration
 
