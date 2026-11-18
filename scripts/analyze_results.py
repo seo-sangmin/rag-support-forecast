@@ -126,6 +126,8 @@ def main() -> None:
     if args.drop_maybe_settled:
         dropped = maybe_settled(df)
         df = df[~dropped].reset_index(drop=True)
+        if df.empty:
+            sys.exit(f"--drop-maybe-settled left out all {len(dropped)} questions, so there is nothing to analyze.")
     n = len(df)
     family = np.where(
         df["source"].isin(DATASET_SOURCES),
