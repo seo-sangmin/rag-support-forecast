@@ -1,0 +1,495 @@
+{
+  "seed": 0,
+  "random": false,
+  "max_questions": null,
+  "question_sets": [
+    "2026-03-15"
+  ],
+  "resume_from": [],
+  "model": "claude-opus-4-5-20251101",
+  "temperature": 0.0,
+  "max_tokens": 1024,
+  "lookback_days": 60,
+  "asknews_n_articles": 10,
+  "asknews_method": "nl",
+  "asknews_snippet_chars": 2000,
+  "selected_question_ids": [
+    {
+      "id": "9d634c992383178a8000854793cb90aec47d883128079809aa4156161857c7a2",
+      "source": "acled",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "616432adb62d57d9bd7e8f8844695f7671554d5d80e2ce2b8b689e2673eceee1",
+      "source": "acled",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "0753f9ed5ca42a8980428b1952cebf8a524e1515f19d8ed408b2ad33396669f7",
+      "source": "acled",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "d88c1f6fb332d08add9d5dbbddfb34e317bdb14d98f4e465fbe09b96525bc481",
+      "source": "acled",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "ef975d67bd3d41f2a9babd718e581e073023ec59ed12957d637d723f4dfcd44a",
+      "source": "acled",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "a36c4727f9d334924e44a4111eabd2dc2f390fccdf5a72f0242b2e2889a2bcc2",
+      "source": "acled",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "418b3b6cf1140eba6e21f20c2d1050b41088dc0963bd7bdc813226ccde9dfe72",
+      "source": "acled",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "274a20120661b1ee2f638a19e5c425aea6c60ea7b75b8b29b7d21d85e00edfc6",
+      "source": "acled",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "6b54163ef0fd03bb8fe13a9bc84a45e66a5ea4c9f892e9843a7b32d9e9e54889",
+      "source": "acled",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "84560290f0fdd0e711e926a753f1afc7e2f130115d683bccf996c12bd11ddfc4",
+      "source": "acled",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "7a7120b9a21fde5f708183084258b18d27d795ffd965477f60986932a010a49f",
+      "source": "acled",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "9c2a318d050a0c01e7aa14d9c4a0b5d5256c82d1fdbf9bd89259d170bb6a86b7",
+      "source": "acled",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "fef64d8f20c964d6708373e1472436bf6580e5dfa0bb2e431894d50fafff84a9",
+      "source": "acled",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "822017f9638dde6e392933bad78ba8c8e847c9e7a7bb58a1295500f516a39cd2",
+      "source": "acled",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "73b4211a0b5e36e8b9e6e5cd7ea56a9e96e48cfc915aeb098ad12df98295949e",
+      "source": "acled",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "meteofrance_TEMPERATURE_celsius.07072.D",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "meteofrance_TEMPERATURE_celsius.07117.D",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "meteofrance_TEMPERATURE_celsius.07139.D",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "meteofrance_TEMPERATURE_celsius.07149.D",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "meteofrance_TEMPERATURE_celsius.07280.D",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "meteofrance_TEMPERATURE_celsius.07335.D",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "meteofrance_TEMPERATURE_celsius.07434.D",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "meteofrance_TEMPERATURE_celsius.07471.D",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "meteofrance_TEMPERATURE_celsius.07630.D",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "meteofrance_TEMPERATURE_celsius.07761.D",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "meteofrance_TEMPERATURE_celsius.61968.D",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "meteofrance_TEMPERATURE_celsius.61976.D",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "meteofrance_TEMPERATURE_celsius.61980.D",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "meteofrance_TEMPERATURE_celsius.78897.D",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "meteofrance_TEMPERATURE_celsius.78925.D",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "AAA10Y",
+      "source": "fred",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "BAMLC0A0CMEY",
+      "source": "fred",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "BAMLC0A4CBBB",
+      "source": "fred",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "DEXUSUK",
+      "source": "fred",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "DGS1",
+      "source": "fred",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "DPCREDIT",
+      "source": "fred",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "DTB4WK",
+      "source": "fred",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "IC4WSA",
+      "source": "fred",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "IHLIDXUSTPSOFTDEVE",
+      "source": "fred",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "NASDAQ100",
+      "source": "fred",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "NIKKEI225",
+      "source": "fred",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "RESPPANWW",
+      "source": "fred",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "T5YIFR",
+      "source": "fred",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "TOTCI",
+      "source": "fred",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "WALCL",
+      "source": "fred",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "1654",
+      "source": "infer",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "Y1YDkx1SzzL93AFDpG6v",
+      "source": "manifold",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "a86n8pc6e3",
+      "source": "manifold",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "cp9s0lqSCy",
+      "source": "manifold",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "f2i3zt28mm",
+      "source": "manifold",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "m7scZNu2LwMHTfnhW0IV",
+      "source": "manifold",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "q8dtCdNgsn",
+      "source": "manifold",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "sIS2UNptC0",
+      "source": "manifold",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "t0LUU2E2ZE",
+      "source": "manifold",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "tgT5NHOu7VA8sSAuAtJb",
+      "source": "manifold",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "ylgphSdccA",
+      "source": "manifold",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "40005",
+      "source": "metaculus",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "40599",
+      "source": "metaculus",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "40695",
+      "source": "metaculus",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "40862",
+      "source": "metaculus",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "42274",
+      "source": "metaculus",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "0x04b6c4174ccaf58a69722fa6f699584ae5d2f84d20ea81055cdff2e464e6aaf3",
+      "source": "polymarket",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "0x79afea6a94f0b3dffb5e0886fa1dbd740d688029f7aba351dc46911bcb1b1f95",
+      "source": "polymarket",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "0xa70a86d250db7b0eb5f19b7856d13acf2dbfc554b8792fe9e004b521e8f601f7",
+      "source": "polymarket",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "0xc5e382cc0cda0a640c8687ed85e8182e006dfcc7ba3a6fa6c68d53e5782f5320",
+      "source": "polymarket",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "044affc3cf8e3c981c601f7e8fc6a1144659454792c35dede40dde1a5ab85e60",
+      "source": "wikipedia",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "ce43fbbc6a80c2fa7b134080496856a3c4a7dc36b6c9da296af575223d5ab65b",
+      "source": "wikipedia",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "ba3191fe67f3420686002df6da16e07e8fd659695552b14d90cd6305973facfa",
+      "source": "wikipedia",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "8b6c74cb5bf033e46a25b9ff3bddc361af7720dd4b3bbbd6352ec8a9c283d406",
+      "source": "wikipedia",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "63d85393d0ecb6f7c121039246e9ab76878565399969c1474632cb539403a9e4",
+      "source": "wikipedia",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "c28f340263644425dd87c3cf915351620e452358d2118a20e27fb20ba76cfa64",
+      "source": "wikipedia",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "f2cfd4cd4dd2dcf1a05ea950e3ae4b2ed9146c64b51dc5c56315875cc43e0e0e",
+      "source": "wikipedia",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "eb4d01e0fd670e44d248625ba3b147e687537912e193de4455f1fd78607cf63d",
+      "source": "wikipedia",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "8bff28e35f0e33813ec5f3f2b14d37d4196d63fac21b2a7e9933707a27f671d5",
+      "source": "wikipedia",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "62556cf51abc14f53aeb1d98c5ebfdf9bcda241f98f0538808d5c33aea76e95a",
+      "source": "wikipedia",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "e2ebe8c99e10583715b46ee35c93275a9a6b5721f812e6ce07f996daa8159732",
+      "source": "wikipedia",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "cf373450466c71a49a7f2e82e176b66198255960bb1cf71d1721cd258d0c2b81",
+      "source": "wikipedia",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "9a8c4a4cf5fcc2682d964be5bf1aaf2276ef0c8b20180eb0429344ca53026896",
+      "source": "wikipedia",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "542803238e72a73fbfdeb6fc18e2475361b083f959142af1a4fc6eb152ea482a",
+      "source": "wikipedia",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "39e342f01235a496925d1ea1b365bf20ad46eaf58543fbb58b90661acd709a3a",
+      "source": "wikipedia",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "BK",
+      "source": "yfinance",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "BRO",
+      "source": "yfinance",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "CAH",
+      "source": "yfinance",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "CNP",
+      "source": "yfinance",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "DOC",
+      "source": "yfinance",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "EQR",
+      "source": "yfinance",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "FICO",
+      "source": "yfinance",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "FSLR",
+      "source": "yfinance",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "GOOG",
+      "source": "yfinance",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "HD",
+      "source": "yfinance",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "MAR",
+      "source": "yfinance",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "NDAQ",
+      "source": "yfinance",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "NEM",
+      "source": "yfinance",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "OMC",
+      "source": "yfinance",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    },
+    {
+      "id": "TFC",
+      "source": "yfinance",
+      "freeze_datetime": "2026-03-06T00:00:00+00:00"
+    }
+  ],
+  "complete": true,
+  "missing_question_ids": []
+}

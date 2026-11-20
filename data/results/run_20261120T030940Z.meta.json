@@ -1,0 +1,347 @@
+{
+  "seed": 0,
+  "random": false,
+  "max_questions": null,
+  "question_sets": [
+    "2026-10-11"
+  ],
+  "resume_from": [
+    "data/results/run_20261119T134003Z.csv"
+  ],
+  "model": "claude-opus-4-5-20251101",
+  "temperature": 0.0,
+  "max_tokens": 1024,
+  "lookback_days": 60,
+  "asknews_n_articles": 10,
+  "asknews_method": "nl",
+  "asknews_snippet_chars": 2000,
+  "selected_question_ids": [
+    {
+      "id": "866a5b402fecb18b7986e8af71a9afe6bf5c063184aa80786ea034dbbef7a512",
+      "source": "acled",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "036e6b975b59f8b359f0e2186aabbe148772e126d008a1e6944381c72b039245",
+      "source": "acled",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "e8ddc319e13816019564dec167fa4dfefec2f2b3ab6bbd4959eda051239c8005",
+      "source": "acled",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "e2b79230f05e562dc9e365c4691db07e8935154b4e78fb35513c3786e115b5f6",
+      "source": "acled",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "fac8c551d8ebb11add6d4f67f263cd9e870bf5a51c7796598f9fe9e0b5a69353",
+      "source": "acled",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "1091a78b4799b92f7b8ea3704705c644cf2650eeeaa70f080175af707cf3d1e2",
+      "source": "acled",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "700dd800a0c80d9bfaa88af3283f669ea2832abaa610bb4a6918a99e7c0b673f",
+      "source": "acled",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "5407de55729fda0b39a70bfee6689e18fd527b9cf57dcb9ce050ff2f6d19eaf4",
+      "source": "acled",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "895aba0c2c5f64ac11249832df138d3c17fe39b836893f26d81a8719a954062b",
+      "source": "acled",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "9994df23bccf6fbeb343126c2f01a84231237f2970106e143ae6a44d110f884d",
+      "source": "acled",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "71d04bd12761cdc180ddd46b7d3cd0310393f40d91b3c38b1d49a0f0fac8741f",
+      "source": "acled",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "f3270cfae7f3d89705a93f32ec6b2bc2a588cc363267efe660200df5ed4f1239",
+      "source": "acled",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "a9082798a8a9ad08785d76f018406ec9e7383a4ddbfda08c24c5bcdc7dffa098",
+      "source": "acled",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "b482d96df64aacb8f47d14ddf5e82ec2001c1ea5243e35f2e38774481262b3c3",
+      "source": "acled",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "70d279136eb77d8a2258ef886d4c0186ecfdf2e679488070b9a01094ff52264a",
+      "source": "acled",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "ECB_CISS_D.NL.Z0Z.4F.EC.SS_CIN.IDX",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "ECB_EST_B.EU000A2QQF16.CR",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "ECB_EXR_D.E01.SEK.EN00.A",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "ECB_EXR_D.E02.FRF.NN00.A",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "ECB_EXR_D.E03.NOK.EN00.A",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "ECB_EXR_D.E03.TWD.EN00.A",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "ECB_EXR_D.H01.BGN.NN00.A",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "ECB_YC_B.U2.EUR.4F.G_N_A.SV_C_YM.IF_5Y3M",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "ECB_YC_B.U2.EUR.4F.G_N_A.SV_C_YM.PY_9M",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "ECB_YC_B.U2.EUR.4F.G_N_A.SV_C_YM.SR_17Y5M",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "ECB_YC_B.U2.EUR.4F.G_N_C.SV_C_YM.IF_25Y5M",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "ECB_YC_B.U2.EUR.4F.G_N_C.SV_C_YM.PY_11Y8M",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "ECB_YC_B.U2.EUR.4F.G_N_C.SV_C_YM.PY_19Y11M",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "ECB_YC_B.U2.EUR.4F.G_N_C.SV_C_YM.PY_25Y11M",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "ECB_YC_B.U2.EUR.4F.G_N_C.SV_C_YM.SR_7Y8M",
+      "source": "dbnomics",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "BAMLC0A0CM",
+      "source": "fred",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "BAMLEMCBPIOAS",
+      "source": "fred",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "BAMLEMHBHYCRPIOAS",
+      "source": "fred",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "BAMLH0A3HYCEY",
+      "source": "fred",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "DEXCAUS",
+      "source": "fred",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "DGS3",
+      "source": "fred",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "DGS3MO",
+      "source": "fred",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "ECBASSETSW",
+      "source": "fred",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "GASREGW",
+      "source": "fred",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "NFCILEVERAGE",
+      "source": "fred",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "REAINTRATREARAT10Y",
+      "source": "fred",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "SOFR90DAYAVG",
+      "source": "fred",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "T10YIE",
+      "source": "fred",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "WRMFNS",
+      "source": "fred",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "WSHOMCB",
+      "source": "fred",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "KXFED-26OCT-T4.50",
+      "source": "kalshi",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "KXLAYOFFSYINFO-26-494000",
+      "source": "kalshi",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "KXLLM1-26OCT31-ALI",
+      "source": "kalshi",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "KXWTI-26NOV03-T74.99",
+      "source": "kalshi",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "KXWTI-26NOV03-T84.99",
+      "source": "kalshi",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "ABNB_EW",
+      "source": "yfinance",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "BG_VRTX",
+      "source": "yfinance",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "CARR_GEV",
+      "source": "yfinance",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "CASY_SWKS",
+      "source": "yfinance",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "COP_STE",
+      "source": "yfinance",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "CPT_VRSK",
+      "source": "yfinance",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "GEHC_GIS",
+      "source": "yfinance",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "ITW_UBER",
+      "source": "yfinance",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "KMB_APA",
+      "source": "yfinance",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "NRG_NEM",
+      "source": "yfinance",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "RTX_TMUS",
+      "source": "yfinance",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "SCHW_ADI",
+      "source": "yfinance",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "TT_TPL",
+      "source": "yfinance",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "VTRS_ADBE",
+      "source": "yfinance",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    },
+    {
+      "id": "VTR_DLTR",
+      "source": "yfinance",
+      "freeze_datetime": "2026-10-09T00:00:00+00:00"
+    }
+  ],
+  "complete": true,
+  "missing_question_ids": []
+}
