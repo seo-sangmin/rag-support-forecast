@@ -12,7 +12,10 @@ outcomes are looked at, so none of its questions can be part of the test.
 - **Evidence:** one AskNews archive search per question, the top 10
   articles from the 60 days before the question's freeze, as in the pilot.
   Both models read the same saved search results. AskNews's terms do not
-  allow sharing them, so they stay out of the repo.
+  allow sharing them, so they stay out of the repo. Their SHA-256
+  fingerprints are in `data/cache/asknews_sha256.txt`. Running
+  `shasum -a 256 data/cache/*/retrieval/asknews/*.json > data/cache/asknews_sha256.txt`
+  and then `git diff` shows any changed, added or missing search.
 - **Questions:** ForecastBench files from commit `fe2a073` (nightly update
   of 2026-11-15), saved in `data/raw/` so that later updates cannot change
   them.
