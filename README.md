@@ -45,8 +45,8 @@ group, SQ3) is an estimate with its interval.
 ## Stages
 
 1. **Pilot** (done): 100 of the 348 questions. It shaped H, so it cannot test H.
-2. **Exploration run**: another ForecastBench date, outcomes looked at, to
-   recheck the pilot patterns and the power numbers.
+2. **Exploration run** (done): 297 questions from two later dates, outcomes
+   looked at, to recheck the pilot patterns and the power numbers.
 3. **Preregistration**: fixes H, its pass rule and the number of test dates
    before any test outcome is seen. It also specifies how to identify
    questions whose answers were already public at the freeze and whether
@@ -88,16 +88,75 @@ the 67 dataset questions were decided by just 5 shared events, so the
 intervals have only 5 such events to resample. Full tables and limits are in
 [DETAILS.md](DETAILS.md#pilot-results).
 
+## Exploration results (exploratory)
+
+297 questions from the 2026-03-15 set (232) and the 2026-10-11 set (65)
+([how they were drawn](data/exploration/README.md)), forecast by Haiku 4.5
+and by Opus 4.5 from the same evidence. H was written down before this run,
+so unlike the pilot, these questions did not shape it. Cells are estimate
+[95% CI].
+
+| | Haiku 4.5 | Opus 4.5 |
+| --- | --- | --- |
+| forecasts that moved | 243 of 297 | 224 of 297 |
+| q beat p | 131 of 297 | 134 of 297 |
+| mean Brier of p | 0.194 | 0.189 |
+| mean Brier of q | 0.186 | 0.177 |
+| Brier improvement | +0.007 [−0.015, +0.032] | +0.012 [−0.006, +0.030] |
+| log loss improvement | +0.035 [−0.060, +0.162] | +0.026 [−0.023, +0.075] |
+
+**H on the exploration** (each gap is top half minus low half)
+
+| measure | Haiku λ̂ gap | Haiku c\* gap | Opus λ̂ gap | Opus c\* gap |
+| --- | --- | --- | --- | --- |
+| Δ² | −0.15 [−1.24, +0.40] | −0.02 [−0.92, +0.45] | −1.45 [−2.86, −0.18] | −0.93 [−1.96, +0.14] |
+| KL | −0.60 [−1.48, +0.23] | −0.48 [−1.46, +0.27] | −1.33 [−2.71, −0.01] | −1.05 [−2.29, +0.19] |
+| UR_B | +0.18 [−0.34, +0.80] | −0.39 [−0.80, +0.53] | −0.03 [−0.70, +0.72] | −0.19 [−0.73, +0.76] |
+| UR_L | +0.25 [−0.31, +0.83] | −0.33 [−0.78, +0.58] | −0.10 [−0.74, +0.68] | −0.24 [−0.76, +0.73] |
+| \|Z\| | +0.01 [−1.03, +0.77] | +0.17 [−0.69, +0.91] | −0.61 [−1.39, +0.53] | −0.39 [−1.05, +0.51] |
+| \|KO\| | −0.26 [−1.17, +0.62] | −0.22 [−1.20, +0.63] | −1.06 [−1.97, +0.02] | −1.17 [−2.47, +0.07] |
+
+H passes for no measure in either model. Unlike the pilot, most gaps are
+below 0. For Opus, the λ̂ gap's interval lies entirely below 0 for Δ² and
+KL: its small moves were better justified than its large ones. Leaving out
+the 74 questions whose answer may have been public at the freeze, H again
+passes for no measure ([DETAILS.md](DETAILS.md#exploration-results)).
+
+- **SQ1:** the size measures' Pearson is near 0 (−0.12 to +0.21, except
+  +0.71 for Haiku's KL under log loss, which one question carries), and
+  their Spearman is +0.10 to +0.27. UR_B and UR_L keep a positive Spearman
+  (+0.32 to +0.39, every interval above 0), but their Pearson is −0.25 to
+  +0.01.
+- **SQ2:** every top group's moves were too large (λ̂ 0.38 to 0.80, c\* 0.30
+  to 0.69), where the pilot's were about the right size.
+- **SQ3:** again no "keep p" rule is distinguishable from always using q.
+
+**Caveats.** Two answers stand out. Haiku gave Cooper Flagg winning the NBA
+Rookie of the Year award for the 2025 to 2026 season a prior of exactly 0,
+because it thought he had been drafted in 2024. He won, and since r is
+clipped at 1e-6 (Method step 5), this one question carries Haiku's log loss
+result: without it, the mean improvement is −0.011. Opus moved Arizona's
+chance of winning the 2026 NCAA tournament from 0.07 to 0 after the AskNews
+text of an article dated January 2026 gave the 2025 tournament's results
+with 2026 dates. A date check cannot catch that. The forecasts are as of two
+dates (2026-03-06 and 2026-10-09), and the 135 dataset questions were
+decided by only 10 shared events.
+
 ## Method
 
-1. **Questions:** the 348 binary questions in ForecastBench's question and
-   resolution sets dated 2025-10-26, one row per `(id, source)`.
+1. **Questions:** binary questions from ForecastBench's question and
+   resolution sets, one row per `(id, source)` on each date. The pilot draws
+   from the 348 dated 2025-10-26, and the exploration uses the 297 in
+   `data/exploration/questions.csv` (sets dated 2026-03-15 and 2026-10-11).
 2. **Prior p:** `claude-haiku-4-5-20251001` at temperature 0, from the
    question, resolution criteria and background, as of `freeze_datetime`.
-   Anthropic reports a July 2025 training-data cutoff for this model.
+   Anthropic reports a July 2025 training-data cutoff for this model. The
+   exploration also uses `claude-opus-4-5-20251101` (August 2025 cutoff) as
+   a second model, for both p and q.
 3. **Evidence:** the top 10 AskNews results from the 60 days before
-   `freeze_datetime`. The audit verified that all 927 cached pilot articles
-   were dated on or before the freeze for their question.
+   `freeze_datetime`. The audit verified that all 927 cached pilot articles,
+   and all cached exploration articles, were dated on or before the freeze
+   for their question.
 4. **Posterior q:** the same model and date, with the evidence added.
 5. **Scores:** Brier `(r − y)²` and log loss `−[y·log r + (1 − y)·log(1 − r)]`,
    with r clipped to `[1e-6, 1 − 1e-6]`. Improvement = score(p) − score(q).

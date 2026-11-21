@@ -85,7 +85,10 @@ freeze date, not by model.
 
 The final files are `data/results/run_20261120T025349Z.csv` (Haiku 4.5) and
 `data/results/run_20261120T030940Z.csv` (Opus 4.5), each with its two summary
-files (`_summary.json` and `_drop_maybe_settled_summary.json`).
+files (`_summary.json` and `_drop_maybe_settled_summary.json`). The README
+summarizes their results under
+[Exploration results](../../README.md#exploration-results-exploratory), and
+[DETAILS.md](../../DETAILS.md#exploration-results) has the full tables.
 
 ## Answers already public at the freeze
 
@@ -133,6 +136,12 @@ smallest round cutoff that catches all 4 settled markets.
   pairs about one event. The analysis counts each market as its own event,
   which would make its intervals too narrow, so the choice is one family per
   event in the analysis or one contract per event in the test draw.
+- How to score forecasts of exactly 0 or 1. Log loss clips them to 1e-6
+  from 0 or 1, so one wrong forecast of 0 or 1 scores about 13.8 by itself.
+  Here one Haiku prior of exactly 0 (Cooper Flagg, who then won Rookie of
+  the Year) turns Haiku's mean log loss gain from −0.011 into +0.035 (see
+  [DETAILS.md](../../DETAILS.md#notes-on-the-exploration)). The clip also
+  enters c\* and the measures KL, UR_L and |KO|.
 
 **Planned test (for reference):** every ForecastBench question set from
 2025-12-07 to 2026-09-27 except 2026-03-15, each market question once on its
