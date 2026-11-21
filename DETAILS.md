@@ -1,13 +1,17 @@
-# Reasons for H, method detail and pilot tables
+# Reasons for H, method detail and result tables
 
 The [README](README.md) gives the question, the draft hypothesis H and a
-summary of the pilot. This file gives the detail behind them, in three parts:
+summary of the pilot and the exploration run. This file gives the detail
+behind them, in four parts:
 
 1. [Hypothesis H](#hypothesis-h): what H tests, why it has this form, how the
    six measures are handled, power, and what is only estimated.
 2. [Method detail](#method-detail-by-readme-step): finer points of the
    README's [Method](README.md#method) steps, in step order.
 3. [Pilot results](#pilot-results): the full tables and the limits.
+4. [Exploration results](#exploration-results): the full tables for both
+   models, H without the questions that may have been settled, and notes on
+   two odd answers.
 
 Terms such as λᵢ, λ̂ and c\* are defined in the README's key terms.
 
@@ -217,6 +221,10 @@ the moves rather than test the measures.
   release, the freeze and market resolution dates alone cannot tell us
   whether the model saw it during training.
   [Anthropic's model specifications](https://platform.claude.com/docs/en/models/haiku-4-5/overview#specifications).
+  The exploration's second model, `claude-opus-4-5-20251101`, has an August
+  2025 training-data cutoff and was released on November 24, 2025, before
+  both exploration freezes (2026-03-06 and 2026-10-09)
+  ([its specifications](https://platform.claude.com/docs/en/models/opus-4-5/overview#specifications)).
 - **Temperature 0** maximizes reproducibility, and relies on decode time
   reasoning rather than ensembling samples.
 
@@ -231,7 +239,10 @@ the moves rather than test the measures.
   Rerun on 2026-10-18 over the 927 cached articles for the pilot's 100
   questions (the other 248 have no cached evidence yet), it found none
   published after the freeze and none with unverifiable dates
-  (`data/results/leakage_20261018T135507Z.json`).
+  (`data/results/leakage_20261018T135507Z.json`). The exploration's audits
+  found none either: `leakage_20261120T033022Z.json` for the 2026-03-15 set
+  (232 questions) and `leakage_20261120T033043Z.json` for the 2026-10-11 set
+  (65 questions).
 - **What a date check can't catch.** An article published before the freeze
   can report an event that has already happened. The San Diego FC question
   in the [pilot](#pilot-results) is one example. Even when the outcome is
@@ -440,3 +451,197 @@ q.
      NO. Just 3 of them (1 in the pilot) resolved early while their market
      was still open, so whether they were kept depended on how they
      resolved.
+
+## Exploration results
+
+297 questions, 232 from the 2026-03-15 set and 65 from the 2026-10-11 set
+(see [the exploration README](data/exploration/README.md)), forecast by
+Haiku 4.5 (`data/results/run_20261120T025349Z.csv`) and Opus 4.5
+(`data/results/run_20261120T030940Z.csv`) from the same evidence. Each has
+its two summary files (`_summary.json` and `_drop_maybe_settled_summary.json`).
+Haiku moved 243 forecasts and Opus 224. The README gives the baseline and H
+on all questions. Cells are estimate [95% CI].
+
+### H without the questions that may have been settled
+
+The second value of H leaves out 74 questions: every ACLED question, and
+every market priced 0.05 or less or 0.95 or more at the freeze (see
+[Answers already public at the freeze](data/exploration/README.md#answers-already-public-at-the-freeze)).
+That leaves 223 questions, of which Haiku moved 193 and Opus 165.
+
+| measure | Haiku λ̂ gap | Haiku c\* gap | Opus λ̂ gap | Opus c\* gap |
+| --- | --- | --- | --- | --- |
+| Δ² | −0.30 [−1.45, +0.64] | −0.12 [−1.33, +0.66] | −0.72 [−2.43, +0.31] | −0.54 [−2.13, +0.47] |
+| KL | −0.73 [−1.74, +0.38] | −0.56 [−1.83, +0.45] | −0.95 [−2.36, +0.44] | −0.77 [−2.28, +0.58] |
+| UR_B | +0.13 [−0.45, +0.77] | −0.46 [−0.90, +0.52] | −0.31 [−1.05, +0.61] | −0.49 [−1.05, +0.46] |
+| UR_L | +0.20 [−0.44, +0.79] | −0.43 [−0.90, +0.54] | −0.31 [−1.05, +0.60] | −0.49 [−1.05, +0.46] |
+| \|Z\| | −0.36 [−1.30, +0.85] | −0.07 [−0.97, +1.00] | −0.45 [−1.69, +0.55] | −0.39 [−1.36, +0.43] |
+| \|KO\| | +0.12 [−1.27, +0.90] | +0.25 [−1.31, +0.98] | −1.18 [−2.21, +0.07] | −1.41 [−2.78, +0.20] |
+
+H passes for no measure here either. Opus's Δ² and KL λ̂ gaps, whose
+intervals lie below 0 on all questions, now include 0.
+
+### SQ1 on the exploration
+
+**Haiku 4.5**
+
+| measure | Brier: Pearson | Brier: Spearman | log loss: Pearson | log loss: Spearman |
+| --- | --- | --- | --- | --- |
+| Δ² | +0.04 [−0.31, +0.39] | +0.14 [−0.01, +0.28] | +0.21 [−0.30, +0.50] | +0.14 [−0.01, +0.29] |
+| KL | +0.20 [−0.34, +0.45] | +0.11 [−0.03, +0.26] | +0.71 [−0.34, +0.91] | +0.11 [−0.04, +0.26] |
+| UR_B | −0.02 [−0.23, +0.21] | +0.35 [+0.20, +0.50] | −0.22 [−0.40, +0.14] | +0.39 [+0.23, +0.53] |
+| UR_L | −0.04 [−0.25, +0.20] | +0.35 [+0.21, +0.49] | −0.25 [−0.45, +0.13] | +0.39 [+0.24, +0.53] |
+| \|Z\| | +0.03 [−0.16, +0.22] | +0.21 [+0.09, +0.34] | +0.03 [−0.25, +0.19] | +0.23 [+0.10, +0.36] |
+| \|KO\| | +0.01 [−0.19, +0.22] | +0.10 [−0.04, +0.24] | +0.05 [−0.25, +0.23] | +0.10 [−0.05, +0.25] |
+
+**Opus 4.5**
+
+| measure | Brier: Pearson | Brier: Spearman | log loss: Pearson | log loss: Spearman |
+| --- | --- | --- | --- | --- |
+| Δ² | −0.05 [−0.46, +0.45] | +0.16 [+0.02, +0.30] | −0.12 [−0.53, +0.45] | +0.17 [+0.03, +0.31] |
+| KL | −0.06 [−0.46, +0.42] | +0.14 [−0.00, +0.28] | −0.10 [−0.52, +0.44] | +0.15 [+0.01, +0.29] |
+| UR_B | +0.01 [−0.20, +0.24] | +0.32 [+0.17, +0.46] | −0.04 [−0.26, +0.26] | +0.35 [+0.20, +0.49] |
+| UR_L | +0.00 [−0.21, +0.23] | +0.32 [+0.17, +0.46] | −0.04 [−0.28, +0.25] | +0.35 [+0.20, +0.49] |
+| \|Z\| | +0.05 [−0.17, +0.27] | +0.24 [+0.12, +0.36] | +0.02 [−0.21, +0.28] | +0.27 [+0.14, +0.38] |
+| \|KO\| | +0.04 [−0.18, +0.28] | +0.12 [−0.01, +0.26] | +0.02 [−0.21, +0.29] | +0.14 [−0.00, +0.28] |
+
+- **Size measures.** Their Pearson is near 0, because the largest moves
+  pointed away from the outcome about as often as toward it (10 of Haiku's
+  and 9 of Opus's 20 largest moves by Δ² pointed away). Haiku's KL under log
+  loss (+0.71) is the exception, and one question carries it (see the
+  [notes](#notes-on-the-exploration)). Their Spearman is small and positive
+  (+0.10 to +0.27), and the intervals of |Z| lie above 0 in both models.
+- **Uncertainty reductions.** UR_B and UR_L keep the pilot's positive
+  Spearman (+0.32 to +0.39, every interval above 0), but their Pearson is
+  −0.25 to +0.01.
+
+### SQ2 on the exploration
+
+Each measure's 4 within source groups (1 = lowest, 4 = top), as in the
+[pilot table](#sq2-warrant-by-group).
+
+**Haiku 4.5**
+
+| measure | group | n | Brier achieved | λ̂ | log-loss achieved | c\* | share (Brier / log) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Δ² | 1 | 60 | +0.002 [−0.006, +0.010] | +1.09 [−1.32, +2.94] | +0.003 [−0.017, +0.036] | +0.68 [−0.36, +1.68] | 99% / 77% |
+| Δ² | 2 | 61 | +0.004 [−0.007, +0.036] | +0.68 [+0.16, +1.88] | +0.013 [−0.021, +0.098] | +0.69 [+0.24, +1.63] | 78% / 76% |
+| Δ² | 3 | 60 | +0.061 [−0.008, +0.100] | +1.19 [+0.40, +1.59] | +0.120 [−0.116, +0.220] | +1.06 [+0.06, +1.81] | 97% / 100% |
+| Δ² | 4 | 62 | −0.029 [−0.114, +0.076] | +0.40 [+0.10, +0.77] | +0.033 [−0.355, +0.641] | +0.57 [+0.03, +0.95] | — / 28% |
+| KL | 1 | 56 | −0.002 [−0.010, +0.015] | +0.13 [−1.69, +2.88] | −0.003 [−0.022, +0.045] | +0.27 [−0.87, +2.51] | — / — |
+| KL | 2 | 62 | +0.018 [−0.004, +0.047] | +1.34 [+0.35, +2.22] | +0.052 [−0.005, +0.121] | +1.31 [+0.42, +2.26] | 94% / 95% |
+| KL | 3 | 59 | +0.056 [−0.005, +0.097] | +1.18 [+0.44, +1.56] | +0.129 [−0.047, +0.218] | +1.16 [+0.28, +1.62] | 98% / 98% |
+| KL | 4 | 66 | −0.033 [−0.122, +0.067] | +0.38 [+0.07, +0.73] | −0.006 [−0.411, +0.601] | +0.52 [−0.05, +0.94] | — / — |
+| UR_B | 1 | 56 | −0.020 [−0.086, +0.061] | +0.37 [−0.08, +0.85] | +0.159 [−0.189, +0.801] | +0.82 [−0.14, +1.02] | — / 89% |
+| UR_B | 2 | 62 | +0.019 [−0.034, +0.066] | +0.81 [−0.07, +1.38] | +0.041 [−0.080, +0.143] | +0.78 [−0.11, +1.36] | 95% / 92% |
+| UR_B | 3 | 62 | +0.007 [−0.041, +0.074] | +0.57 [+0.05, +1.47] | +0.004 [−0.108, +0.163] | +0.51 [+0.07, +1.84] | 44% / 14% |
+| UR_B | 4 | 63 | +0.027 [−0.038, +0.070] | +0.80 [+0.16, +1.24] | −0.023 [−0.295, +0.148] | +0.38 [−0.09, +1.25] | 94% / — |
+| UR_L | 1 | 56 | −0.018 [−0.086, +0.059] | +0.39 [−0.09, +0.85] | +0.165 [−0.191, +0.792] | +0.83 [−0.17, +1.02] | — / 90% |
+| UR_L | 2 | 62 | +0.010 [−0.041, +0.067] | +0.65 [−0.10, +1.31] | +0.016 [−0.095, +0.148] | +0.60 [−0.15, +1.32] | 70% / 57% |
+| UR_L | 3 | 60 | +0.030 [−0.029, +0.078] | +0.90 [+0.15, +1.57] | +0.068 [−0.076, +0.174] | +0.92 [+0.16, +2.04] | 99% / 99% |
+| UR_L | 4 | 65 | +0.012 [−0.043, +0.065] | +0.61 [+0.14, +1.21] | −0.063 [−0.305, +0.138] | +0.30 [−0.09, +1.18] | 60% / — |
+| \|Z\| | 1 | 56 | −0.004 [−0.018, +0.009] | −0.09 [−1.90, +1.65] | −0.017 [−0.058, +0.024] | −0.18 [−4.92, +1.07] | — / — |
+| \|Z\| | 2 | 63 | +0.007 [−0.024, +0.058] | +0.69 [−0.07, +1.85] | +0.014 [−0.060, +0.131] | +0.65 [−0.06, +1.62] | 79% / 69% |
+| \|Z\| | 3 | 58 | +0.027 [−0.036, +0.104] | +0.69 [+0.24, +1.26] | +0.061 [−0.072, +0.686] | +0.68 [+0.27, +1.34] | 80% / 79% |
+| \|Z\| | 4 | 66 | +0.006 [−0.092, +0.080] | +0.53 [+0.08, +0.87] | +0.102 [−0.372, +0.596] | +0.69 [−0.03, +0.98] | 20% / 71% |
+| \|KO\| | 1 | 55 | +0.006 [−0.012, +0.022] | +1.26 [−0.84, +2.74] | +0.021 [−0.027, +0.062] | +1.49 [−0.75, +2.92] | 96% / 89% |
+| \|KO\| | 2 | 66 | +0.006 [−0.027, +0.049] | +0.72 [−0.18, +1.74] | +0.017 [−0.060, +0.115] | +0.72 [−0.10, +1.79] | 85% / 85% |
+| \|KO\| | 3 | 57 | +0.056 [−0.013, +0.100] | +1.12 [+0.36, +1.54] | +0.125 [−0.026, +0.223] | +1.11 [+0.38, +1.66] | 99% / 99% |
+| \|KO\| | 4 | 65 | −0.027 [−0.111, +0.071] | +0.39 [+0.08, +0.77] | +0.013 [−0.386, +0.605] | +0.54 [−0.01, +0.95] | — / 12% |
+
+**Opus 4.5**
+
+| measure | group | n | Brier achieved | λ̂ | log-loss achieved | c\* | share (Brier / log) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Δ² | 1 | 53 | +0.001 [−0.005, +0.020] | +0.95 [−1.23, +5.34] | −0.004 [−0.040, +0.060] | +0.25 [−1.66, +2.84] | 100% / — |
+| Δ² | 2 | 59 | +0.024 [+0.001, +0.045] | +2.27 [+0.59, +3.73] | +0.067 [+0.005, +0.122] | +2.06 [+0.60, +3.81] | 69% / 74% |
+| Δ² | 3 | 54 | +0.036 [−0.019, +0.065] | +1.28 [+0.08, +1.82] | +0.089 [−0.044, +0.160] | +1.24 [+0.15, +1.96] | 95% / 96% |
+| Δ² | 4 | 58 | +0.001 [−0.071, +0.093] | +0.50 [+0.19, +0.95] | −0.013 [−0.214, +0.236] | +0.48 [+0.18, +0.93] | 2% / — |
+| KL | 1 | 58 | +0.011 [−0.003, +0.027] | +3.54 [−0.30, +6.22] | +0.022 [−0.030, +0.066] | +2.35 [−1.65, +4.60] | 48% / 66% |
+| KL | 2 | 51 | +0.016 [−0.006, +0.043] | +1.53 [+0.08, +3.24] | +0.045 [−0.010, +0.117] | +1.44 [+0.26, +3.17] | 88% / 91% |
+| KL | 3 | 57 | +0.022 [−0.021, +0.061] | +0.99 [+0.02, +1.70] | +0.054 [−0.048, +0.147] | +0.96 [+0.12, +1.83] | 100% / 100% |
+| KL | 4 | 58 | +0.012 [−0.069, +0.094] | +0.56 [+0.20, +0.96] | +0.020 [−0.206, +0.245] | +0.53 [+0.20, +0.94] | 37% / 23% |
+| UR_B | 1 | 55 | +0.015 [−0.053, +0.069] | +0.64 [−0.03, +1.14] | +0.058 [−0.120, +0.218] | +0.70 [+0.02, +1.09] | 68% / 76% |
+| UR_B | 2 | 55 | +0.018 [−0.020, +0.085] | +1.01 [+0.05, +2.22] | +0.042 [−0.048, +0.192] | +1.00 [+0.02, +2.82] | 100% / 100% |
+| UR_B | 3 | 56 | +0.009 [−0.035, +0.056] | +0.67 [−0.04, +1.98] | +0.008 [−0.101, +0.120] | +0.54 [−0.11, +2.60] | 75% / 39% |
+| UR_B | 4 | 58 | +0.019 [−0.038, +0.061] | +0.72 [+0.16, +1.31] | +0.032 [−0.151, +0.158] | +0.57 [+0.15, +1.74] | 84% / 63% |
+| UR_L | 1 | 55 | +0.012 [−0.051, +0.069] | +0.61 [−0.03, +1.15] | +0.047 [−0.118, +0.215] | +0.67 [+0.01, +1.10] | 58% / 68% |
+| UR_L | 2 | 55 | +0.028 [−0.020, +0.091] | +1.18 [+0.09, +2.07] | +0.065 [−0.045, +0.209] | +1.22 [+0.12, +2.98] | 98% / 97% |
+| UR_L | 3 | 56 | +0.010 [−0.035, +0.058] | +0.69 [−0.04, +2.07] | +0.009 [−0.103, +0.122] | +0.55 [−0.18, +2.74] | 79% / 43% |
+| UR_L | 4 | 58 | +0.013 [−0.041, +0.057] | +0.65 [+0.11, +1.26] | +0.020 [−0.160, +0.149] | +0.52 [+0.13, +1.63] | 71% / 46% |
+| \|Z\| | 1 | 56 | +0.014 [−0.006, +0.033] | +2.55 [−0.14, +5.05] | +0.035 [−0.019, +0.095] | +1.45 [−0.13, +2.60] | 63% / 88% |
+| \|Z\| | 2 | 54 | +0.018 [−0.021, +0.049] | +0.98 [−0.24, +1.85] | +0.038 [−0.056, +0.118] | +0.84 [−0.36, +1.62] | 100% / 95% |
+| \|Z\| | 3 | 56 | +0.002 [−0.028, +0.066] | +0.53 [+0.05, +1.43] | +0.017 [−0.061, +0.179] | +0.61 [+0.10, +1.54] | 20% / 57% |
+| \|Z\| | 4 | 58 | +0.027 [−0.058, +0.096] | +0.65 [+0.20, +1.10] | +0.050 [−0.188, +0.242] | +0.58 [+0.19, +1.11] | 72% / 55% |
+| \|KO\| | 1 | 49 | +0.016 [−0.002, +0.038] | +2.45 [+0.25, +5.03] | +0.035 [−0.003, +0.090] | +2.36 [+0.33, +5.68] | 65% / 67% |
+| \|KO\| | 2 | 60 | +0.025 [−0.007, +0.052] | +1.44 [+0.15, +2.27] | +0.059 [−0.021, +0.131] | +1.52 [+0.07, +2.95] | 91% / 90% |
+| \|KO\| | 3 | 57 | +0.006 [−0.036, +0.051] | +0.64 [−0.24, +1.44] | +0.009 [−0.096, +0.118] | +0.56 [−0.25, +1.42] | 69% / 43% |
+| \|KO\| | 4 | 58 | +0.014 [−0.064, +0.096] | +0.57 [+0.20, +1.02] | +0.036 [−0.196, +0.261] | +0.56 [+0.21, +1.00] | 44% / 39% |
+
+- **Top groups (4).** Every top group's moves were too large (λ̂ 0.38 to
+  0.80, c\* 0.30 to 0.69). For Δ² and KL, the top group's λ̂ interval lies
+  below 1 in both models. For Haiku, the top groups of Δ², KL and |KO|
+  made the Brier score slightly worse (achieved −0.027 to −0.033, each
+  interval including 0).
+- **Groups 1 and 2.** Their λ̂ is positive in 23 of the 24 cells, and for
+  Opus often above 1 (moves too small), where the pilot's was negative in
+  11 of 12. Together with the top groups' smaller λ̂, this is why 20 of the
+  24 H gaps are below 0.
+- **Movement.** The low half holds 6 to 15% of the movement (ΣΔ²) for the
+  size measures (pilot 2 to 7%) and about half for UR_B and UR_L (pilot
+  13%). No c\* interval in these tables reaches the ±50 cap.
+- **By source.** λ̂ ranges from −0.62 (yfinance) to +1.51 (fred) for Haiku
+  and from −0.51 (infer) to +2.92 (fred) for Opus. All sources, with c\*,
+  are in the summary JSON files.
+
+### SQ3 on the exploration
+
+One source held out at a time (D > 0 = rule wins).
+
+**Haiku 4.5**
+
+| measure | Brier: D | log loss: D | keep p in groups (chosen from all data, Brier / log) |
+| --- | --- | --- | --- |
+| Δ² | +0.004 [−0.033, +0.028] | −0.065 [−0.221, +0.086] | 4 / none |
+| KL | +0.009 [−0.031, +0.030] | −0.056 [−0.212, +0.103] | 1, 4 / 1, 4 |
+| UR_B | −0.008 [−0.036, +0.019] | −0.104 [−0.217, +0.065] | 1 / 4 |
+| UR_L | −0.004 [−0.036, +0.019] | −0.075 [−0.217, +0.070] | 1 / 4 |
+| \|Z\| | −0.021 [−0.037, +0.021] | −0.080 [−0.213, +0.086] | 1 / 1 |
+| \|KO\| | +0.005 [−0.035, +0.025] | −0.061 [−0.217, +0.089] | 4 / none |
+
+**Opus 4.5**
+
+| measure | Brier: D | log loss: D | keep p in groups (chosen from all data, Brier / log) |
+| --- | --- | --- | --- |
+| Δ² | −0.009 [−0.023, +0.015] | −0.022 [−0.060, +0.048] | none / 1, 4 |
+| KL | −0.007 [−0.024, +0.014] | −0.019 [−0.064, +0.041] | none / none |
+| UR_B | −0.010 [−0.028, +0.010] | −0.019 [−0.072, +0.021] | none / none |
+| UR_L | −0.010 [−0.028, +0.009] | −0.018 [−0.072, +0.021] | none / none |
+| \|Z\| | −0.008 [−0.025, +0.011] | −0.014 [−0.066, +0.036] | none / none |
+| \|KO\| | −0.003 [−0.026, +0.012] | −0.033 [−0.067, +0.037] | none / none |
+
+Every D interval includes 0, as in the pilot.
+
+### Notes on the exploration
+
+- **A prior of exactly 0.** Haiku's prior for "Will Cooper Flagg win the
+  2025–26 NBA Rookie of the Year award?" was exactly 0. Its reasoning put
+  him in the 2024 draft, so it judged him a second year player who could
+  not win (he was the first pick of the 2025 draft). With the evidence it
+  moved to 0.72, and he won. Log loss clips r to [1e-6, 1 − 1e-6], so this
+  prior scores −log(1e-6) ≈ 13.8, and the question's improvement of 13.5
+  adds 13.5 / 297 ≈ +0.045 to Haiku's mean log loss improvement of +0.035.
+  Without it, that mean is −0.011, and Haiku's SQ1 Pearson for KL under log
+  loss is −0.14 instead of +0.71. With a clip of 0.01, the mean is +0.004.
+  The clip also enters c\* and the measures KL, UR_L and |KO|. Opus has
+  one forecast of exactly 0 too (next note), but it was right, so its
+  results barely depend on the clip.
+- **An AskNews text with last year's results.** Opus moved its forecast
+  that Arizona wins the 2026 NCAA men's tournament from 0.07 to exactly 0.
+  Its reasoning cites a snippet saying Arizona lost to Duke in the Sweet 16.
+  That snippet is the AskNews text of an NCAA.com bracket page dated
+  2026-01-28, which describes the 2025 tournament's results with 2026
+  dates. The page is dated before the freeze (2026-03-06), so the leakage
+  audit passes it (see [Step 3](#step-3-evidence)). Arizona did not win, so
+  the move counts as right. It is small (Δ² ≈ 0.005), so it barely changes
+  any result. Haiku, reading the same text, moved from 0.04 to 0.01.
