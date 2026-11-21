@@ -45,13 +45,29 @@ group, SQ3) is an estimate with its interval.
 ## Stages
 
 1. **Pilot** (done): 100 of the 348 questions. It shaped H, so it cannot test H.
-2. **Exploration run**: another ForecastBench date, outcomes looked at, to
-   recheck the pilot patterns and the power numbers.
+2. **Exploration run** (done): Haiku 4.5 and Opus 4.5 each forecast 297
+   questions from the March 15 and October 11, 2026 ForecastBench sets.
+   Their outcomes were examined, so these questions are excluded from the test.
 3. **Preregistration**: fixes H, its pass rule and the number of test dates
    before any test outcome is seen. It also specifies how to identify
    questions whose answers were already public at the freeze and whether
    to include them in the test sample.
 4. **Test run**: the new dates, analyzed once as preregistered.
+
+## Exploration results
+
+On the same questions and evidence, Haiku changed 243 of its 297 forecasts
+and Opus changed 224. Reading the evidence improved mean Brier score by
+0.007 for Haiku and 0.012 for Opus. Mean log loss also improved for both.
+All four 95% intervals included zero.
+
+For both models, a larger reduction in forecast uncertainty tended to go
+with a larger score improvement (SQ1). But none of the six measures met the
+draft H rule for identifying better justified moves. The same findings held
+after excluding 74 questions whose answers might already have been public.
+On a held out source, every estimate of the gain from selectively keeping
+the prior also had an interval that included zero (SQ3).
+[Results for both models, including the screening check](data/exploration/README.md#results).
 
 ## Pilot results (exploratory)
 
@@ -90,15 +106,19 @@ intervals have only 5 such events to resample. Full tables and limits are in
 
 ## Method
 
-1. **Questions:** the 348 binary questions in ForecastBench's question and
-   resolution sets dated 2025-10-26, one row per `(id, source)`.
-2. **Prior p:** `claude-haiku-4-5-20251001` at temperature 0, from the
-   question, resolution criteria and background, as of `freeze_datetime`.
-   Anthropic reports a July 2025 training-data cutoff for this model.
+1. **Questions:** the pilot sampled 100 of 348 usable binary questions in
+   the 2025-10-26 ForecastBench set. The exploration sampled 232 questions
+   from the 2026-03-15 set and 65 from the 2026-10-11 set. Each forecast is
+   identified by question ID, source and freeze time within a model.
+2. **Prior p:** each model forecasts at temperature 0 from the question,
+   resolution criteria and background as of `freeze_datetime`. The pilot
+   used Haiku 4.5. The exploration used both Haiku 4.5 and Opus 4.5.
 3. **Evidence:** the top 10 AskNews results from the 60 days before
-   `freeze_datetime`. The audit verified that all 927 cached pilot articles
-   were dated on or before the freeze for their question.
-4. **Posterior q:** the same model and date, with the evidence added.
+   `freeze_datetime`. The date audits checked 927 article entries in the
+   pilot and 2,907 in the exploration. Every entry had a readable
+   publication date on or before its question's freeze.
+4. **Posterior q:** a separate call to the same model with the same question
+   and freeze time, plus the retrieved evidence.
 5. **Scores:** Brier `(r − y)²` and log loss `−[y·log r + (1 − y)·log(1 − r)]`,
    with r clipped to `[1e-6, 1 − 1e-6]`. Improvement = score(p) − score(q).
 6. **Measures** from p and q:
@@ -122,8 +142,9 @@ intervals have only 5 such events to resample. Full tables and limits are in
    deciding event, so they form one family. Each market question is its own.
 8. **SQ2:** use the questions whose forecast moved (Δ ≠ 0). For each measure,
    rank them within their own source, cut each source into 4 groups
-   (1 = lowest), and pool group g across sources, so every group has the same
-   source mix. Per group: *achieved* = mean improvement (A), and λ̂ and c\* (B).
+   (1 = lowest), and pool group g across sources. Ties and small source
+   counts can give groups different sizes. Per group: *achieved* = mean
+   improvement (A), and λ̂ and c\* (B).
 9. **H:** pool groups 3 and 4 (top half) and groups 1 and 2 (low half), compute
    λ̂ and c\* over each half's moves, and take top minus low. Each gap gets a
    95% family bootstrap interval, with the groups rebuilt in each resample.

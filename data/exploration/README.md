@@ -1,16 +1,16 @@
 # Exploration run
 
-The exploration run comes before the preregistration (see the README's
-[Stages](../../README.md#stages)). It rechecks the pilot's patterns on new
-questions and measures the spread that the power calculation needs. Its
-outcomes are looked at, so none of its questions can be part of the test.
+The exploration finished on November 20, 2026. Both models forecast the
+same 297 questions. Their outcomes were examined to recheck the pilot's
+patterns and inform test planning, so these questions are excluded from
+the preregistered test. See the [results](#results).
 
 ## Setup
 
 - **Models:** `claude-haiku-4-5-20251001` (main) and Opus 4.5 (second
   model), both at temperature 0 with the pilot's prompts.
-- **Evidence:** one AskNews archive search per question, the top 10
-  articles from the 60 days before the question's freeze, as in the pilot.
+- **Evidence:** up to 10 AskNews archive articles from the 60 days before
+  each question's freeze, as in the pilot.
   Both models read the same saved search results. AskNews's terms do not
   allow sharing them, so they stay out of the repo. Their SHA-256
   fingerprints are in `data/cache/asknews_sha256.txt`. Running
@@ -36,14 +36,22 @@ in this order:
 4. 2026-10-11, market questions: 5 of the 44 Kalshi questions that appear on
    no test date.
 
-| batch | question set | questions | searches |
+| batch | question set | questions | distinct saved searches |
 | --- | --- | --- | --- |
-| 1 | 2026-03-15 | 75 dataset + 20 market | 95 |
+| 1 | 2026-03-15 | 75 dataset + 20 market | 94 |
 | 2 | 2026-03-15 | 137 market | 137 |
 | 3 | 2026-10-11 | 60 dataset + 5 Kalshi market | 65 |
 
-Batch 3 lies outside the test window, so it costs the test nothing. It adds
-4 dataset families and checks the Kalshi questions.
+Two March FRED series (`WALCL` and `RESPPANWW`) used the same question text
+and freeze time, so they shared a saved search. The 297 questions used 296
+distinct saved searches. The date audits checked 2,267 article entries in
+March and 640 in October, counting each article each time a question used
+it. All 2,907 had readable publication dates on or before the corresponding
+freeze. [March audit](../results/leakage_20261120T033022Z.json) ·
+[October audit](../results/leakage_20261120T033043Z.json).
+
+Batch 3 lies outside the planned test window. Its four dataset sources add
+five families because the October FRED questions have two resolution dates.
 
 ## How to check
 
@@ -120,7 +128,58 @@ decided by numbers published after it, so they count as open. The 3 settled
 pilot markets sat 0.001, 0.01 and 0.0201 from 0 or 1. So 0.05 is the
 smallest round cutoff that catches all 4 settled markets.
 
-## What it decides before the preregistration
+## Results
+
+A positive gain means the forecast with evidence scored better on average.
+Brackets give 95% family bootstrap intervals. Mean gains use every question
+in the row. The H and SQ3 analyses use only forecasts that changed.
+The screen removed 30 ACLED questions and 44 markets with an extreme crowd
+price. Each sample link opens its saved analysis.
+
+| Model | Sample | Questions | Forecasts changed | Mean Brier gain [95% CI] | Mean log loss gain [95% CI] |
+| --- | --- | ---: | ---: | --- | --- |
+| Haiku 4.5 | [Full](../results/run_20261120T025349Z_summary.json) | 297 | 243 | +0.007 [−0.015, +0.032] | +0.035 [−0.060, +0.162] |
+| Haiku 4.5 | [Screened](../results/run_20261120T025349Z_drop_maybe_settled_summary.json) | 223 | 193 | +0.005 [−0.023, +0.035] | +0.039 [−0.082, +0.208] |
+| Opus 4.5 | [Full](../results/run_20261120T030940Z_summary.json) | 297 | 224 | +0.012 [−0.006, +0.030] | +0.026 [−0.023, +0.075] |
+| Opus 4.5 | [Screened](../results/run_20261120T030940Z_drop_maybe_settled_summary.json) | 223 | 165 | +0.008 [−0.016, +0.032] | +0.015 [−0.052, +0.078] |
+
+**H.** The pilot estimated positive gaps for all six measures on both
+scores. That pattern did not repeat. Each cell below gives the top half
+minus low half gap for Brier (λ̂) and log loss (c\*), in that order.
+H requires both intervals for a measure to lie above zero. No measure met
+that rule in any column.
+
+| Measure | Haiku full | Haiku screened | Opus full | Opus screened |
+| --- | ---: | ---: | ---: | ---: |
+| Δ² | −0.15 / −0.02 | −0.30 / −0.12 | −1.45 / −0.93 | −0.72 / −0.54 |
+| KL | −0.60 / −0.48 | −0.73 / −0.56 | −1.33 / −1.05 | −0.95 / −0.77 |
+| UR_B | +0.18 / −0.39 | +0.13 / −0.46 | −0.03 / −0.19 | −0.31 / −0.49 |
+| UR_L | +0.25 / −0.33 | +0.20 / −0.43 | −0.10 / −0.24 | −0.31 / −0.49 |
+| \|Z\| | +0.01 / +0.17 | −0.36 / −0.07 | −0.61 / −0.39 | −0.45 / −0.39 |
+| \|KO\| | −0.26 / −0.22 | +0.12 / +0.25 | −1.06 / −1.17 | −1.18 / −1.41 |
+
+For Opus, the full sample's Brier gaps for Δ² and KL were below zero even
+at the upper ends of their intervals, [−2.86, −0.18] and [−2.71, −0.01].
+After screening, both intervals included zero.
+
+* **SQ1, score improvement.** On all questions, the two uncertainty
+  reduction measures (UR_B and UR_L) had positive Spearman rank correlations
+  with both score gains for both models, from 0.32 to 0.39. After screening,
+  they ranged from 0.20 to 0.29. Each of these intervals lay above zero.
+* **SQ2, move size.** In the highest ranked quarter for each measure on the
+  full sample, both fitted scales were below 1 for both models. A smaller
+  move would have scored better for those groups on these outcomes. In the
+  pilot, the corresponding estimates had been close to 1.
+* **SQ3, choosing when to keep the prior.** When each source was held out
+  in turn, every interval for the rule's gain over always using the
+  forecast with evidence included zero, for both models and both samples.
+
+The bootstrap grouped the 135 dataset questions into 10 families by source
+and resolution day. It treated each of the 162 market questions as its own
+family. Some markets depend on the same event, so the intervals may
+understate uncertainty.
+
+## What remains before preregistration
 
 - Dataset questions per source in the test, 15 or 20, from the family
   correlation and the spread, not from whether H passes here.

@@ -175,14 +175,18 @@ detect.
   dates the table is optimistic. A test spread over more dates, with each
   market question used once, comes closer to the assumption.
 
-**Not fixed yet: the number of test dates.** The pilot's spread rests on only
-5 shared events (see [Limits](#limits)), and the exploration run gives a
-better one. Before the preregistration, the script is rerun on the
-exploration data, and the preregistration then fixes the number of test
-dates for the gap of 1.0:
+**Power for the planned test is still open.** The table above uses the
+pilot and assumes 380 usable questions per date. The planned test uses each
+market once and samples 15 or 20 dataset questions per source per date.
+The completed exploration provides estimates of the spread for each model.
+Using them to size the test requires adapting `scripts/h_power.py` to the
+planned question counts and resolving how linked markets enter the draw or
+the analysis. See the [remaining design decisions](data/exploration/README.md#what-remains-before-preregistration).
+
+The pilot projection can be reproduced with the following command.
 
 ```bash
-python scripts/h_power.py data/results/run_<timestamp>.csv  # about 1 min
+python scripts/h_power.py data/results/run_20260914T104832Z.csv  # about 1 min
 ```
 
 ### Estimates without a pass rule
@@ -289,9 +293,9 @@ bootstrap uses seed 0.
   group would have had with every move scaled by λ̂ (Brier) or c\* (log loss).
   For Brier this works out to (2λ̂ − 1)/λ̂², which is 100% at λ̂ = 1. It is
   shown only when achieved > 0, since otherwise it is negative or undefined.
-- **Per source.** λ̂ and c\* are also given per source, without a CI. A
-  dataset source on one date is a single family, so every resample that
-  includes it gives the same value.
+- **Per source.** λ̂ and c\* are also given per source, without a CI. In
+  the pilot, all questions from each dataset source shared one resolution
+  day, so resampling that source's family gave the same value each time.
 - **Groups rebuilt in each resample.** Each resample ranks and groups its
   questions again, so the intervals include the uncertainty in which question
   lands in which group.
@@ -426,8 +430,8 @@ q.
   intervals slightly too narrow. There are only a few such groups.
 - **Question mix.** Results describe ForecastBench's mix of questions and
   may not carry over to other kinds. Ranking within each source (Method
-  step 8) gives every group the same source mix, which protects comparisons
-  inside the sample but says nothing about other questions. Two features
+  step 8) compares a question with others from that source. Ties and small
+  counts can still change the mix of sources in a group. Two features
   stand out:
   1. 245 of the 348 questions (70%) come from the five dataset sources,
      whose questions follow a few fixed templates, such as whether a
