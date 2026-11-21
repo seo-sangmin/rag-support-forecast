@@ -1,0 +1,11 @@
+{
+  "n_questions": 401,
+  "n_cached": 95,
+  "n_uncached": 306,
+  "n_articles_checked": 925,
+  "n_violations": 0,
+  "n_unverifiable": 0,
+  "ok": true,
+  "evidence_after_freeze": [],
+  "evidence_unverifiable": []
+}

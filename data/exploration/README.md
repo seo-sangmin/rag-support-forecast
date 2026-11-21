@@ -12,7 +12,10 @@ outcomes are looked at, so none of its questions can be part of the test.
 - **Evidence:** one AskNews archive search per question, the top 10
   articles from the 60 days before the question's freeze, as in the pilot.
   Both models read the same saved search results. AskNews's terms do not
-  allow sharing them, so they stay out of the repo.
+  allow sharing them, so they stay out of the repo. Their SHA-256
+  fingerprints are in `data/cache/asknews_sha256.txt`. Running
+  `shasum -a 256 data/cache/*/retrieval/asknews/*.json > data/cache/asknews_sha256.txt`
+  and then `git diff` shows any changed, added or missing search.
 - **Questions:** ForecastBench files from commit `fe2a073` (nightly update
   of 2026-11-15), saved in `data/raw/` so that later updates cannot change
   them.
@@ -37,7 +40,7 @@ in this order:
 | --- | --- | --- | --- |
 | 1 | 2026-03-15 | 75 dataset + 20 market | 95 |
 | 2 | 2026-03-15 | 137 market | 137 |
-| 3 (optional) | 2026-10-11 | 60 dataset + 5 Kalshi market | 65 |
+| 3 | 2026-10-11 | 60 dataset + 5 Kalshi market | 65 |
 
 Batch 3 lies outside the test window, so it costs the test nothing. It adds
 4 dataset families and checks the Kalshi questions.
@@ -65,18 +68,24 @@ to the saved one. Both checks passed on 2026-11-17.
 ```bash
 python scripts/run_experiment.py --question-sets 2026-03-15 --questions data/exploration/questions.csv --batch 1
 python scripts/run_experiment.py --question-sets 2026-03-15 --questions data/exploration/questions.csv --batch 2 --resume-from data/results/run_<batch 1 timestamp>.csv
-python scripts/run_experiment.py --question-sets 2026-10-11 --questions data/exploration/questions.csv --batch 3
+python scripts/run_experiment.py --question-sets 2026-10-11 --questions data/exploration/questions.csv --batch 3 --resume-from data/results/run_<batch 2 timestamp>.csv
 ```
 
+Each batch resumes from the previous batch's file, so the batch 3 file holds
+all 297 questions.
 Keep the code, prompts and settings the same across batches. A later run on
 the same questions, such as Opus 4.5 or a rerun after a bug fix, reuses the
 saved search results without new searches.
 
 For Opus 4.5, add `--model claude-opus-4-5-20251101` to each command above
 and run it in the same folder as the Haiku batches, where the saved search
-results are. Its batch 2 must resume from its own batch 1 file, because
-`--resume-from` matches finished questions by id, source and freeze date,
-not by model.
+results are. Its batches 2 and 3 must resume from its own batch 1 and batch 2
+files, because `--resume-from` matches finished questions by id, source and
+freeze date, not by model.
+
+The final files are `data/results/run_20261120T025349Z.csv` (Haiku 4.5) and
+`data/results/run_20261120T030940Z.csv` (Opus 4.5), each with its two summary
+files (`_summary.json` and `_drop_maybe_settled_summary.json`).
 
 ## Answers already public at the freeze
 
@@ -119,6 +128,11 @@ smallest round cutoff that catches all 4 settled markets.
   test questions instead of whole dates.
 - Which of the two values of H (see the previous section) decides whether H
   passes.
+- How to treat linked markets. Kalshi often lists several contracts that one
+  number decides (one per threshold), and some Polymarket questions come in
+  pairs about one event. The analysis counts each market as its own event,
+  which would make its intervals too narrow, so the choice is one family per
+  event in the analysis or one contract per event in the test draw.
 
 **Planned test (for reference):** every ForecastBench question set from
 2025-12-07 to 2026-09-27 except 2026-03-15, each market question once on its
