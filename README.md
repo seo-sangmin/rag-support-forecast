@@ -214,8 +214,9 @@ allow sharing its results.
 Each run writes `run_<timestamp>.csv` (one row per question, `p_h` = p,
 `p_he` = q, with reasoning) and `run_<timestamp>.meta.json` (seed, flags,
 model, retrieval settings, selected and failed questions). The analysis writes
-`run_<timestamp>_summary.json` (`correlations` SQ1, `warrant` SQ2,
-`hypothesis` H, `decision` SQ3, `ci_method`). `data/archive/` keeps the July
+`run_<timestamp>_summary.json` (`correlations` SQ1, `all_moved` all moves
+pooled, `warrant` SQ2, `hypothesis` H, `decision` SQ3, `ci_method`).
+`data/archive/` keeps the July
 2026 runs made with earlier prompts. The code is in `src/rag_forecast/` (data,
 retrieval, prompts, forecasting, pipeline, metrics, audit, cache, rate_limiter,
 config).

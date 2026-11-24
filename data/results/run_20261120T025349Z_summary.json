@@ -241,6 +241,23 @@
     }
   },
   "n_moved": 243,
+  "all_moved": {
+    "lambda_hat": 0.58876578100128,
+    "lambda_hat_ci": [
+      0.32765214724094593,
+      0.8614161487615047
+    ],
+    "c_star": 0.6677328497411169,
+    "c_star_ci": [
+      0.2446967557559282,
+      0.9529425470662043
+    ],
+    "c_star_capped": false,
+    "c_star_ci_capped": [
+      false,
+      false
+    ]
+  },
   "warrant": {
     "by_source": {
       "acled": {

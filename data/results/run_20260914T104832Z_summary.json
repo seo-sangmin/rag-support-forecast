@@ -1,5 +1,6 @@
 {
   "n": 100,
+  "drop_maybe_settled": null,
   "mean_brier_h": 0.18694343999999996,
   "mean_brier_he": 0.16471800999999997,
   "mean_brier_delta": 0.02222543,
@@ -240,6 +241,23 @@
     }
   },
   "n_moved": 81,
+  "all_moved": {
+    "lambda_hat": 0.7994933304226782,
+    "lambda_hat_ci": [
+      0.414468229364048,
+      1.0945790581002546
+    ],
+    "c_star": 0.7218209357960105,
+    "c_star_ci": [
+      0.43111059949374136,
+      1.1657037126263512
+    ],
+    "c_star_capped": false,
+    "c_star_ci_capped": [
+      false,
+      false
+    ]
+  },
   "warrant": {
     "by_source": {
       "acled": {
