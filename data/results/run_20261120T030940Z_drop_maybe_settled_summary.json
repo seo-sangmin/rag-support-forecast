@@ -244,6 +244,23 @@
     }
   },
   "n_moved": 165,
+  "all_moved": {
+    "lambda_hat": 0.6325966042154564,
+    "lambda_hat_ci": [
+      0.274450029676122,
+      1.0411486461596149
+    ],
+    "c_star": 0.5862297511925362,
+    "c_star_ci": [
+      0.24063460558895258,
+      0.9996036081697346
+    ],
+    "c_star_capped": false,
+    "c_star_ci_capped": [
+      false,
+      false
+    ]
+  },
   "warrant": {
     "by_source": {
       "dbnomics": {

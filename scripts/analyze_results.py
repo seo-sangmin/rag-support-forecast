@@ -207,6 +207,17 @@ def main() -> None:
                 },
             }
 
+    # All moved forecasts pooled: were the moves the right size overall?
+    c_all, c_all_ci = c_star(p, q, y), bootstrap_ci([p, q, y], c_star, **moved_ci)
+    all_moved = {
+        "lambda_hat": lambda_hat(p, q, y),
+        "lambda_hat_ci": list(bootstrap_ci([p, q, y], lambda_hat, **moved_ci)),
+        "c_star": c_all,
+        "c_star_ci": list(c_all_ci),
+        "c_star_capped": at_cap(c_all),
+        "c_star_ci_capped": [at_cap(v) for v in c_all_ci],
+    }
+
     # H: top half (groups 3 and 4 pooled) minus low half (groups 1 and 2 pooled), for λ̂ and c*.
     # A gap passes if the low end of its 1 - 2α interval (its one direction bound) is above 0.
     hypothesis = {
@@ -262,6 +273,7 @@ def main() -> None:
         "c_star_cap": C_STAR_CAP,
         "correlations": correlations,
         "n_moved": int(moved.sum()),
+        "all_moved": all_moved,
         "warrant": warrant,
         "hypothesis": hypothesis,
         "decision": decision,

@@ -10,8 +10,8 @@ behind them, in four parts:
    README's [Method](README.md#method) steps, in step order.
 3. [Pilot results](#pilot-results): the full tables and the limits.
 4. [Exploration results](#exploration-results): the full tables for both
-   models, H without the questions that may have been settled, and notes on
-   two odd answers.
+   models, H without the questions that may have been settled, all moves
+   pooled, and notes on two odd answers.
 
 Terms such as λᵢ, λ̂ and c\* are defined in the README's key terms.
 
@@ -194,6 +194,8 @@ python scripts/h_power.py data/results/run_<timestamp>.csv  # about 1 min
 Everything else is reported as an estimate with its 95% interval:
 
 - **Baseline:** does q beat p over all questions?
+- **All moves pooled:** λ̂ and c\* over every moved forecast (were the moves
+  the right size overall?).
 - **SQ2 for each group:** *achieved*, λ̂ and c\* (does q beat p, and was the
   move the right size?).
 - **SQ1 correlations**, because they mix move size with how justified the
@@ -480,6 +482,39 @@ That leaves 223 questions, of which Haiku moved 193 and Opus 165.
 
 H passes for no measure here either. Opus's Δ² and KL λ̂ gaps, whose
 intervals lie below 0 on all questions, now include 0.
+
+### All moves pooled, and the top halves
+
+λ̂ and c\* over every moved forecast (`all_moved` in the summary JSON), and
+over each measure's top half (`hypothesis`, groups 3 and 4 pooled). The pilot
+row comes from the pilot run. Cells are estimate [95% CI].
+
+| run | moved | λ̂ | c\* |
+| --- | --- | --- | --- |
+| Pilot (Haiku 4.5) | 81 | 0.80 [0.41, 1.09] | 0.72 [0.43, 1.17] |
+| Haiku 4.5 | 243 | 0.59 [0.33, 0.86] | 0.67 [0.24, 0.95] |
+| Opus 4.5 | 224 | 0.71 [0.39, 1.06] | 0.67 [0.36, 1.03] |
+
+Top halves (point estimates, since the JSON gives intervals only for the gaps):
+
+| measure | Haiku λ̂ | Haiku c\* | Opus λ̂ | Opus c\* |
+| --- | --- | --- | --- | --- |
+| Δ² | 0.58 | 0.67 | 0.63 | 0.59 |
+| KL | 0.55 | 0.63 | 0.63 | 0.59 |
+| UR_B | 0.68 | 0.43 | 0.70 | 0.56 |
+| UR_L | 0.72 | 0.46 | 0.66 | 0.53 |
+| \|Z\| | 0.59 | 0.69 | 0.62 | 0.58 |
+| \|KO\| | 0.56 | 0.65 | 0.58 | 0.56 |
+
+- **All moves.** Every estimate is below 1, and every interval lies above 0:
+  on average the moves went the right way but too far. Only Haiku's
+  intervals lie below 1. The pilot's and Opus's include 1.
+- **Weights.** λ̂ weights each move by its squared size (Δ²), so the pooled
+  value mostly reflects the largest moves.
+- **Top halves.** Every top half was below 1 too (λ̂ 0.55 to 0.72, c\* 0.43
+  to 0.69). The moves were too large overall, so a top half below 1 does not
+  by itself show that a measure picked out worse moves. That is why H compares
+  the two halves.
 
 ### SQ1 on the exploration
 
